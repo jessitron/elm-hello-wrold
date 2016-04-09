@@ -1,8 +1,8 @@
 module Hello (main) where
 
-import Graphics.Element exposing (Element)
+import Html exposing (Html)
 
 
-main : Element
+main : Html
 main =
-  Graphics.Element.show "Hello world!"
+  Html.text "Hello world!"
