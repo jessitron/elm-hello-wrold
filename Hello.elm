@@ -1,8 +1,15 @@
 module Hello (main) where
 
 import Html exposing (Html)
+import Signal exposing (Signal)
+import Mouse
 
 
-main : Html
+main : Signal Html
 main =
-  Html.text "Hello world!"
+  Mouse.position |> Signal.map textOfMousePosition
+
+
+textOfMousePosition : ( Int, Int ) -> Html
+textOfMousePosition ( x, y ) =
+  Html.text ("x = " + (toString x) + ", y = " + (toString y))
