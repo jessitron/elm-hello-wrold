@@ -12,4 +12,4 @@ main =
 
 textOfMousePosition : ( Int, Int ) -> Html
 textOfMousePosition ( x, y ) =
-  Html.text ("x = " + (toString x) + ", y = " + (toString y))
+  Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))

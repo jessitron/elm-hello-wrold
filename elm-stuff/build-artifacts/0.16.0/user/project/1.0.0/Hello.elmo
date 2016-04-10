@@ -9,9 +9,14 @@ Elm.Hello.make = function (_elm) {
    $Html = Elm.Html.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
+   $Mouse = Elm.Mouse.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var main = $Html.text("Hello world!");
+   var textOfMousePosition = function (_p0) {
+      var _p1 = _p0;
+      return $Html.text(A2($Basics._op["++"],"x = ",A2($Basics._op["++"],$Basics.toString(_p1._0),A2($Basics._op["++"],", y = ",$Basics.toString(_p1._1)))));
+   };
+   var main = A2($Signal.map,textOfMousePosition,$Mouse.position);
    return _elm.Hello.values = {_op: _op,main: main};
 };
