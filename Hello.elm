@@ -7,9 +7,9 @@ import Mouse
 
 main : Signal Html
 main =
-  Mouse.position |> Signal.map textOfMousePosition
+  Mouse.position |> Signal.map view
 
 
-textOfMousePosition : ( Int, Int ) -> Html
-textOfMousePosition ( x, y ) =
+view : ( Int, Int ) -> Html
+view ( x, y ) =
   Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))
