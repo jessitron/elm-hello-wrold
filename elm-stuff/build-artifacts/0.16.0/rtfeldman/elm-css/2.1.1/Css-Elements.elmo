@@ -1,0 +1,120 @@
+Elm.Css = Elm.Css || {};
+Elm.Css.Elements = Elm.Css.Elements || {};
+Elm.Css.Elements.make = function (_elm) {
+   "use strict";
+   _elm.Css = _elm.Css || {};
+   _elm.Css.Elements = _elm.Css.Elements || {};
+   if (_elm.Css.Elements.values) return _elm.Css.Elements.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css$Preprocess = Elm.Css.Preprocess.make(_elm),
+   $Css$Structure = Elm.Css.Structure.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var typeSelector = F2(function (selectorStr,mixins) {
+      var sequence = A2($Css$Structure.TypeSelectorSequence,$Css$Structure.TypeSelector(selectorStr),_U.list([]));
+      var selector = A3($Css$Structure.Selector,sequence,_U.list([]),$Maybe.Nothing);
+      return $Css$Preprocess.Snippet(_U.list([$Css$Preprocess.StyleBlockDeclaration(A3($Css$Preprocess.StyleBlock,selector,_U.list([]),mixins))]));
+   });
+   var html = typeSelector("html");
+   var body = typeSelector("body");
+   var article = typeSelector("article");
+   var header = typeSelector("header");
+   var footer = typeSelector("footer");
+   var h1 = typeSelector("h1");
+   var h2 = typeSelector("h2");
+   var h3 = typeSelector("h3");
+   var h4 = typeSelector("h4");
+   var nav = typeSelector("nav");
+   var section = typeSelector("section");
+   var div = typeSelector("div");
+   var hr = typeSelector("hr");
+   var li = typeSelector("li");
+   var main$ = typeSelector("main");
+   var ol = typeSelector("ol");
+   var p = typeSelector("p");
+   var ul = typeSelector("ul");
+   var pre = typeSelector("pre");
+   var a = typeSelector("a");
+   var code = typeSelector("code");
+   var small = typeSelector("small");
+   var span = typeSelector("span");
+   var strong = typeSelector("strong");
+   var img = typeSelector("img");
+   var audio = typeSelector("audio");
+   var video = typeSelector("video");
+   var canvas = typeSelector("canvas");
+   var caption = typeSelector("caption");
+   var col = typeSelector("col");
+   var colgroup = typeSelector("colgroup");
+   var table = typeSelector("table");
+   var tbody = typeSelector("tbody");
+   var td = typeSelector("td");
+   var tfoot = typeSelector("tfoot");
+   var th = typeSelector("th");
+   var thead = typeSelector("thead");
+   var tr = typeSelector("tr");
+   var button = typeSelector("button");
+   var fieldset = typeSelector("fieldset");
+   var form = typeSelector("form");
+   var input = typeSelector("input");
+   var label = typeSelector("label");
+   var legend = typeSelector("legend");
+   var optgroup = typeSelector("optgroup");
+   var option = typeSelector("option");
+   var progress = typeSelector("progress");
+   var select = typeSelector("select");
+   return _elm.Css.Elements.values = {_op: _op
+                                     ,html: html
+                                     ,body: body
+                                     ,article: article
+                                     ,header: header
+                                     ,footer: footer
+                                     ,h1: h1
+                                     ,h2: h2
+                                     ,h3: h3
+                                     ,h4: h4
+                                     ,nav: nav
+                                     ,section: section
+                                     ,div: div
+                                     ,hr: hr
+                                     ,li: li
+                                     ,main$: main$
+                                     ,ol: ol
+                                     ,p: p
+                                     ,ul: ul
+                                     ,pre: pre
+                                     ,a: a
+                                     ,code: code
+                                     ,small: small
+                                     ,span: span
+                                     ,strong: strong
+                                     ,img: img
+                                     ,audio: audio
+                                     ,video: video
+                                     ,canvas: canvas
+                                     ,caption: caption
+                                     ,col: col
+                                     ,colgroup: colgroup
+                                     ,table: table
+                                     ,tbody: tbody
+                                     ,td: td
+                                     ,tfoot: tfoot
+                                     ,th: th
+                                     ,thead: thead
+                                     ,tr: tr
+                                     ,button: button
+                                     ,fieldset: fieldset
+                                     ,form: form
+                                     ,input: input
+                                     ,label: label
+                                     ,legend: legend
+                                     ,optgroup: optgroup
+                                     ,option: option
+                                     ,progress: progress
+                                     ,select: select};
+};

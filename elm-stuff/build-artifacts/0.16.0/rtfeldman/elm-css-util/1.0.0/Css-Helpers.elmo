@@ -1,0 +1,29 @@
+Elm.Css = Elm.Css || {};
+Elm.Css.Helpers = Elm.Css.Helpers || {};
+Elm.Css.Helpers.make = function (_elm) {
+   "use strict";
+   _elm.Css = _elm.Css || {};
+   _elm.Css.Helpers = _elm.Css.Helpers || {};
+   if (_elm.Css.Helpers.values) return _elm.Css.Helpers.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Regex = Elm.Regex.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm);
+   var _op = {};
+   var toCssIdentifier = function (identifier) {
+      return A4($Regex.replace,
+      $Regex.All,
+      $Regex.regex("[^a-zA-Z0-9_-]"),
+      function (_p0) {
+         return "";
+      },
+      A4($Regex.replace,$Regex.All,$Regex.regex("\\s+"),function (_p1) {    return "-";},$String.trim($Basics.toString(identifier))));
+   };
+   var identifierToString = F2(function (name,identifier) {    return A2($Basics._op["++"],toCssIdentifier(name),toCssIdentifier(identifier));});
+   return _elm.Css.Helpers.values = {_op: _op,toCssIdentifier: toCssIdentifier,identifierToString: identifierToString};
+};

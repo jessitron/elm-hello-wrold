@@ -1,0 +1,122 @@
+Elm.Css = Elm.Css || {};
+Elm.Css.Preprocess = Elm.Css.Preprocess || {};
+Elm.Css.Preprocess.make = function (_elm) {
+   "use strict";
+   _elm.Css = _elm.Css || {};
+   _elm.Css.Preprocess = _elm.Css.Preprocess || {};
+   if (_elm.Css.Preprocess.values) return _elm.Css.Preprocess.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css$Structure = Elm.Css.Structure.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var propertyToPair = function (property) {
+      var value = property.important ? A2($Basics._op["++"],property.value," !important") : property.value;
+      return {ctor: "_Tuple2",_0: property.key,_1: value};
+   };
+   var toPropertyPairs = function (mixins) {
+      toPropertyPairs: while (true) {
+         var _p0 = mixins;
+         if (_p0.ctor === "[]") {
+               return _U.list([]);
+            } else {
+               switch (_p0._0.ctor)
+               {case "AppendProperty": return A2($List._op["::"],propertyToPair(_p0._0._0),toPropertyPairs(_p0._1));
+                  case "ApplyMixins": return A2($Basics._op["++"],toPropertyPairs(_p0._0._0),toPropertyPairs(_p0._1));
+                  default: var _v1 = _p0._1;
+                    mixins = _v1;
+                    continue toPropertyPairs;}
+            }
+      }
+   };
+   var unwrapSnippet = function (_p1) {    var _p2 = _p1;return _p2._0;};
+   var toMediaRule = F2(function (mediaQueries,declaration) {
+      var _p3 = declaration;
+      switch (_p3.ctor)
+      {case "StyleBlockDeclaration": return A2($Css$Structure.MediaRule,mediaQueries,_U.list([_p3._0]));
+         case "MediaRule": return A2($Css$Structure.MediaRule,A2($Basics._op["++"],mediaQueries,_p3._0),_p3._1);
+         case "SupportsRule": return A2($Css$Structure.SupportsRule,_p3._0,A2($List.map,toMediaRule(mediaQueries),_p3._1));
+         case "DocumentRule": return A5($Css$Structure.DocumentRule,_p3._0,_p3._1,_p3._2,_p3._3,_p3._4);
+         case "PageRule": return declaration;
+         case "FontFace": return declaration;
+         case "Keyframes": return declaration;
+         case "Viewport": return declaration;
+         case "CounterStyle": return declaration;
+         default: return declaration;}
+   });
+   var StyleBlock = F3(function (a,b,c) {    return {ctor: "StyleBlock",_0: a,_1: b,_2: c};});
+   var FontFeatureValues = function (a) {    return {ctor: "FontFeatureValues",_0: a};};
+   var CounterStyle = function (a) {    return {ctor: "CounterStyle",_0: a};};
+   var Viewport = function (a) {    return {ctor: "Viewport",_0: a};};
+   var Keyframes = F2(function (a,b) {    return {ctor: "Keyframes",_0: a,_1: b};});
+   var FontFace = function (a) {    return {ctor: "FontFace",_0: a};};
+   var PageRule = F2(function (a,b) {    return {ctor: "PageRule",_0: a,_1: b};});
+   var DocumentRule = F5(function (a,b,c,d,e) {    return {ctor: "DocumentRule",_0: a,_1: b,_2: c,_3: d,_4: e};});
+   var SupportsRule = F2(function (a,b) {    return {ctor: "SupportsRule",_0: a,_1: b};});
+   var MediaRule = F2(function (a,b) {    return {ctor: "MediaRule",_0: a,_1: b};});
+   var StyleBlockDeclaration = function (a) {    return {ctor: "StyleBlockDeclaration",_0: a};};
+   var Snippet = function (a) {    return {ctor: "Snippet",_0: a};};
+   var ApplyMixins = function (a) {    return {ctor: "ApplyMixins",_0: a};};
+   var WithMedia = F2(function (a,b) {    return {ctor: "WithMedia",_0: a,_1: b};});
+   var WithPseudoElement = F2(function (a,b) {    return {ctor: "WithPseudoElement",_0: a,_1: b};});
+   var NestSnippet = F2(function (a,b) {    return {ctor: "NestSnippet",_0: a,_1: b};});
+   var ExtendSelector = F2(function (a,b) {    return {ctor: "ExtendSelector",_0: a,_1: b};});
+   var AppendProperty = function (a) {    return {ctor: "AppendProperty",_0: a};};
+   var mapLastProperty = F2(function (update,mixin) {
+      var _p4 = mixin;
+      switch (_p4.ctor)
+      {case "AppendProperty": return AppendProperty(update(_p4._0));
+         case "ExtendSelector": return A2(ExtendSelector,_p4._0,A2(mapAllLastProperty,update,_p4._1));
+         case "NestSnippet": return mixin;
+         case "WithPseudoElement": return mixin;
+         case "WithMedia": return mixin;
+         default: return ApplyMixins(A2($Css$Structure.mapLast,mapLastProperty(update),_p4._0));}
+   });
+   var mapAllLastProperty = F2(function (update,mixins) {
+      var _p5 = mixins;
+      if (_p5.ctor === "[]") {
+            return mixins;
+         } else {
+            if (_p5._1.ctor === "[]") {
+                  return _U.list([A2(mapLastProperty,update,_p5._0)]);
+               } else {
+                  return A2($List._op["::"],_p5._0,A2(mapAllLastProperty,update,_p5._1));
+               }
+         }
+   });
+   var Stylesheet = F4(function (a,b,c,d) {    return {charset: a,imports: b,namespaces: c,snippets: d};});
+   var Property = F4(function (a,b,c,d) {    return {key: a,value: b,important: c,warnings: d};});
+   var stylesheet = function (snippets) {    return {charset: $Maybe.Nothing,imports: _U.list([]),namespaces: _U.list([]),snippets: snippets};};
+   return _elm.Css.Preprocess.values = {_op: _op
+                                       ,stylesheet: stylesheet
+                                       ,Property: Property
+                                       ,Stylesheet: Stylesheet
+                                       ,AppendProperty: AppendProperty
+                                       ,ExtendSelector: ExtendSelector
+                                       ,NestSnippet: NestSnippet
+                                       ,WithPseudoElement: WithPseudoElement
+                                       ,WithMedia: WithMedia
+                                       ,ApplyMixins: ApplyMixins
+                                       ,Snippet: Snippet
+                                       ,StyleBlockDeclaration: StyleBlockDeclaration
+                                       ,MediaRule: MediaRule
+                                       ,SupportsRule: SupportsRule
+                                       ,DocumentRule: DocumentRule
+                                       ,PageRule: PageRule
+                                       ,FontFace: FontFace
+                                       ,Keyframes: Keyframes
+                                       ,Viewport: Viewport
+                                       ,CounterStyle: CounterStyle
+                                       ,FontFeatureValues: FontFeatureValues
+                                       ,StyleBlock: StyleBlock
+                                       ,toMediaRule: toMediaRule
+                                       ,mapLastProperty: mapLastProperty
+                                       ,mapAllLastProperty: mapAllLastProperty
+                                       ,unwrapSnippet: unwrapSnippet
+                                       ,toPropertyPairs: toPropertyPairs
+                                       ,propertyToPair: propertyToPair};
+};

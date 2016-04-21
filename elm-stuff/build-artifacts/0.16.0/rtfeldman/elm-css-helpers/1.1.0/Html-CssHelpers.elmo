@@ -1,0 +1,53 @@
+Elm.Html = Elm.Html || {};
+Elm.Html.CssHelpers = Elm.Html.CssHelpers || {};
+Elm.Html.CssHelpers.make = function (_elm) {
+   "use strict";
+   _elm.Html = _elm.Html || {};
+   _elm.Html.CssHelpers = _elm.Html.CssHelpers || {};
+   if (_elm.Html.CssHelpers.values) return _elm.Html.CssHelpers.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css$Helpers = Elm.Css.Helpers.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Json$Encode = Elm.Json.Encode.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm);
+   var _op = {};
+   var stylesheetLink = function (url) {
+      return A3($Html.node,
+      "link",
+      _U.list([A2($Html$Attributes.property,"rel",$Json$Encode.string("stylesheet"))
+              ,A2($Html$Attributes.property,"type",$Json$Encode.string("text/css"))
+              ,A2($Html$Attributes.property,"href",$Json$Encode.string(url))]),
+      _U.list([]));
+   };
+   var style = function (text) {
+      return A3($Html.node,
+      "style",
+      _U.list([A2($Html$Attributes.property,"textContent",$Json$Encode.string(text)),A2($Html$Attributes.property,"type",$Json$Encode.string("text/css"))]),
+      _U.list([]));
+   };
+   var namespacedClass = F2(function (name,list) {
+      return $Html$Attributes.$class(A2($String.join," ",A2($List.map,$Css$Helpers.identifierToString(name),list)));
+   });
+   var $class = namespacedClass("");
+   var classList = function (list) {    return $class(A2($List.map,$Basics.fst,A2($List.filter,$Basics.snd,list)));};
+   var namespacedClassList = F2(function (name,list) {    return A2(namespacedClass,name,A2($List.map,$Basics.fst,A2($List.filter,$Basics.snd,list)));});
+   var helpers = {$class: $class,classList: classList,id: function (_p0) {    return $Html$Attributes.id($Css$Helpers.toCssIdentifier(_p0));}};
+   var withNamespace = function (name) {
+      return {$class: namespacedClass(name)
+             ,classList: namespacedClassList(name)
+             ,id: function (_p1) {
+                return $Html$Attributes.id($Css$Helpers.toCssIdentifier(_p1));
+             }
+             ,name: name};
+   };
+   var Namespace = F4(function (a,b,c,d) {    return {$class: a,classList: b,id: c,name: d};});
+   var Helpers = F3(function (a,b,c) {    return {$class: a,classList: b,id: c};});
+   return _elm.Html.CssHelpers.values = {_op: _op,withNamespace: withNamespace,style: style,stylesheetLink: stylesheetLink};
+};

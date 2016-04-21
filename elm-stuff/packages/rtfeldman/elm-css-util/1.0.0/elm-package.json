@@ -1,0 +1,16 @@
+{
+    "version": "1.0.0",
+    "summary": "Utility functions shared by elm-css and elm-css-helpers.",
+    "repository": "https://github.com/rtfeldman/elm-css-util.git",
+    "license": "BSD-3-Clause",
+    "source-directories": [
+        "src"
+    ],
+    "exposed-modules": [
+        "Css.Helpers"
+    ],
+    "dependencies": {
+        "elm-lang/core": "2.0.0 <= v < 4.0.0"
+    },
+    "elm-version": "0.15.0 <= v < 0.17.0"
+}

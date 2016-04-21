@@ -1,0 +1,1441 @@
+Elm.Css = Elm.Css || {};
+Elm.Css.make = function (_elm) {
+   "use strict";
+   _elm.Css = _elm.Css || {};
+   if (_elm.Css.values) return _elm.Css.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css$Helpers = Elm.Css.Helpers.make(_elm),
+   $Css$Preprocess = Elm.Css.Preprocess.make(_elm),
+   $Css$Preprocess$Resolve = Elm.Css.Preprocess.Resolve.make(_elm),
+   $Css$Structure = Elm.Css.Structure.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Regex = Elm.Regex.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm);
+   var _op = {};
+   var asPairs = $Css$Preprocess.toPropertyPairs;
+   var collectSelectors = function (declarations) {
+      collectSelectors: while (true) {
+         var _p0 = declarations;
+         if (_p0.ctor === "[]") {
+               return _U.list([]);
+            } else {
+               if (_p0._0.ctor === "StyleBlockDeclaration") {
+                     return A2($Basics._op["++"],A2($List._op["::"],_p0._0._0._0,_p0._0._0._1),collectSelectors(_p0._1));
+                  } else {
+                     var _v1 = _p0._1;
+                     declarations = _v1;
+                     continue collectSelectors;
+                  }
+            }
+      }
+   };
+   var compile = $Css$Preprocess$Resolve.compile;
+   var stringsToValue = function (list) {
+      return $List.isEmpty(list) ? {value: "none"} : {value: A2($String.join,", ",A2($List.map,function (s) {    return s;},list))};
+   };
+   var valuesOrNone = function (list) {
+      return $List.isEmpty(list) ? {value: "none"} : {value: A2($String.join," ",A2($List.map,function (_) {    return _.value;},list))};
+   };
+   var stringToInt = function (str) {    return A2($Result.withDefault,0,$String.toInt(str));};
+   var numberToString = function (num) {    return $Basics.toString(num + 0);};
+   var numericalPercentageToString = function (value) {
+      return A3($Basics.flip,
+      F2(function (x,y) {    return A2($Basics._op["++"],x,y);}),
+      "%",
+      numberToString(A2(F2(function (x,y) {    return x * y;}),100,value)));
+   };
+   var each = F2(function (snippetCreators,mixins) {
+      var selectorsToSnippet = function (selectors) {
+         var _p1 = selectors;
+         if (_p1.ctor === "[]") {
+               return $Css$Preprocess.Snippet(_U.list([]));
+            } else {
+               return $Css$Preprocess.Snippet(_U.list([$Css$Preprocess.StyleBlockDeclaration(A3($Css$Preprocess.StyleBlock,_p1._0,_p1._1,mixins))]));
+            }
+      };
+      return selectorsToSnippet(collectSelectors(A2($List.concatMap,
+      $Css$Preprocess.unwrapSnippet,
+      A2($List.map,F2(function (x,y) {    return y(x);})(_U.list([])),snippetCreators))));
+   });
+   var generalSiblings = $Css$Preprocess.NestSnippet($Css$Structure.GeneralSibling);
+   var adjacentSiblings = $Css$Preprocess.NestSnippet($Css$Structure.AdjacentSibling);
+   var descendants = $Css$Preprocess.NestSnippet($Css$Structure.Descendant);
+   var withClass = function ($class) {    return $Css$Preprocess.ExtendSelector($Css$Structure.ClassSelector(A2($Css$Helpers.identifierToString,"",$class)));};
+   var children = $Css$Preprocess.NestSnippet($Css$Structure.Child);
+   var IntentionallyUnsupportedPleaseSeeDocs = {ctor: "IntentionallyUnsupportedPleaseSeeDocs"};
+   var thin = IntentionallyUnsupportedPleaseSeeDocs;
+   var thick = IntentionallyUnsupportedPleaseSeeDocs;
+   var blink = IntentionallyUnsupportedPleaseSeeDocs;
+   var selection = $Css$Preprocess.WithPseudoElement($Css$Structure.PseudoElement("selection"));
+   var firstLine = $Css$Preprocess.WithPseudoElement($Css$Structure.PseudoElement("first-line"));
+   var firstLetter = $Css$Preprocess.WithPseudoElement($Css$Structure.PseudoElement("first-letter"));
+   var before = $Css$Preprocess.WithPseudoElement($Css$Structure.PseudoElement("before"));
+   var after = $Css$Preprocess.WithPseudoElement($Css$Structure.PseudoElement("after"));
+   var valid = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("valid"));
+   var target = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("target"));
+   var scope = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("scope"));
+   var root = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("root"));
+   var required = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("required"));
+   var readWrite = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("read-write"));
+   var outOfRange = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("out-of-range"));
+   var optional = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("optional"));
+   var onlyOfType = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("only-of-type"));
+   var onlyChild = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("only-child"));
+   var nthOfType = function (str) {
+      return $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector(A2($Basics._op["++"],"nth-of-type(",A2($Basics._op["++"],str,")"))));
+   };
+   var nthLastOfType = function (str) {
+      return $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector(A2($Basics._op["++"],"nth-last-of-type(",A2($Basics._op["++"],str,")"))));
+   };
+   var nthLastChild = function (str) {
+      return $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector(A2($Basics._op["++"],"nth-last-child(",A2($Basics._op["++"],str,")"))));
+   };
+   var nthChild = function (str) {
+      return $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector(A2($Basics._op["++"],"nth-child(",A2($Basics._op["++"],str,")"))));
+   };
+   var link = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("link"));
+   var lastOfType = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("last-of-type"));
+   var lastChild = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("last-child"));
+   var lang = function (str) {
+      return $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector(A2($Basics._op["++"],"lang(",A2($Basics._op["++"],str,")"))));
+   };
+   var invalid = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("invalid"));
+   var indeterminate = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("indeterminate"));
+   var hover = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("hover"));
+   var focus = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("focus"));
+   var fullscreen = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("fullscreen"));
+   var firstOfType = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("first-of-type"));
+   var firstChild = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("first-child"));
+   var first = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("first"));
+   var enabled = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("enabled"));
+   var empty = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("empty"));
+   var disabled = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("disabled"));
+   var checked = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("checked"));
+   var any = function (str) {
+      return $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector(A2($Basics._op["++"],"any(",A2($Basics._op["++"],str,")"))));
+   };
+   var active = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("active"));
+   var directionalityToString = function (directionality) {    var _p2 = directionality;if (_p2.ctor === "Ltr") {    return "ltr";} else {    return "rtl";}};
+   var dir = function (directionality) {
+      return $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector(A2($Basics._op["++"],
+      "dir(",
+      A2($Basics._op["++"],directionalityToString(directionality),")"))));
+   };
+   var Rtl = {ctor: "Rtl"};
+   var Ltr = {ctor: "Ltr"};
+   var propertyWithWarnings = F3(function (warnings,key,value) {
+      return $Css$Preprocess.AppendProperty({key: key,value: value,important: false,warnings: warnings});
+   });
+   var property = propertyWithWarnings(_U.list([]));
+   var makeSnippet = F2(function (mixins,sequence) {
+      var selector = A3($Css$Structure.Selector,sequence,_U.list([]),$Maybe.Nothing);
+      return $Css$Preprocess.Snippet(_U.list([$Css$Preprocess.StyleBlockDeclaration(A3($Css$Preprocess.StyleBlock,selector,_U.list([]),mixins))]));
+   });
+   _op["."] = F2(function ($class,mixins) {
+      return A2(makeSnippet,
+      mixins,
+      $Css$Structure.UniversalSelectorSequence(_U.list([$Css$Structure.ClassSelector(A2($Css$Helpers.identifierToString,"",$class))])));
+   });
+   var selector = F2(function (selectorStr,mixins) {    return A2(makeSnippet,mixins,A2($Css$Structure.CustomSelector,selectorStr,_U.list([])));});
+   var everything = function (mixins) {    return A2(makeSnippet,mixins,$Css$Structure.UniversalSelectorSequence(_U.list([])));};
+   _op["#"] = F2(function (id,mixins) {
+      return A2(makeSnippet,mixins,$Css$Structure.UniversalSelectorSequence(_U.list([$Css$Structure.IdSelector(A2($Css$Helpers.identifierToString,"",id))])));
+   });
+   var mixin = $Css$Preprocess.ApplyMixins;
+   var stylesheet = $Css$Preprocess.stylesheet;
+   var animationNames = function (identifiers) {
+      var value = A2($String.join,", ",A2($List.map,$Css$Helpers.identifierToString(""),identifiers));
+      return A2(property,"animation-name",value);
+   };
+   var animationName = function (identifier) {    return animationNames(_U.list([identifier]));};
+   var fontWeight = function (_p3) {
+      var _p4 = _p3;
+      var _p5 = _p4.value;
+      var validWeight = function (weight) {
+         return !_U.eq(_p5,$Basics.toString(weight)) ? true : A2($List.member,weight,A2($List.map,F2(function (x,y) {    return x * y;})(100),_U.range(1,9)));
+      };
+      var warnings = validWeight(stringToInt(_p5)) ? _U.list([]) : _U.list([A2($Basics._op["++"],
+      "fontWeight ",
+      A2($Basics._op["++"],
+      _p5,
+      " is invalid. Valid weights are: 100, 200, 300, 400, 500, 600, 700, 800, 900. Please see https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight#Values"))]);
+      return A3(propertyWithWarnings,warnings,"font-weight",_p5);
+   };
+   var fontFeatureSettingsList = function (featureTagValues) {
+      var warnings = $List.concat(A2($List.map,function (_) {    return _.warnings;},featureTagValues));
+      var value = A2($String.join,", ",A2($List.map,function (_) {    return _.value;},featureTagValues));
+      return A3(propertyWithWarnings,warnings,"font-feature-settings",value);
+   };
+   var fontFeatureSettings = function (_p6) {    var _p7 = _p6;return A3(propertyWithWarnings,_p7.warnings,"font-feature-settings",_p7.value);};
+   var qt = function (str) {    return $Basics.toString(str);};
+   var fontFace = function (value) {    return A2($Basics._op["++"],"font-face ",value);};
+   var src = function (value) {    return $Basics.toString(value.value);};
+   var withMedia = $Css$Preprocess.WithMedia;
+   var media = F2(function (mediaQueries,snippets) {
+      var nestedMediaRules = function (declarations) {
+         nestedMediaRules: while (true) {
+            var _p8 = declarations;
+            if (_p8.ctor === "[]") {
+                  return _U.list([]);
+               } else {
+                  switch (_p8._0.ctor)
+                  {case "StyleBlockDeclaration": var _v7 = _p8._1;
+                       declarations = _v7;
+                       continue nestedMediaRules;
+                     case "MediaRule": return A2($List._op["::"],
+                       A2($Css$Preprocess.MediaRule,A2($Basics._op["++"],mediaQueries,_p8._0._0),_p8._0._1),
+                       nestedMediaRules(_p8._1));
+                     default: return A2($List._op["::"],_p8._0,nestedMediaRules(_p8._1));}
+               }
+         }
+      };
+      var extractStyleBlocks = function (declarations) {
+         extractStyleBlocks: while (true) {
+            var _p9 = declarations;
+            if (_p9.ctor === "[]") {
+                  return _U.list([]);
+               } else {
+                  if (_p9._0.ctor === "StyleBlockDeclaration") {
+                        return A2($List._op["::"],_p9._0._0,extractStyleBlocks(_p9._1));
+                     } else {
+                        var _v9 = _p9._1;
+                        declarations = _v9;
+                        continue extractStyleBlocks;
+                     }
+               }
+         }
+      };
+      var snippetDeclarations = A2($List.concatMap,$Css$Preprocess.unwrapSnippet,snippets);
+      var mediaRuleFromStyleBlocks = A2($Css$Preprocess.MediaRule,mediaQueries,extractStyleBlocks(snippetDeclarations));
+      return $Css$Preprocess.Snippet(A2($List._op["::"],mediaRuleFromStyleBlocks,nestedMediaRules(snippetDeclarations)));
+   });
+   var mediaQuery = F2(function (queryString,snippets) {    return A2(media,_U.list([$Css$Structure.MediaQuery(queryString)]),snippets);});
+   var color = function (c) {    return A3(propertyWithWarnings,c.warnings,"color",c.value);};
+   var backgroundColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"background-color",c.value);};
+   var borderColor4 = F4(function (c1,c2,c3,c4) {
+      var value = A2($String.join," ",_U.list([c1.value,c2.value,c3.value,c4.value]));
+      var warnings = A2($Basics._op["++"],c1.warnings,A2($Basics._op["++"],c2.warnings,A2($Basics._op["++"],c3.warnings,c4.warnings)));
+      return A3(propertyWithWarnings,warnings,"border-color",value);
+   });
+   var borderColor3 = F3(function (c1,c2,c3) {
+      var value = A2($String.join," ",_U.list([c1.value,c2.value,c3.value]));
+      var warnings = A2($Basics._op["++"],c1.warnings,A2($Basics._op["++"],c2.warnings,c3.warnings));
+      return A3(propertyWithWarnings,warnings,"border-color",value);
+   });
+   var borderColor2 = F2(function (c1,c2) {
+      var value = A2($String.join," ",_U.list([c1.value,c2.value]));
+      var warnings = A2($Basics._op["++"],c1.warnings,c2.warnings);
+      return A3(propertyWithWarnings,warnings,"border-color",value);
+   });
+   var borderColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-color",c.value);};
+   var borderBlockEndColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-block-end-color",c.value);};
+   var borderTopColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-top-color",c.value);};
+   var borderRightColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-right-color",c.value);};
+   var borderLeftColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-left-color",c.value);};
+   var borderInlineEndColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-inline-end-color",c.value);};
+   var borderInlineStartColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-inline-start-color",c.value);};
+   var borderBottomColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-bottom-color",c.value);};
+   var borderBlockStartColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-block-start-color",c.value);};
+   var featureOff = 0;
+   var featureOn = 1;
+   var displayFlex = A2(property,"display","flex");
+   var textDecorationColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"text-decoration-color",c.value);};
+   var prop4 = F5(function (key,argA,argB,argC,argD) {
+      return A2(property,key,A2($String.join," ",_U.list([argA.value,argB.value,argC.value,argD.value])));
+   });
+   var textShadow4 = prop4("text-shadow");
+   var padding4 = prop4("padding");
+   var margin4 = prop4("margin");
+   var borderImageOutset4 = prop4("border-image-outset");
+   var borderImageWidth4 = prop4("border-image-width");
+   var borderRadius4 = prop4("border-radius");
+   var prop3 = F4(function (key,argA,argB,argC) {    return A2(property,key,A2($String.join," ",_U.list([argA.value,argB.value,argC.value])));});
+   var textShadow3 = prop3("text-shadow");
+   var textIndent3 = prop3("text-indent");
+   var padding3 = prop3("padding");
+   var margin3 = prop3("margin");
+   var border3 = prop3("border");
+   var borderTop3 = prop3("border-top");
+   var borderBottom3 = prop3("border-bottom");
+   var borderLeft3 = prop3("border-left");
+   var borderRight3 = prop3("border-right");
+   var borderBlockStart3 = prop3("border-block-start");
+   var borderBlockEnd3 = prop3("border-block-end");
+   var borderInlineStart3 = prop3("border-block-start");
+   var borderInlineEnd3 = prop3("border-block-end");
+   var borderImageOutset3 = prop3("border-image-outset");
+   var borderImageWidth3 = prop3("border-image-width");
+   var borderRadius3 = prop3("border-radius");
+   var fontVariant3 = prop3("font-variant");
+   var fontVariantNumeric3 = prop3("font-variant-numeric");
+   var textDecoration3 = prop3("text-decoration");
+   var textDecorations3 = function (_p10) {    return A2(prop3,"text-decoration",valuesOrNone(_p10));};
+   var prop2 = F3(function (key,argA,argB) {    return A2(property,key,A2($String.join," ",_U.list([argA.value,argB.value])));});
+   var textShadow2 = prop2("text-shadow");
+   var textIndent2 = prop2("text-indent");
+   var padding2 = prop2("padding");
+   var margin2 = prop2("margin");
+   var border2 = prop2("border");
+   var borderTop2 = prop2("border-top");
+   var borderBottom2 = prop2("border-bottom");
+   var borderLeft2 = prop2("border-left");
+   var borderRight2 = prop2("border-right");
+   var borderBlockStart2 = prop2("border-block-start");
+   var borderBlockEnd2 = prop2("border-block-end");
+   var borderInlineStart2 = prop2("border-block-start");
+   var borderInlineEnd2 = prop2("border-block-end");
+   var borderImageOutset2 = prop2("border-image-outset");
+   var borderImageWidth2 = prop2("border-image-width");
+   var borderTopWidth2 = prop2("border-top-width");
+   var borderBottomLeftRadius2 = prop2("border-bottom-left-radius");
+   var borderBottomRightRadius2 = prop2("border-bottom-right-radius");
+   var borderTopLeftRadius2 = prop2("border-top-left-radius");
+   var borderTopRightRadius2 = prop2("border-top-right-radius");
+   var borderRadius2 = prop2("border-radius");
+   var borderSpacing2 = prop2("border-spacing");
+   var fontVariant2 = prop2("font-variant");
+   var fontVariantNumeric2 = prop2("font-variant-numeric");
+   var textDecoration2 = prop2("text-decoration");
+   var textDecorations2 = function (_p11) {    return A2(prop2,"text-decoration",valuesOrNone(_p11));};
+   var prop1 = F2(function (key,arg) {    return A2(property,key,arg.value);});
+   var textRendering = prop1("text-rendering");
+   var textOverflow = prop1("text-overflow");
+   var textShadow = prop1("text-shadow");
+   var textIndent = prop1("text-indent");
+   var textTransform = prop1("text-transform");
+   var display = prop1("display");
+   var opacity = prop1("opacity");
+   var width = prop1("width");
+   var maxWidth = prop1("max-width");
+   var minWidth = prop1("min-width");
+   var height = prop1("height");
+   var minHeight = prop1("min-height");
+   var maxHeight = prop1("max-height");
+   var padding = prop1("padding");
+   var paddingBlockStart = prop1("padding-block-start");
+   var paddingBlockEnd = prop1("padding-block-end");
+   var paddingInlineStart = prop1("padding-inline-start");
+   var paddingInlineEnd = prop1("padding-inline-end");
+   var paddingTop = prop1("padding-top");
+   var paddingBottom = prop1("padding-bottom");
+   var paddingRight = prop1("padding-right");
+   var paddingLeft = prop1("padding-left");
+   var margin = prop1("margin");
+   var marginTop = prop1("margin-top");
+   var marginBottom = prop1("margin-bottom");
+   var marginRight = prop1("margin-right");
+   var marginLeft = prop1("margin-left");
+   var marginBlockStart = prop1("margin-block-start");
+   var marginBlockEnd = prop1("margin-block-end");
+   var marginInlineStart = prop1("margin-inline-start");
+   var marginInlineEnd = prop1("margin-inline-end");
+   var top = prop1("top");
+   var bottom = prop1("bottom");
+   var left = prop1("left");
+   var right = prop1("right");
+   var border = prop1("border");
+   var borderTop = prop1("border-top");
+   var borderBottom = prop1("border-bottom");
+   var borderLeft = prop1("border-left");
+   var borderRight = prop1("border-right");
+   var borderBlockStart = prop1("border-block-start");
+   var borderBlockEnd = prop1("border-block-end");
+   var borderInlineStart = prop1("border-block-start");
+   var borderInlineEnd = prop1("border-block-end");
+   var borderImageOutset = prop1("border-image-outset");
+   var borderImageWidth = prop1("border-image-width");
+   var borderBlockEndStyle = prop1("border-block-end-style");
+   var borderBlockStartStyle = prop1("border-block-start-style");
+   var borderInlineEndStyle = prop1("border-inline-end-style");
+   var borderBottomStyle = prop1("border-bottom-style");
+   var borderInlineStartStyle = prop1("border-inline-start-style");
+   var borderLeftStyle = prop1("border-left-style");
+   var borderRightStyle = prop1("border-right-style");
+   var borderTopStyle = prop1("border-top-style");
+   var borderStyle = prop1("border-style");
+   var borderBottomWidth = prop1("border-bottom-width");
+   var borderInlineEndWidth = prop1("border-inline-end-width");
+   var borderLeftWidth = prop1("border-left-width");
+   var borderRightWidth = prop1("border-right-width");
+   var borderTopWidth = prop1("border-top-width");
+   var borderBottomLeftRadius = prop1("border-bottom-left-radius");
+   var borderBottomRightRadius = prop1("border-bottom-right-radius");
+   var borderTopLeftRadius = prop1("border-top-left-radius");
+   var borderTopRightRadius = prop1("border-top-right-radius");
+   var borderRadius = prop1("border-radius");
+   var borderSpacing = prop1("border-spacing");
+   var overflow = prop1("overflow");
+   var overflowX = prop1("overflow-x");
+   var overflowY = prop1("overflow-y");
+   var whiteSpace = prop1("white-space");
+   var lineHeight = prop1("line-height");
+   var fontFamily = prop1("font-family");
+   var fontFamilies = function (_p12) {    return A2(prop1,"font-family",stringsToValue(_p12));};
+   var fontSize = prop1("font-size");
+   var fontStyle = prop1("font-style");
+   var fontVariant = prop1("font-variant");
+   var fontVariantLigatures = prop1("font-variant-ligatures");
+   var fontVariantCaps = prop1("font-variant-caps");
+   var fontVariantNumeric = prop1("font-variant-numeric");
+   var fontVariantNumerics = function (_p13) {    return A2(prop1,"font-variant-numeric",valuesOrNone(_p13));};
+   var textDecoration = prop1("text-decoration");
+   var textDecorations = function (_p14) {    return A2(prop1,"text-decoration",valuesOrNone(_p14));};
+   var textDecorationLine = prop1("text-decoration-line");
+   var textDecorationLines = function (_p15) {    return A2(prop1,"text-decoration-line",valuesOrNone(_p15));};
+   var textDecorationStyle = prop1("text-decoration-style");
+   var position = prop1("position");
+   var textBottom = prop1("text-bottom");
+   var textTop = prop1("text-top");
+   var $super = prop1("super");
+   var sub = prop1("sub");
+   var baseline = prop1("baseline");
+   var middle = prop1("middle");
+   var stretch = prop1("stretch");
+   var flexEnd = prop1("flex-end");
+   var flexStart = prop1("flex-start");
+   var order = prop1("order");
+   var flexFlow2 = prop2("flex-flow");
+   var flexFlow1 = prop1("flex-flow");
+   var flexDirection = prop1("flex-direction");
+   var flexWrap = prop1("flex-wrap");
+   var flexShrink = prop1("flex-shrink");
+   var flexGrow = prop1("flex-grow");
+   var flexBasis = prop1("flex-basis");
+   var flex3 = prop3("flex");
+   var flex2 = prop2("flex");
+   var flex = prop1("flex");
+   var transformStyle = prop1("transform-style");
+   var boxSizing = prop1("box-sizing");
+   var transformBox = prop1("transform-box");
+   var transforms = function (_p16) {    return A2(prop1,"transform",valuesOrNone(_p16));};
+   var transform = function (only) {    return transforms(_U.list([only]));};
+   var IncompatibleUnits = {ctor: "IncompatibleUnits"};
+   var UnitlessFloat = {ctor: "UnitlessFloat"};
+   var UnitlessInteger = {ctor: "UnitlessInteger"};
+   var PcUnits = {ctor: "PcUnits"};
+   var PtUnits = {ctor: "PtUnits"};
+   var InchUnits = {ctor: "InchUnits"};
+   var CMUnits = {ctor: "CMUnits"};
+   var MMUnits = {ctor: "MMUnits"};
+   var PxUnits = {ctor: "PxUnits"};
+   var VMaxUnits = {ctor: "VMaxUnits"};
+   var VMinUnits = {ctor: "VMinUnits"};
+   var VwUnits = {ctor: "VwUnits"};
+   var VhUnits = {ctor: "VhUnits"};
+   var RemUnits = {ctor: "RemUnits"};
+   var ChUnits = {ctor: "ChUnits"};
+   var ExUnits = {ctor: "ExUnits"};
+   var EmUnits = {ctor: "EmUnits"};
+   var PercentageUnits = {ctor: "PercentageUnits"};
+   var $true = prop1("true");
+   var matchParent = prop1("match-parent");
+   var end = prop1("end");
+   var start = prop1("start");
+   var justifyAll = prop1("justify-all");
+   var textJustify = prop1("text-justify");
+   var center = prop1("center");
+   var BasicProperty = function (a) {
+      return function (b) {
+         return function (c) {
+            return function (d) {
+               return function (e) {
+                  return function (f) {
+                     return function (g) {
+                        return function (h) {
+                           return function (i) {
+                              return function (j) {
+                                 return function (k) {
+                                    return function (l) {
+                                       return function (m) {
+                                          return function (n) {
+                                             return function (o) {
+                                                return function (p) {
+                                                   return function (q) {
+                                                      return function (r) {
+                                                         return function (s) {
+                                                            return function (t) {
+                                                               return function (u) {
+                                                                  return function (v) {
+                                                                     return function (w) {
+                                                                        return function (x) {
+                                                                           return function (y) {
+                                                                              return function (z) {
+                                                                                 return function (_1) {
+                                                                                    return function (_2) {
+                                                                                       return function (_3) {
+                                                                                          return function (_4) {
+                                                                                             return function (_5) {
+                                                                                                return {value: a
+                                                                                                       ,all: b
+                                                                                                       ,alignItems: c
+                                                                                                       ,boxSizing: d
+                                                                                                       ,display: e
+                                                                                                       ,flexBasis: f
+                                                                                                       ,flexWrap: g
+                                                                                                       ,flexDirection: h
+                                                                                                       ,flexDirectionOrWrap: i
+                                                                                                       ,none: j
+                                                                                                       ,number: k
+                                                                                                       ,overflow: l
+                                                                                                       ,textDecorationLine: m
+                                                                                                       ,textRendering: n
+                                                                                                       ,textIndent: o
+                                                                                                       ,textDecorationStyle: p
+                                                                                                       ,length: q
+                                                                                                       ,lengthOrAuto: r
+                                                                                                       ,lengthOrNone: s
+                                                                                                       ,lengthOrNumber: t
+                                                                                                       ,lengthOrMinMaxDimension: u
+                                                                                                       ,lengthOrNoneOrMinMaxDimension: v
+                                                                                                       ,lengthOrNumberOrAutoOrNoneOrContent: w
+                                                                                                       ,fontFamily: x
+                                                                                                       ,fontSize: y
+                                                                                                       ,fontStyle: z
+                                                                                                       ,fontWeight: _1
+                                                                                                       ,fontVariant: _2
+                                                                                                       ,units: _3
+                                                                                                       ,numericValue: _4
+                                                                                                       ,unitLabel: _5};
+                                                                                             };
+                                                                                          };
+                                                                                       };
+                                                                                    };
+                                                                                 };
+                                                                              };
+                                                                           };
+                                                                        };
+                                                                     };
+                                                                  };
+                                                               };
+                                                            };
+                                                         };
+                                                      };
+                                                   };
+                                                };
+                                             };
+                                          };
+                                       };
+                                    };
+                                 };
+                              };
+                           };
+                        };
+                     };
+                  };
+               };
+            };
+         };
+      };
+   };
+   var NonMixable = {};
+   var important = $Css$Preprocess.mapLastProperty(function (property) {    return _U.update(property,{important: true});});
+   var all = prop1("all");
+   var ExplicitLength = function (a) {
+      return function (b) {
+         return function (c) {
+            return function (d) {
+               return function (e) {
+                  return function (f) {
+                     return function (g) {
+                        return function (h) {
+                           return function (i) {
+                              return function (j) {
+                                 return function (k) {
+                                    return function (l) {
+                                       return function (m) {
+                                          return function (n) {
+                                             return {value: a
+                                                    ,numericValue: b
+                                                    ,units: c
+                                                    ,unitLabel: d
+                                                    ,length: e
+                                                    ,lengthOrAuto: f
+                                                    ,lengthOrNumber: g
+                                                    ,lengthOrNone: h
+                                                    ,lengthOrMinMaxDimension: i
+                                                    ,lengthOrNoneOrMinMaxDimension: j
+                                                    ,textIndent: k
+                                                    ,flexBasis: l
+                                                    ,lengthOrNumberOrAutoOrNoneOrContent: m
+                                                    ,fontSize: n};
+                                          };
+                                       };
+                                    };
+                                 };
+                              };
+                           };
+                        };
+                     };
+                  };
+               };
+            };
+         };
+      };
+   };
+   var combineLengths = F3(function (operation,first,second) {
+      var value = A2($String.join,
+      " ",
+      A2($List.filter,
+      function (_p17) {
+         return $Basics.not($String.isEmpty(_p17));
+      },
+      _U.list([$Basics.toString(A2(operation,first.numericValue,second.numericValue)),first.unitLabel])));
+      return _U.update(first,{value: value});
+   });
+   _op["|*|"] = combineLengths(F2(function (x,y) {    return x * y;}));
+   _op["|/|"] = combineLengths(F2(function (x,y) {    return x / y;}));
+   _op["|-|"] = combineLengths(F2(function (x,y) {    return x - y;}));
+   _op["|+|"] = combineLengths(F2(function (x,y) {    return x + y;}));
+   var NumberedWeight = F2(function (a,b) {    return {value: a,fontWeight: b};});
+   var getOverloadedProperty = F3(function (functionName,desiredKey,mixin) {
+      getOverloadedProperty: while (true) {
+         var _p18 = mixin;
+         switch (_p18.ctor)
+         {case "AppendProperty": return A2(property,desiredKey,_p18._0.key);
+            case "ExtendSelector": return A3(propertyWithWarnings,
+              _U.list([A2($Basics._op["++"],
+              "Cannot apply ",
+              A2($Basics._op["++"],functionName,A2($Basics._op["++"]," with inapplicable mixin for selector ",$Basics.toString(_p18._0))))]),
+              desiredKey,
+              "");
+            case "NestSnippet": return A3(propertyWithWarnings,
+              _U.list([A2($Basics._op["++"],
+              "Cannot apply ",
+              A2($Basics._op["++"],functionName,A2($Basics._op["++"]," with inapplicable mixin for combinator ",$Basics.toString(_p18._0))))]),
+              desiredKey,
+              "");
+            case "WithPseudoElement": return A3(propertyWithWarnings,
+              _U.list([A2($Basics._op["++"],
+              "Cannot apply ",
+              A2($Basics._op["++"],functionName,A2($Basics._op["++"]," with inapplicable mixin for pseudo-element setter ",$Basics.toString(_p18._0))))]),
+              desiredKey,
+              "");
+            case "WithMedia": return A3(propertyWithWarnings,
+              _U.list([A2($Basics._op["++"],
+              "Cannot apply ",
+              A2($Basics._op["++"],functionName,A2($Basics._op["++"]," with inapplicable mixin for media query ",$Basics.toString(_p18._0))))]),
+              desiredKey,
+              "");
+            default: if (_p18._0.ctor === "[]") {
+                    return A3(propertyWithWarnings,
+                    _U.list([A2($Basics._op["++"],"Cannot apply ",A2($Basics._op["++"],functionName," with empty mixin. "))]),
+                    desiredKey,
+                    "");
+                 } else {
+                    if (_p18._0._1.ctor === "[]") {
+                          var _v11 = functionName,_v12 = desiredKey,_v13 = _p18._0._0;
+                          functionName = _v11;
+                          desiredKey = _v12;
+                          mixin = _v13;
+                          continue getOverloadedProperty;
+                       } else {
+                          var _v14 = functionName,_v15 = desiredKey,_v16 = $Css$Preprocess.ApplyMixins(_p18._0._1);
+                          functionName = _v14;
+                          desiredKey = _v15;
+                          mixin = _v16;
+                          continue getOverloadedProperty;
+                       }
+                 }}
+      }
+   });
+   var cssFunction = F2(function (funcName,args) {
+      return A2($Basics._op["++"],funcName,A2($Basics._op["++"],"(",A2($Basics._op["++"],A2($String.join,", ",args),")")));
+   });
+   var tv = $Css$Structure.MediaQuery("tv");
+   var projection = $Css$Structure.MediaQuery("projection");
+   var print = $Css$Structure.MediaQuery("print");
+   var screen = $Css$Structure.MediaQuery("screen");
+   var PseudoElement = F2(function (a,b) {    return {ctor: "PseudoElement",_0: a,_1: b};});
+   var PseudoClass = F2(function (a,b) {    return {ctor: "PseudoClass",_0: a,_1: b};});
+   var Compatible = {ctor: "Compatible"};
+   var transparent = {value: "transparent",color: Compatible,warnings: _U.list([])};
+   var currentColor = {value: "currentColor",color: Compatible,warnings: _U.list([])};
+   var visible = {value: "visible",overflow: Compatible};
+   var scroll = {value: "scroll",overflow: Compatible};
+   var hidden = {value: "hidden",overflow: Compatible,borderStyle: Compatible};
+   var initial = {value: "initial"
+                 ,overflow: Compatible
+                 ,none: Compatible
+                 ,number: Compatible
+                 ,textDecorationLine: Compatible
+                 ,textRendering: Compatible
+                 ,textIndent: Compatible
+                 ,textDecorationStyle: Compatible
+                 ,boxSizing: Compatible
+                 ,display: Compatible
+                 ,all: Compatible
+                 ,alignItems: Compatible
+                 ,length: Compatible
+                 ,lengthOrAuto: Compatible
+                 ,lengthOrNone: Compatible
+                 ,lengthOrNumber: Compatible
+                 ,lengthOrMinMaxDimension: Compatible
+                 ,lengthOrNoneOrMinMaxDimension: Compatible
+                 ,flexBasis: Compatible
+                 ,flexWrap: Compatible
+                 ,flexDirection: Compatible
+                 ,flexDirectionOrWrap: Compatible
+                 ,lengthOrNumberOrAutoOrNoneOrContent: Compatible
+                 ,fontFamily: Compatible
+                 ,fontSize: Compatible
+                 ,fontStyle: Compatible
+                 ,fontWeight: Compatible
+                 ,fontVariant: Compatible
+                 ,units: IncompatibleUnits
+                 ,numericValue: 0
+                 ,unitLabel: ""};
+   var unset = _U.update(initial,{value: "unset"});
+   var inherit = _U.update(initial,{value: "inherit"});
+   var rgb = F3(function (red,green,blue) {
+      var warnings = _U.cmp(red,0) < 0 || (_U.cmp(red,255) > 0 || (_U.cmp(green,0) < 0 || (_U.cmp(green,255) > 0 || (_U.cmp(blue,0) < 0 || _U.cmp(blue,
+      255) > 0)))) ? _U.list([A2($Basics._op["++"],
+      "RGB color values must be between 0 and 255. rgb(",
+      A2($Basics._op["++"],
+      $Basics.toString(red),
+      A2($Basics._op["++"],
+      ", ",
+      A2($Basics._op["++"],
+      $Basics.toString(green),
+      A2($Basics._op["++"],", ",A2($Basics._op["++"],$Basics.toString(blue),") is not valid."))))))]) : _U.list([]);
+      return {value: A2(cssFunction,"rgb",A2($List.map,numberToString,_U.list([red,green,blue])))
+             ,color: Compatible
+             ,warnings: warnings
+             ,red: red
+             ,green: green
+             ,blue: blue
+             ,alpha: 1};
+   });
+   var rgba = F4(function (red,green,blue,alpha) {
+      var warnings = _U.cmp(red,0) < 0 || (_U.cmp(red,255) > 0 || (_U.cmp(green,0) < 0 || (_U.cmp(green,255) > 0 || (_U.cmp(blue,0) < 0 || (_U.cmp(blue,
+      255) > 0 || (_U.cmp(alpha,0) < 0 || _U.cmp(alpha,1) > 0)))))) ? _U.list([A2($Basics._op["++"],
+      "RGB color values must be between 0 and 255, and the alpha in RGBA must be between 0 and 1. rgba(",
+      A2($Basics._op["++"],
+      $Basics.toString(red),
+      A2($Basics._op["++"],
+      ", ",
+      A2($Basics._op["++"],
+      $Basics.toString(green),
+      A2($Basics._op["++"],
+      ", ",
+      A2($Basics._op["++"],
+      $Basics.toString(blue),
+      A2($Basics._op["++"],", ",A2($Basics._op["++"],$Basics.toString(alpha),") is not valid."))))))))]) : _U.list([]);
+      return {value: A2(cssFunction,"rgba",A2($List.map,numberToString,_U.list([red,green,blue,alpha])))
+             ,color: Compatible
+             ,warnings: warnings
+             ,red: red
+             ,green: green
+             ,blue: blue
+             ,alpha: 1};
+   });
+   var hex = function (str) {
+      var value = _U.eq(A3($String.slice,0,1,str),"#") ? str : A2($Basics._op["++"],"#",str);
+      var warnings = A2($Regex.contains,
+      $Regex.regex("^#([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{4}|[a-fA-F0-9]{3})$"),
+      value) ? _U.list([]) : _U.list([A2($String.join,
+      " ",
+      _U.list(["The syntax of a hex-color is a token whose value consists of 3, 4, 6, or 8 hexadecimal digits."
+              ,value
+              ,"is not valid."
+              ,"Please see: https://drafts.csswg.org/css-color/#hex-notation"]))]);
+      return {value: value,color: Compatible,red: 0,green: 0,blue: 0,alpha: 1,warnings: warnings};
+   };
+   var hslaToRgba = F6(function (value,warnings,hue,saturation,lightness,alpha) {
+      var blue = 0;
+      var green = 0;
+      var red = 0;
+      return {value: value,color: Compatible,red: red,green: green,blue: blue,alpha: alpha,warnings: warnings};
+   });
+   var hsl = F3(function (hue,saturation,lightness) {
+      var valuesList = _U.list([numberToString(hue),numericalPercentageToString(saturation),numericalPercentageToString(lightness)]);
+      var value = A2(cssFunction,"hsl",valuesList);
+      var warnings = _U.cmp(hue,360) > 0 || (_U.cmp(hue,0) < 0 || (_U.cmp(saturation,1) > 0 || (_U.cmp(saturation,0) < 0 || (_U.cmp(lightness,
+      1) > 0 || _U.cmp(lightness,0) < 0)))) ? _U.list([A2($Basics._op["++"],
+      "HSL color values must have an H value between 0 and 360 (as in degrees) and S and L values between 0 and 1. ",
+      A2($Basics._op["++"],value," is not valid."))]) : _U.list([]);
+      return A6(hslaToRgba,value,warnings,hue,saturation,lightness,1);
+   });
+   var hsla = F4(function (hue,saturation,lightness,alpha) {
+      var valuesList = _U.list([numberToString(hue),numericalPercentageToString(saturation),numericalPercentageToString(lightness),numberToString(alpha)]);
+      var value = A2(cssFunction,"hsla",valuesList);
+      var warnings = _U.cmp(hue,360) > 0 || (_U.cmp(hue,0) < 0 || (_U.cmp(saturation,1) > 0 || (_U.cmp(saturation,0) < 0 || (_U.cmp(lightness,
+      1) > 0 || (_U.cmp(lightness,0) < 0 || (_U.cmp(alpha,1) > 0 || _U.cmp(alpha,0) < 0)))))) ? _U.list([A2($Basics._op["++"],
+      "HSLA color values must have an H value between 0 and 360 (as in degrees) and S, L, and A values between 0 and 1. ",
+      A2($Basics._op["++"],value," is not valid."))]) : _U.list([]);
+      return A6(hslaToRgba,value,warnings,hue,saturation,lightness,alpha);
+   });
+   var optimizeSpeed = {value: "optimizeSpeed",textRendering: Compatible};
+   var optimizeLegibility = {value: "optimizeLegibility",textRendering: Compatible};
+   var geometricPrecision = {value: "geometricPrecision",textRendering: Compatible};
+   var hanging = {value: "hanging",textIndent: Compatible};
+   var eachLine = {value: "each-line",textIndent: Compatible};
+   var capitalize = {value: "capitalize",textTransform: Compatible};
+   var uppercase = {value: "uppercase",textTransform: Compatible};
+   var lowercase = {value: "lowercase",textTransform: Compatible};
+   var fullWidth = {value: "full-width",textTransform: Compatible};
+   var ellipsis = {value: "ellipsis",textOverflow: Compatible};
+   var clip = {value: "clip",textOverflow: Compatible};
+   var wavy = {value: "wavy",textDecorationStyle: Compatible};
+   var dotted = {value: "dotted",borderStyle: Compatible,textDecorationStyle: Compatible};
+   var dashed = {value: "dashed",borderStyle: Compatible,textDecorationStyle: Compatible};
+   var solid = {value: "solid",borderStyle: Compatible,textDecorationStyle: Compatible};
+   var $double = {value: "double",borderStyle: Compatible,textDecorationStyle: Compatible};
+   var groove = {value: "groove",borderStyle: Compatible};
+   var ridge = {value: "ridge",borderStyle: Compatible};
+   var inset = {value: "inset",borderStyle: Compatible};
+   var outset = {value: "outset",borderStyle: Compatible};
+   var lengthConverter = F3(function (units,unitLabel,num) {
+      return {value: A2($Basics._op["++"],numberToString(num),unitLabel)
+             ,numericValue: num
+             ,units: units
+             ,unitLabel: unitLabel
+             ,length: Compatible
+             ,lengthOrAuto: Compatible
+             ,lengthOrNumber: Compatible
+             ,lengthOrNone: Compatible
+             ,lengthOrMinMaxDimension: Compatible
+             ,lengthOrNoneOrMinMaxDimension: Compatible
+             ,textIndent: Compatible
+             ,flexBasis: Compatible
+             ,lengthOrNumberOrAutoOrNoneOrContent: Compatible
+             ,fontSize: Compatible};
+   });
+   var pct = A2(lengthConverter,PercentageUnits,"%");
+   var em = A2(lengthConverter,EmUnits,"em");
+   var ex = A2(lengthConverter,ExUnits,"ex");
+   var ch = A2(lengthConverter,ChUnits,"ch");
+   var rem = A2(lengthConverter,RemUnits,"rem");
+   var vh = A2(lengthConverter,VhUnits,"vh");
+   var vw = A2(lengthConverter,VwUnits,"vw");
+   var vmin = A2(lengthConverter,VMinUnits,"vmin");
+   var vmax = A2(lengthConverter,VMaxUnits,"vmax");
+   var px = A2(lengthConverter,PxUnits,"px");
+   var mm = A2(lengthConverter,MMUnits,"mm");
+   var cm = A2(lengthConverter,CMUnits,"cm");
+   var inches = A2(lengthConverter,InchUnits,"in");
+   var pt = A2(lengthConverter,PtUnits,"pt");
+   var pc = A2(lengthConverter,PcUnits,"pc");
+   var lengthForOverloadedProperty = A3(lengthConverter,IncompatibleUnits,"",0);
+   var alignItems = function (fn) {    return A3(getOverloadedProperty,"alignItems","align-items",fn(lengthForOverloadedProperty));};
+   var alignSelf = function (fn) {    return A3(getOverloadedProperty,"alignSelf","align-self",fn(lengthForOverloadedProperty));};
+   var textAlignLast = function (fn) {    return A3(getOverloadedProperty,"textAlignLast","text-align-last",fn(lengthForOverloadedProperty));};
+   var textAlign = function (fn) {    return A3(getOverloadedProperty,"textAlign","text-align",fn(lengthForOverloadedProperty));};
+   var verticalAlign = function (fn) {    return A3(getOverloadedProperty,"verticalAlign","vertical-align",fn(lengthForOverloadedProperty));};
+   var zero = {value: "0"
+              ,length: Compatible
+              ,lengthOrNumber: Compatible
+              ,lengthOrNone: Compatible
+              ,lengthOrAuto: Compatible
+              ,lengthOrMinMaxDimension: Compatible
+              ,lengthOrNoneOrMinMaxDimension: Compatible
+              ,number: Compatible
+              ,units: UnitlessInteger
+              ,unitLabel: ""
+              ,numericValue: 0};
+   var $int = function (val) {
+      return {value: numberToString(val)
+             ,lengthOrNumber: Compatible
+             ,number: Compatible
+             ,lengthOrNumberOrAutoOrNoneOrContent: Compatible
+             ,numericValue: $Basics.toFloat(val)
+             ,unitLabel: ""
+             ,units: UnitlessInteger};
+   };
+   var $float = function (val) {
+      return {value: numberToString(val)
+             ,lengthOrNumber: Compatible
+             ,number: Compatible
+             ,lengthOrNumberOrAutoOrNoneOrContent: Compatible
+             ,numericValue: val
+             ,unitLabel: ""
+             ,units: UnitlessFloat};
+   };
+   var angleConverter = F2(function (suffix,num) {    return {value: A2($Basics._op["++"],numberToString(num),suffix),angle: Compatible};});
+   var deg = angleConverter("deg");
+   var grad = angleConverter("grad");
+   var rad = angleConverter("rad");
+   var turn = angleConverter("turn");
+   var matrix = F6(function (a,b,c,d,tx,ty) {
+      return {value: A2(cssFunction,"matrix",A2($List.map,numberToString,_U.list([a,b,c,d,tx,ty]))),transform: Compatible};
+   });
+   var matrix3d = function (a1) {
+      return function (a2) {
+         return function (a3) {
+            return function (a4) {
+               return function (b1) {
+                  return function (b2) {
+                     return function (b3) {
+                        return function (b4) {
+                           return function (c1) {
+                              return function (c2) {
+                                 return function (c3) {
+                                    return function (c4) {
+                                       return function (d1) {
+                                          return function (d2) {
+                                             return function (d3) {
+                                                return function (d4) {
+                                                   return {value: A2(cssFunction,
+                                                          "matrix3d",
+                                                          A2($List.map,numberToString,_U.list([a1,a2,a3,a4,b1,b2,b3,b4,c1,c2,c3,c4,d1,d2,d3,d4])))
+                                                          ,transform: Compatible};
+                                                };
+                                             };
+                                          };
+                                       };
+                                    };
+                                 };
+                              };
+                           };
+                        };
+                     };
+                  };
+               };
+            };
+         };
+      };
+   };
+   var perspective = function (l) {    return {value: A2(cssFunction,"perspective",_U.list([numberToString(l)])),transform: Compatible};};
+   var rotate = function (_p19) {    var _p20 = _p19;return {value: A2(cssFunction,"rotate",_U.list([_p20.value])),transform: Compatible};};
+   var rotateX = function (_p21) {    var _p22 = _p21;return {value: A2(cssFunction,"rotateX",_U.list([_p22.value])),transform: Compatible};};
+   var rotateY = function (_p23) {    var _p24 = _p23;return {value: A2(cssFunction,"rotateY",_U.list([_p24.value])),transform: Compatible};};
+   var rotateZ = function (_p25) {    var _p26 = _p25;return {value: A2(cssFunction,"rotateZ",_U.list([_p26.value])),transform: Compatible};};
+   var rotate3d = F4(function (x,y,z,_p27) {
+      var _p28 = _p27;
+      var coordsAsStrings = A2($List.map,numberToString,_U.list([x,y,z]));
+      return {value: A2(cssFunction,"rotate3d",A2($Basics._op["++"],coordsAsStrings,_U.list([_p28.value]))),transform: Compatible};
+   });
+   var scale = function (x) {    return {value: A2(cssFunction,"scale",_U.list([numberToString(x)])),transform: Compatible};};
+   var scale2 = F2(function (x,y) {    return {value: A2(cssFunction,"scale",A2($List.map,numberToString,_U.list([x,y]))),transform: Compatible};});
+   var scaleX = function (x) {    return {value: A2(cssFunction,"scaleX",_U.list([numberToString(x)])),transform: Compatible};};
+   var scaleY = function (y) {    return {value: A2(cssFunction,"scaleY",_U.list([numberToString(y)])),transform: Compatible};};
+   var scale3d = F3(function (x,y,z) {    return {value: A2(cssFunction,"scale3d",A2($List.map,numberToString,_U.list([x,y,z]))),transform: Compatible};});
+   var skew = function (_p29) {    var _p30 = _p29;return {value: A2(cssFunction,"skew",_U.list([_p30.value])),transform: Compatible};};
+   var skew2 = F2(function (ax,ay) {    return {value: A2(cssFunction,"skew",_U.list([ax.value,ay.value])),transform: Compatible};});
+   var skewX = function (_p31) {    var _p32 = _p31;return {value: A2(cssFunction,"skewX",_U.list([_p32.value])),transform: Compatible};};
+   var skewY = function (_p33) {    var _p34 = _p33;return {value: A2(cssFunction,"skewY",_U.list([_p34.value])),transform: Compatible};};
+   var translate = function (_p35) {    var _p36 = _p35;return {value: A2(cssFunction,"translate",_U.list([_p36.value])),transform: Compatible};};
+   var translate2 = F2(function (tx,ty) {    return {value: A2(cssFunction,"translate",_U.list([tx.value,ty.value])),transform: Compatible};});
+   var translateX = function (_p37) {    var _p38 = _p37;return {value: A2(cssFunction,"translateX",_U.list([_p38.value])),transform: Compatible};};
+   var translateY = function (_p39) {    var _p40 = _p39;return {value: A2(cssFunction,"translateY",_U.list([_p40.value])),transform: Compatible};};
+   var translateZ = function (_p41) {    var _p42 = _p41;return {value: A2(cssFunction,"translateZ",_U.list([_p42.value])),transform: Compatible};};
+   var translate3d = F3(function (tx,ty,tz) {    return {value: A2(cssFunction,"translate3d",_U.list([tx.value,ty.value,tz.value])),transform: Compatible};});
+   var fillBox = {value: "fill-box",transformBox: Compatible};
+   var contentBox = {value: "content-box",boxSizing: Compatible};
+   var borderBox = {value: "border-box",boxSizing: Compatible};
+   var viewBox = {value: "view-box",transformBox: Compatible};
+   var preserve3d = {value: "preserve-3d",transformStyle: Compatible};
+   var flat = {value: "flat",transformStyle: Compatible};
+   var content = {value: "content",flexBasis: Compatible,lengthOrNumberOrAutoOrNoneOrContent: Compatible};
+   var wrap = {value: "wrap",flexWrap: Compatible,flexDirectionOrWrap: Compatible};
+   var wrapReverse = _U.update(wrap,{value: "wrap-reverse"});
+   var row = {value: "row",flexDirection: Compatible,flexDirectionOrWrap: Compatible};
+   var rowReverse = _U.update(row,{value: "row-reverse"});
+   var column = _U.update(row,{value: "column"});
+   var columnReverse = _U.update(row,{value: "column-reverse"});
+   var underline = {value: "underline",textDecorationLine: Compatible};
+   var overline = {value: "overline",textDecorationLine: Compatible};
+   var lineThrough = {value: "line-through",textDecorationLine: Compatible};
+   var block = {value: "block",display: Compatible};
+   var inlineBlock = {value: "inline-block",display: Compatible};
+   var inline = {value: "inline",display: Compatible};
+   var none = {value: "none"
+              ,none: Compatible
+              ,lengthOrNone: Compatible
+              ,lengthOrNoneOrMinMaxDimension: Compatible
+              ,lengthOrNumberOrAutoOrNoneOrContent: Compatible
+              ,textDecorationLine: Compatible
+              ,display: Compatible
+              ,transform: Compatible
+              ,borderStyle: Compatible};
+   var auto = {value: "auto"
+              ,flexBasis: Compatible
+              ,overflow: Compatible
+              ,textRendering: Compatible
+              ,lengthOrAuto: Compatible
+              ,lengthOrNumberOrAutoOrNoneOrContent: Compatible
+              ,alignItemsOrAuto: Compatible};
+   var noWrap = {value: "nowrap",whiteSpace: Compatible,flexWrap: Compatible,flexDirectionOrWrap: Compatible};
+   var fillAvailable = {value: "fill-available",minMaxDimension: Compatible,lengthOrMinMaxDimension: Compatible,lengthOrNoneOrMinMaxDimension: Compatible};
+   var maxContent = _U.update(fillAvailable,{value: "max-content"});
+   var minContent = _U.update(fillAvailable,{value: "min-content"});
+   var fitContent = _U.update(fillAvailable,{value: "fit-content"});
+   var $static = {value: "static",position: Compatible};
+   var fixed = {value: "fixed",position: Compatible};
+   var sticky = {value: "sticky",position: Compatible};
+   var relative = {value: "relative",position: Compatible};
+   var absolute = {value: "absolute",position: Compatible};
+   var serif = {value: "serif",fontFamily: Compatible};
+   var sansSerif = {value: "sans-serif",fontFamily: Compatible};
+   var monospace = {value: "monospace",fontFamily: Compatible};
+   var cursive = {value: "cursive",fontFamily: Compatible};
+   var fantasy = {value: "fantasy",fontFamily: Compatible};
+   var xxSmall = {value: "xx-small",fontSize: Compatible};
+   var xSmall = {value: "x-small",fontSize: Compatible};
+   var small = {value: "small",fontSize: Compatible};
+   var medium = {value: "medium",fontSize: Compatible};
+   var large = {value: "large",fontSize: Compatible};
+   var xLarge = {value: "x-large",fontSize: Compatible};
+   var xxLarge = {value: "xx-large",fontSize: Compatible};
+   var smaller = {value: "smaller",fontSize: Compatible};
+   var larger = {value: "larger",fontSize: Compatible};
+   var normal = {value: "normal",warnings: _U.list([]),fontStyle: Compatible,featureTagValue: Compatible};
+   var italic = {value: "italic",fontStyle: Compatible};
+   var oblique = {value: "oblique",fontStyle: Compatible};
+   var bold = {value: "bold",lengthOrNumberOrAutoOrNoneOrContent: Compatible};
+   var lighter = {value: "lighter",lengthOrNumberOrAutoOrNoneOrContent: Compatible};
+   var bolder = {value: "bolder",lengthOrNumberOrAutoOrNoneOrContent: Compatible};
+   var smallCaps = {value: "small-caps",fontVariant: Compatible,fontVariantCaps: Compatible};
+   var allSmallCaps = {value: "all-small-caps",fontVariant: Compatible,fontVariantCaps: Compatible};
+   var petiteCaps = {value: "petite-caps",fontVariant: Compatible,fontVariantCaps: Compatible};
+   var allPetiteCaps = {value: "all-petite-caps",fontVariant: Compatible,fontVariantCaps: Compatible};
+   var unicase = {value: "unicase",fontVariant: Compatible,fontVariantCaps: Compatible};
+   var titlingCaps = {value: "titling-caps",fontVariant: Compatible,fontVariantCaps: Compatible};
+   var commonLigatures = {value: "common-ligatures",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var noCommonLigatures = {value: "no-common-ligatures",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var discretionaryLigatures = {value: "discretionary-ligatures",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var noDiscretionaryLigatures = {value: "no-discretionary-ligatures",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var historicalLigatures = {value: "historical-ligatures",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var noHistoricalLigatures = {value: "no-historical-ligatures",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var contextual = {value: "context",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var noContextual = {value: "no-contextual",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var liningNums = {value: "lining-nums",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var oldstyleNums = {value: "oldstyle-nums",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var proportionalNums = {value: "proportional-nums",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var tabularNums = {value: "tabular-nums",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var diagonalFractions = {value: "diagonal-fractions",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var stackedFractions = {value: "stacked-fractions",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var ordinal = {value: "ordinal",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var slashedZero = {value: "slashed-zero",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var featureTag2 = F2(function (tag,value) {
+      var potentialWarnings = _U.list([{ctor: "_Tuple2"
+                                       ,_0: !_U.eq($String.length(tag),4)
+                                       ,_1: A2($Basics._op["++"],"Feature tags must be exactly 4 characters long. ",A2($Basics._op["++"],tag," is invalid."))}
+                                      ,{ctor: "_Tuple2"
+                                       ,_0: _U.cmp(value,0) < 0
+                                       ,_1: A2($Basics._op["++"],
+                                       "Feature values cannot be negative. ",
+                                       A2($Basics._op["++"],$Basics.toString(value)," is invalid."))}]);
+      var warnings = A2($List.map,$Basics.snd,A2($List.filter,$Basics.fst,potentialWarnings));
+      return {value: A2($Basics._op["++"],$Basics.toString(tag),A2($Basics._op["++"]," ",$Basics.toString(value)))
+             ,featureTagValue: Compatible
+             ,warnings: warnings};
+   });
+   var featureTag = function (tag) {    return A2(featureTag2,tag,1);};
+   return _elm.Css.values = {_op: _op
+                            ,compile: compile
+                            ,asPairs: asPairs
+                            ,stylesheet: stylesheet
+                            ,each: each
+                            ,media: media
+                            ,withMedia: withMedia
+                            ,withClass: withClass
+                            ,everything: everything
+                            ,children: children
+                            ,descendants: descendants
+                            ,adjacentSiblings: adjacentSiblings
+                            ,generalSiblings: generalSiblings
+                            ,mixin: mixin
+                            ,all: all
+                            ,property: property
+                            ,selector: selector
+                            ,important: important
+                            ,transformStyle: transformStyle
+                            ,eachLine: eachLine
+                            ,transformBox: transformBox
+                            ,transform: transform
+                            ,transforms: transforms
+                            ,currentColor: currentColor
+                            ,underline: underline
+                            ,overline: overline
+                            ,lineThrough: lineThrough
+                            ,textDecoration: textDecoration
+                            ,textDecoration2: textDecoration2
+                            ,textDecoration3: textDecoration3
+                            ,textDecorations: textDecorations
+                            ,textDecorations2: textDecorations2
+                            ,textDecorations3: textDecorations3
+                            ,textDecorationLine: textDecorationLine
+                            ,textDecorationLines: textDecorationLines
+                            ,textDecorationStyle: textDecorationStyle
+                            ,capitalize: capitalize
+                            ,uppercase: uppercase
+                            ,lowercase: lowercase
+                            ,fullWidth: fullWidth
+                            ,hanging: hanging
+                            ,textIndent: textIndent
+                            ,textIndent2: textIndent2
+                            ,textIndent3: textIndent3
+                            ,ellipsis: ellipsis
+                            ,clip: clip
+                            ,textOverflow: textOverflow
+                            ,optimizeSpeed: optimizeSpeed
+                            ,optimizeLegibility: optimizeLegibility
+                            ,geometricPrecision: geometricPrecision
+                            ,textRendering: textRendering
+                            ,textTransform: textTransform
+                            ,textShadow: textShadow
+                            ,textShadow2: textShadow2
+                            ,textShadow3: textShadow3
+                            ,textShadow4: textShadow4
+                            ,textAlign: textAlign
+                            ,textAlignLast: textAlignLast
+                            ,left: left
+                            ,right: right
+                            ,center: center
+                            ,textJustify: textJustify
+                            ,justifyAll: justifyAll
+                            ,start: start
+                            ,end: end
+                            ,matchParent: matchParent
+                            ,$true: $true
+                            ,verticalAlign: verticalAlign
+                            ,display: display
+                            ,opacity: opacity
+                            ,minContent: minContent
+                            ,maxContent: maxContent
+                            ,fitContent: fitContent
+                            ,fillAvailable: fillAvailable
+                            ,width: width
+                            ,minWidth: minWidth
+                            ,maxWidth: maxWidth
+                            ,height: height
+                            ,minHeight: minHeight
+                            ,maxHeight: maxHeight
+                            ,padding: padding
+                            ,padding2: padding2
+                            ,padding3: padding3
+                            ,padding4: padding4
+                            ,paddingTop: paddingTop
+                            ,paddingBottom: paddingBottom
+                            ,paddingRight: paddingRight
+                            ,paddingLeft: paddingLeft
+                            ,paddingBlockStart: paddingBlockStart
+                            ,paddingBlockEnd: paddingBlockEnd
+                            ,paddingInlineStart: paddingInlineStart
+                            ,paddingInlineEnd: paddingInlineEnd
+                            ,margin: margin
+                            ,margin2: margin2
+                            ,margin3: margin3
+                            ,margin4: margin4
+                            ,marginTop: marginTop
+                            ,marginBottom: marginBottom
+                            ,marginRight: marginRight
+                            ,marginLeft: marginLeft
+                            ,marginBlockStart: marginBlockStart
+                            ,marginBlockEnd: marginBlockEnd
+                            ,marginInlineStart: marginInlineStart
+                            ,marginInlineEnd: marginInlineEnd
+                            ,boxSizing: boxSizing
+                            ,overflow: overflow
+                            ,overflowX: overflowX
+                            ,overflowY: overflowY
+                            ,whiteSpace: whiteSpace
+                            ,backgroundColor: backgroundColor
+                            ,color: color
+                            ,solid: solid
+                            ,transparent: transparent
+                            ,rgb: rgb
+                            ,rgba: rgba
+                            ,hsl: hsl
+                            ,hsla: hsla
+                            ,hex: hex
+                            ,zero: zero
+                            ,pct: pct
+                            ,px: px
+                            ,em: em
+                            ,pt: pt
+                            ,ex: ex
+                            ,ch: ch
+                            ,rem: rem
+                            ,vh: vh
+                            ,vw: vw
+                            ,vmin: vmin
+                            ,vmax: vmax
+                            ,mm: mm
+                            ,cm: cm
+                            ,inches: inches
+                            ,pc: pc
+                            ,$int: $int
+                            ,$float: $float
+                            ,borderColor: borderColor
+                            ,borderColor2: borderColor2
+                            ,borderColor3: borderColor3
+                            ,borderColor4: borderColor4
+                            ,borderBottomLeftRadius: borderBottomLeftRadius
+                            ,borderBottomLeftRadius2: borderBottomLeftRadius2
+                            ,borderBottomRightRadius: borderBottomRightRadius
+                            ,borderBottomRightRadius2: borderBottomRightRadius2
+                            ,borderTopLeftRadius: borderTopLeftRadius
+                            ,borderTopLeftRadius2: borderTopLeftRadius2
+                            ,borderTopRightRadius: borderTopRightRadius
+                            ,borderTopRightRadius2: borderTopRightRadius2
+                            ,borderRadius: borderRadius
+                            ,borderRadius2: borderRadius2
+                            ,borderRadius3: borderRadius3
+                            ,borderRadius4: borderRadius4
+                            ,borderBottomWidth: borderBottomWidth
+                            ,borderInlineEndWidth: borderInlineEndWidth
+                            ,borderLeftWidth: borderLeftWidth
+                            ,borderRightWidth: borderRightWidth
+                            ,borderTopWidth: borderTopWidth
+                            ,borderBlockEndStyle: borderBlockEndStyle
+                            ,borderBlockStartStyle: borderBlockStartStyle
+                            ,borderInlineEndStyle: borderInlineEndStyle
+                            ,borderBottomStyle: borderBottomStyle
+                            ,borderInlineStartStyle: borderInlineStartStyle
+                            ,borderLeftStyle: borderLeftStyle
+                            ,borderRightStyle: borderRightStyle
+                            ,borderTopStyle: borderTopStyle
+                            ,borderStyle: borderStyle
+                            ,borderBlockStartColor: borderBlockStartColor
+                            ,borderBlockEndColor: borderBlockEndColor
+                            ,borderBottomColor: borderBottomColor
+                            ,borderInlineStartColor: borderInlineStartColor
+                            ,borderInlineEndColor: borderInlineEndColor
+                            ,borderLeftColor: borderLeftColor
+                            ,borderRightColor: borderRightColor
+                            ,borderTopColor: borderTopColor
+                            ,borderBox: borderBox
+                            ,contentBox: contentBox
+                            ,border: border
+                            ,border2: border2
+                            ,border3: border3
+                            ,borderTop: borderTop
+                            ,borderTop2: borderTop2
+                            ,borderTop3: borderTop3
+                            ,borderBottom: borderBottom
+                            ,borderBottom2: borderBottom2
+                            ,borderBottom3: borderBottom3
+                            ,borderLeft: borderLeft
+                            ,borderLeft2: borderLeft2
+                            ,borderLeft3: borderLeft3
+                            ,borderRight: borderRight
+                            ,borderRight2: borderRight2
+                            ,borderRight3: borderRight3
+                            ,borderBlockEnd: borderBlockEnd
+                            ,borderBlockEnd2: borderBlockEnd2
+                            ,borderBlockEnd3: borderBlockEnd3
+                            ,borderBlockStart: borderBlockStart
+                            ,borderBlockStart2: borderBlockStart2
+                            ,borderBlockStart3: borderBlockStart3
+                            ,borderInlineEnd: borderInlineEnd
+                            ,borderInlineEnd2: borderInlineEnd2
+                            ,borderInlineEnd3: borderInlineEnd3
+                            ,borderInlineStart: borderInlineStart
+                            ,borderInlineStart2: borderInlineStart2
+                            ,borderInlineStart3: borderInlineStart3
+                            ,borderImageOutset: borderImageOutset
+                            ,borderImageOutset2: borderImageOutset2
+                            ,borderImageOutset3: borderImageOutset3
+                            ,borderImageOutset4: borderImageOutset4
+                            ,borderImageWidth: borderImageWidth
+                            ,borderImageWidth2: borderImageWidth2
+                            ,borderImageWidth3: borderImageWidth3
+                            ,borderImageWidth4: borderImageWidth4
+                            ,scroll: scroll
+                            ,visible: visible
+                            ,block: block
+                            ,inlineBlock: inlineBlock
+                            ,inline: inline
+                            ,none: none
+                            ,auto: auto
+                            ,inherit: inherit
+                            ,initial: initial
+                            ,unset: unset
+                            ,noWrap: noWrap
+                            ,$static: $static
+                            ,fixed: fixed
+                            ,sticky: sticky
+                            ,relative: relative
+                            ,absolute: absolute
+                            ,position: position
+                            ,top: top
+                            ,bottom: bottom
+                            ,middle: middle
+                            ,baseline: baseline
+                            ,sub: sub
+                            ,$super: $super
+                            ,textTop: textTop
+                            ,textBottom: textBottom
+                            ,after: after
+                            ,before: before
+                            ,firstLetter: firstLetter
+                            ,firstLine: firstLine
+                            ,selection: selection
+                            ,active: active
+                            ,any: any
+                            ,checked: checked
+                            ,dir: dir
+                            ,disabled: disabled
+                            ,empty: empty
+                            ,enabled: enabled
+                            ,first: first
+                            ,firstChild: firstChild
+                            ,firstOfType: firstOfType
+                            ,fullscreen: fullscreen
+                            ,focus: focus
+                            ,hover: hover
+                            ,indeterminate: indeterminate
+                            ,invalid: invalid
+                            ,lang: lang
+                            ,lastChild: lastChild
+                            ,lastOfType: lastOfType
+                            ,link: link
+                            ,nthChild: nthChild
+                            ,nthLastChild: nthLastChild
+                            ,nthLastOfType: nthLastOfType
+                            ,nthOfType: nthOfType
+                            ,onlyChild: onlyChild
+                            ,onlyOfType: onlyOfType
+                            ,optional: optional
+                            ,outOfRange: outOfRange
+                            ,readWrite: readWrite
+                            ,required: required
+                            ,root: root
+                            ,scope: scope
+                            ,target: target
+                            ,valid: valid
+                            ,hidden: hidden
+                            ,wavy: wavy
+                            ,dotted: dotted
+                            ,dashed: dashed
+                            ,$double: $double
+                            ,groove: groove
+                            ,ridge: ridge
+                            ,inset: inset
+                            ,outset: outset
+                            ,blink: blink
+                            ,thin: thin
+                            ,medium: medium
+                            ,thick: thick
+                            ,matrix: matrix
+                            ,matrix3d: matrix3d
+                            ,perspective: perspective
+                            ,rotate3d: rotate3d
+                            ,rotateX: rotateX
+                            ,rotateY: rotateY
+                            ,rotateZ: rotateZ
+                            ,scale: scale
+                            ,scale2: scale2
+                            ,scale3d: scale3d
+                            ,scaleX: scaleX
+                            ,scaleY: scaleY
+                            ,skew: skew
+                            ,skew2: skew2
+                            ,skewX: skewX
+                            ,skewY: skewY
+                            ,translate: translate
+                            ,translate2: translate2
+                            ,translate3d: translate3d
+                            ,translateX: translateX
+                            ,translateY: translateY
+                            ,translateZ: translateZ
+                            ,rotate: rotate
+                            ,fillBox: fillBox
+                            ,viewBox: viewBox
+                            ,flat: flat
+                            ,preserve3d: preserve3d
+                            ,deg: deg
+                            ,rad: rad
+                            ,grad: grad
+                            ,turn: turn
+                            ,displayFlex: displayFlex
+                            ,flex: flex
+                            ,flex2: flex2
+                            ,flex3: flex3
+                            ,flexBasis: flexBasis
+                            ,flexDirection: flexDirection
+                            ,flexFlow1: flexFlow1
+                            ,flexFlow2: flexFlow2
+                            ,flexGrow: flexGrow
+                            ,flexShrink: flexShrink
+                            ,flexWrap: flexWrap
+                            ,order: order
+                            ,alignItems: alignItems
+                            ,alignSelf: alignSelf
+                            ,content: content
+                            ,wrapReverse: wrapReverse
+                            ,wrap: wrap
+                            ,flexStart: flexStart
+                            ,flexEnd: flexEnd
+                            ,stretch: stretch
+                            ,row: row
+                            ,rowReverse: rowReverse
+                            ,column: column
+                            ,columnReverse: columnReverse
+                            ,lineHeight: lineHeight
+                            ,fontFace: fontFace
+                            ,fontFamily: fontFamily
+                            ,fontSize: fontSize
+                            ,fontStyle: fontStyle
+                            ,fontWeight: fontWeight
+                            ,fontVariant: fontVariant
+                            ,fontVariant2: fontVariant2
+                            ,fontVariant3: fontVariant3
+                            ,fontVariantLigatures: fontVariantLigatures
+                            ,fontVariantCaps: fontVariantCaps
+                            ,fontVariantNumeric: fontVariantNumeric
+                            ,fontVariantNumeric2: fontVariantNumeric2
+                            ,fontVariantNumeric3: fontVariantNumeric3
+                            ,serif: serif
+                            ,sansSerif: sansSerif
+                            ,monospace: monospace
+                            ,cursive: cursive
+                            ,fantasy: fantasy
+                            ,xxSmall: xxSmall
+                            ,xSmall: xSmall
+                            ,small: small
+                            ,large: large
+                            ,xLarge: xLarge
+                            ,xxLarge: xxLarge
+                            ,smaller: smaller
+                            ,larger: larger
+                            ,normal: normal
+                            ,italic: italic
+                            ,oblique: oblique
+                            ,bold: bold
+                            ,lighter: lighter
+                            ,bolder: bolder
+                            ,smallCaps: smallCaps
+                            ,allSmallCaps: allSmallCaps
+                            ,petiteCaps: petiteCaps
+                            ,allPetiteCaps: allPetiteCaps
+                            ,unicase: unicase
+                            ,titlingCaps: titlingCaps
+                            ,commonLigatures: commonLigatures
+                            ,noCommonLigatures: noCommonLigatures
+                            ,discretionaryLigatures: discretionaryLigatures
+                            ,noDiscretionaryLigatures: noDiscretionaryLigatures
+                            ,historicalLigatures: historicalLigatures
+                            ,noHistoricalLigatures: noHistoricalLigatures
+                            ,contextual: contextual
+                            ,noContextual: noContextual
+                            ,liningNums: liningNums
+                            ,oldstyleNums: oldstyleNums
+                            ,proportionalNums: proportionalNums
+                            ,tabularNums: tabularNums
+                            ,diagonalFractions: diagonalFractions
+                            ,stackedFractions: stackedFractions
+                            ,ordinal: ordinal
+                            ,slashedZero: slashedZero
+                            ,screen: screen
+                            ,print: print
+                            ,projection: projection
+                            ,tv: tv
+                            ,mediaQuery: mediaQuery
+                            ,src: src
+                            ,qt: qt
+                            ,fontFamilies: fontFamilies
+                            ,fontVariantNumerics: fontVariantNumerics
+                            ,fontFeatureSettings: fontFeatureSettings
+                            ,fontFeatureSettingsList: fontFeatureSettingsList
+                            ,featureTag: featureTag
+                            ,featureTag2: featureTag2
+                            ,featureOn: featureOn
+                            ,featureOff: featureOff};
+};

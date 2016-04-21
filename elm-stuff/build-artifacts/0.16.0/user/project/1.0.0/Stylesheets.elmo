@@ -1,0 +1,22 @@
+Elm.Stylesheets = Elm.Stylesheets || {};
+Elm.Stylesheets.make = function (_elm) {
+   "use strict";
+   _elm.Stylesheets = _elm.Stylesheets || {};
+   if (_elm.Stylesheets.values) return _elm.Stylesheets.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css$File = Elm.Css.File.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $MyCss = Elm.MyCss.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var files = Elm.Native.Port.make(_elm).outbound("files",
+   function (v) {
+      return Elm.Native.List.make(_elm).toArray(v).map(function (v) {    return {filename: v.filename,content: v.content,success: v.success};});
+   },
+   $Css$File.toFileStructure(_U.list([{ctor: "_Tuple2",_0: "styles.css",_1: $Css$File.compile($MyCss.css)}])));
+   return _elm.Stylesheets.values = {_op: _op};
+};

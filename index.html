@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html><head><meta charset="UTF-8"><title>Hello</title><style>html,head,body { padding:0; margin:0; }
+<html><head><meta charset="UTF-8"><title>MyCss</title><style>html,head,body { padding:0; margin:0; }
 body { font-family: calibri, helvetica, arial, sans-serif; }</style><script type="text/javascript">var Elm = Elm || { Native: {} };Elm.Native.Array = {};
 Elm.Native.Array.make = function(localRuntime) {
 
@@ -8095,61 +8095,163 @@ Elm.Json.Decode.make = function (_elm) {
                                     ,andThen: andThen
                                     ,value: value
                                     ,customDecoder: customDecoder};
-};Elm.Native = Elm.Native || {};
-Elm.Native.Mouse = {};
-Elm.Native.Mouse.make = function(localRuntime) {
+};Elm.Native.Regex = {};
+Elm.Native.Regex.make = function(localRuntime) {
 	localRuntime.Native = localRuntime.Native || {};
-	localRuntime.Native.Mouse = localRuntime.Native.Mouse || {};
-	if (localRuntime.Native.Mouse.values)
+	localRuntime.Native.Regex = localRuntime.Native.Regex || {};
+	if (localRuntime.Native.Regex.values)
 	{
-		return localRuntime.Native.Mouse.values;
+		return localRuntime.Native.Regex.values;
+	}
+	if ('values' in Elm.Native.Regex)
+	{
+		return localRuntime.Native.Regex.values = Elm.Native.Regex.values;
 	}
 
-	var NS = Elm.Native.Signal.make(localRuntime);
-	var Utils = Elm.Native.Utils.make(localRuntime);
+	var List = Elm.Native.List.make(localRuntime);
+	var Maybe = Elm.Maybe.make(localRuntime);
 
-	var position = NS.input('Mouse.position', Utils.Tuple2(0, 0));
+	function escape(str)
+	{
+		return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+	}
+	function caseInsensitive(re)
+	{
+		return new RegExp(re.source, 'gi');
+	}
+	function regex(raw)
+	{
+		return new RegExp(raw, 'g');
+	}
 
-	var isDown = NS.input('Mouse.isDown', false);
+	function contains(re, string)
+	{
+		return string.match(re) !== null;
+	}
 
-	var clicks = NS.input('Mouse.clicks', Utils.Tuple0);
+	function find(n, re, str)
+	{
+		n = n.ctor === 'All' ? Infinity : n._0;
+		var out = [];
+		var number = 0;
+		var string = str;
+		var lastIndex = re.lastIndex;
+		var prevLastIndex = -1;
+		var result;
+		while (number++ < n && (result = re.exec(string)))
+		{
+			if (prevLastIndex === re.lastIndex) break;
+			var i = result.length - 1;
+			var subs = new Array(i);
+			while (i > 0)
+			{
+				var submatch = result[i];
+				subs[--i] = submatch === undefined
+					? Maybe.Nothing
+					: Maybe.Just(submatch);
+			}
+			out.push({
+				match: result[0],
+				submatches: List.fromArray(subs),
+				index: result.index,
+				number: number
+			});
+			prevLastIndex = re.lastIndex;
+		}
+		re.lastIndex = lastIndex;
+		return List.fromArray(out);
+	}
 
-	var node = localRuntime.isFullscreen()
-		? document
-		: localRuntime.node;
+	function replace(n, re, replacer, string)
+	{
+		n = n.ctor === 'All' ? Infinity : n._0;
+		var count = 0;
+		function jsReplacer(match)
+		{
+			if (count++ >= n)
+			{
+				return match;
+			}
+			var i = arguments.length - 3;
+			var submatches = new Array(i);
+			while (i > 0)
+			{
+				var submatch = arguments[i];
+				submatches[--i] = submatch === undefined
+					? Maybe.Nothing
+					: Maybe.Just(submatch);
+			}
+			return replacer({
+				match: match,
+				submatches: List.fromArray(submatches),
+				index: arguments[i - 1],
+				number: count
+			});
+		}
+		return string.replace(re, jsReplacer);
+	}
 
-	localRuntime.addListener([clicks.id], node, 'click', function click() {
-		localRuntime.notify(clicks.id, Utils.Tuple0);
-	});
-	localRuntime.addListener([isDown.id], node, 'mousedown', function down() {
-		localRuntime.notify(isDown.id, true);
-	});
-	localRuntime.addListener([isDown.id], node, 'mouseup', function up() {
-		localRuntime.notify(isDown.id, false);
-	});
-	localRuntime.addListener([position.id], node, 'mousemove', function move(e) {
-		localRuntime.notify(position.id, Utils.getXY(e));
-	});
+	function split(n, re, str)
+	{
+		n = n.ctor === 'All' ? Infinity : n._0;
+		if (n === Infinity)
+		{
+			return List.fromArray(str.split(re));
+		}
+		var string = str;
+		var result;
+		var out = [];
+		var start = re.lastIndex;
+		while (n--)
+		{
+			if (!(result = re.exec(string))) break;
+			out.push(string.slice(start, result.index));
+			start = re.lastIndex;
+		}
+		out.push(string.slice(start));
+		return List.fromArray(out);
+	}
 
-	return localRuntime.Native.Mouse.values = {
-		position: position,
-		isDown: isDown,
-		clicks: clicks
+	return Elm.Native.Regex.values = {
+		regex: regex,
+		caseInsensitive: caseInsensitive,
+		escape: escape,
+
+		contains: F2(contains),
+		find: F3(find),
+		replace: F4(replace),
+		split: F3(split)
 	};
 };
-Elm.Mouse = Elm.Mouse || {};
-Elm.Mouse.make = function (_elm) {
+Elm.Regex = Elm.Regex || {};
+Elm.Regex.make = function (_elm) {
    "use strict";
-   _elm.Mouse = _elm.Mouse || {};
-   if (_elm.Mouse.values) return _elm.Mouse.values;
-   var _U = Elm.Native.Utils.make(_elm),$Basics = Elm.Basics.make(_elm),$Native$Mouse = Elm.Native.Mouse.make(_elm),$Signal = Elm.Signal.make(_elm);
+   _elm.Regex = _elm.Regex || {};
+   if (_elm.Regex.values) return _elm.Regex.values;
+   var _U = Elm.Native.Utils.make(_elm),$Maybe = Elm.Maybe.make(_elm),$Native$Regex = Elm.Native.Regex.make(_elm);
    var _op = {};
-   var clicks = $Native$Mouse.clicks;
-   var isDown = $Native$Mouse.isDown;
-   var position = $Native$Mouse.position;
-   var x = A2($Signal.map,$Basics.fst,position);
-   var y = A2($Signal.map,$Basics.snd,position);
-   return _elm.Mouse.values = {_op: _op,position: position,x: x,y: y,isDown: isDown,clicks: clicks};
+   var split = $Native$Regex.split;
+   var replace = $Native$Regex.replace;
+   var find = $Native$Regex.find;
+   var AtMost = function (a) {    return {ctor: "AtMost",_0: a};};
+   var All = {ctor: "All"};
+   var Match = F4(function (a,b,c,d) {    return {match: a,submatches: b,index: c,number: d};});
+   var contains = $Native$Regex.contains;
+   var caseInsensitive = $Native$Regex.caseInsensitive;
+   var regex = $Native$Regex.regex;
+   var escape = $Native$Regex.escape;
+   var Regex = {ctor: "Regex"};
+   return _elm.Regex.values = {_op: _op
+                              ,regex: regex
+                              ,escape: escape
+                              ,caseInsensitive: caseInsensitive
+                              ,contains: contains
+                              ,find: find
+                              ,replace: replace
+                              ,split: split
+                              ,Match: Match
+                              ,All: All
+                              ,AtMost: AtMost};
 };(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 
 },{}],2:[function(require,module,exports){
@@ -10237,28 +10339,2589 @@ Elm.Html.Attributes.make = function (_elm) {
                                         ,manifest: manifest
                                         ,property: property
                                         ,attribute: attribute};
-};Elm.Hello = Elm.Hello || {};
-Elm.Hello.make = function (_elm) {
+};Elm.Css = Elm.Css || {};
+Elm.Css.Helpers = Elm.Css.Helpers || {};
+Elm.Css.Helpers.make = function (_elm) {
    "use strict";
-   _elm.Hello = _elm.Hello || {};
-   if (_elm.Hello.values) return _elm.Hello.values;
+   _elm.Css = _elm.Css || {};
+   _elm.Css.Helpers = _elm.Css.Helpers || {};
+   if (_elm.Css.Helpers.values) return _elm.Css.Helpers.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
-   $Html = Elm.Html.make(_elm),
-   $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $Mouse = Elm.Mouse.make(_elm),
+   $Regex = Elm.Regex.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm);
+   var _op = {};
+   var toCssIdentifier = function (identifier) {
+      return A4($Regex.replace,
+      $Regex.All,
+      $Regex.regex("[^a-zA-Z0-9_-]"),
+      function (_p0) {
+         return "";
+      },
+      A4($Regex.replace,$Regex.All,$Regex.regex("\\s+"),function (_p1) {    return "-";},$String.trim($Basics.toString(identifier))));
+   };
+   var identifierToString = F2(function (name,identifier) {    return A2($Basics._op["++"],toCssIdentifier(name),toCssIdentifier(identifier));});
+   return _elm.Css.Helpers.values = {_op: _op,toCssIdentifier: toCssIdentifier,identifierToString: identifierToString};
+};Elm.Css = Elm.Css || {};
+Elm.Css.Structure = Elm.Css.Structure || {};
+Elm.Css.Structure.make = function (_elm) {
+   "use strict";
+   _elm.Css = _elm.Css || {};
+   _elm.Css.Structure = _elm.Css.Structure || {};
+   if (_elm.Css.Structure.values) return _elm.Css.Structure.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var pointerView = function (_p0) {
-      var _p1 = _p0;
-      return $Html.text(A2($Basics._op["++"],"x = ",A2($Basics._op["++"],$Basics.toString(_p1._0),A2($Basics._op["++"],", y = ",$Basics.toString(_p1._1)))));
+   var dropEmptyDeclarations = function (declarations) {
+      dropEmptyDeclarations: while (true) {
+         var _p0 = declarations;
+         if (_p0.ctor === "[]") {
+               return _U.list([]);
+            } else {
+               switch (_p0._0.ctor)
+               {case "StyleBlockDeclaration": var _p1 = _p0._1;
+                    if ($List.isEmpty(_p0._0._0._2)) {
+                          var _v1 = _p1;
+                          declarations = _v1;
+                          continue dropEmptyDeclarations;
+                       } else return A2($List._op["::"],_p0._0,dropEmptyDeclarations(_p1));
+                  case "MediaRule": var _p4 = _p0._1;
+                    if (A2($List.all,function (_p2) {    var _p3 = _p2;return $List.isEmpty(_p3._2);},_p0._0._1)) {
+                          var _v3 = _p4;
+                          declarations = _v3;
+                          continue dropEmptyDeclarations;
+                       } else return A2($List._op["::"],_p0._0,dropEmptyDeclarations(_p4));
+                  case "SupportsRule": var _p5 = _p0._1;
+                    if ($List.isEmpty(_p0._0._1)) {
+                          var _v4 = _p5;
+                          declarations = _v4;
+                          continue dropEmptyDeclarations;
+                       } else return A2($List._op["::"],_p0._0,dropEmptyDeclarations(_p5));
+                  case "DocumentRule": return A2($List._op["::"],_p0._0,dropEmptyDeclarations(_p0._1));
+                  case "PageRule": var _p6 = _p0._1;
+                    if ($List.isEmpty(_p0._0._1)) {
+                          var _v5 = _p6;
+                          declarations = _v5;
+                          continue dropEmptyDeclarations;
+                       } else return A2($List._op["::"],_p0._0,dropEmptyDeclarations(_p6));
+                  case "FontFace": var _p7 = _p0._1;
+                    if ($List.isEmpty(_p0._0._0)) {
+                          var _v6 = _p7;
+                          declarations = _v6;
+                          continue dropEmptyDeclarations;
+                       } else return A2($List._op["::"],_p0._0,dropEmptyDeclarations(_p7));
+                  case "Keyframes": var _p8 = _p0._1;
+                    if ($List.isEmpty(_p0._0._1)) {
+                          var _v7 = _p8;
+                          declarations = _v7;
+                          continue dropEmptyDeclarations;
+                       } else return A2($List._op["::"],_p0._0,dropEmptyDeclarations(_p8));
+                  case "Viewport": var _p9 = _p0._1;
+                    if ($List.isEmpty(_p0._0._0)) {
+                          var _v8 = _p9;
+                          declarations = _v8;
+                          continue dropEmptyDeclarations;
+                       } else return A2($List._op["::"],_p0._0,dropEmptyDeclarations(_p9));
+                  case "CounterStyle": var _p10 = _p0._1;
+                    if ($List.isEmpty(_p0._0._0)) {
+                          var _v9 = _p10;
+                          declarations = _v9;
+                          continue dropEmptyDeclarations;
+                       } else return A2($List._op["::"],_p0._0,dropEmptyDeclarations(_p10));
+                  default: var _p13 = _p0._1;
+                    if (A2($List.all,function (_p11) {    var _p12 = _p11;return $List.isEmpty(_p12._1);},_p0._0._0)) {
+                          var _v11 = _p13;
+                          declarations = _v11;
+                          continue dropEmptyDeclarations;
+                       } else return A2($List._op["::"],_p0._0,dropEmptyDeclarations(_p13));}
+            }
+      }
    };
-   var imageView = function (model) {    return A2($Html.img,_U.list([$Html$Attributes.src("images/left.png")]),_U.list([]));};
-   var view = function (model) {    return A2($Html.div,_U.list([]),_U.list([pointerView(model),imageView(model)]));};
-   var main = A2($Signal.map,view,$Mouse.position);
-   return _elm.Hello.values = {_op: _op,main: main};
-};</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Hello)</script></body></html>
+   var dropEmpty = function (_p14) {
+      var _p15 = _p14;
+      return {charset: _p15.charset,imports: _p15.imports,namespaces: _p15.namespaces,declarations: dropEmptyDeclarations(_p15.declarations)};
+   };
+   var concatMapLast = F2(function (update,list) {
+      var _p16 = list;
+      if (_p16.ctor === "[]") {
+            return list;
+         } else {
+            if (_p16._1.ctor === "[]") {
+                  return update(_p16._0);
+               } else {
+                  return A2($List._op["::"],_p16._0,A2(concatMapLast,update,_p16._1));
+               }
+         }
+   });
+   var mapLast = F2(function (update,list) {
+      var _p17 = list;
+      if (_p17.ctor === "[]") {
+            return list;
+         } else {
+            if (_p17._1.ctor === "[]") {
+                  return _U.list([update(_p17._0)]);
+               } else {
+                  return A2($List._op["::"],_p17._0,A2(mapLast,update,_p17._1));
+               }
+         }
+   });
+   var Descendant = {ctor: "Descendant"};
+   var Child = {ctor: "Child"};
+   var GeneralSibling = {ctor: "GeneralSibling"};
+   var AdjacentSibling = {ctor: "AdjacentSibling"};
+   var PseudoElement = function (a) {    return {ctor: "PseudoElement",_0: a};};
+   var TypeSelector = function (a) {    return {ctor: "TypeSelector",_0: a};};
+   var PseudoClassSelector = function (a) {    return {ctor: "PseudoClassSelector",_0: a};};
+   var IdSelector = function (a) {    return {ctor: "IdSelector",_0: a};};
+   var ClassSelector = function (a) {    return {ctor: "ClassSelector",_0: a};};
+   var CustomSelector = F2(function (a,b) {    return {ctor: "CustomSelector",_0: a,_1: b};});
+   var UniversalSelectorSequence = function (a) {    return {ctor: "UniversalSelectorSequence",_0: a};};
+   var TypeSelectorSequence = F2(function (a,b) {    return {ctor: "TypeSelectorSequence",_0: a,_1: b};});
+   var appendRepeatable = F2(function (selector,sequence) {
+      var _p18 = sequence;
+      switch (_p18.ctor)
+      {case "TypeSelectorSequence": return A2(TypeSelectorSequence,_p18._0,A2($Basics._op["++"],_p18._1,_U.list([selector])));
+         case "UniversalSelectorSequence": return UniversalSelectorSequence(A2($Basics._op["++"],_p18._0,_U.list([selector])));
+         default: return A2(CustomSelector,_p18._0,A2($Basics._op["++"],_p18._1,_U.list([selector])));}
+   });
+   var appendRepeatableWithCombinator = F2(function (selector,list) {
+      var _p19 = list;
+      if (_p19.ctor === "[]") {
+            return _U.list([]);
+         } else {
+            if (_p19._0.ctor === "_Tuple2" && _p19._1.ctor === "[]") {
+                  return _U.list([{ctor: "_Tuple2",_0: _p19._0._0,_1: A2(appendRepeatable,selector,_p19._0._1)}]);
+               } else {
+                  return A2($List._op["::"],_p19._0,A2(appendRepeatableWithCombinator,selector,_p19._1));
+               }
+         }
+   });
+   var Selector = F3(function (a,b,c) {    return {ctor: "Selector",_0: a,_1: b,_2: c};});
+   var appendRepeatableSelector = F2(function (repeatableSimpleSelector,selector) {
+      var _p20 = selector;
+      if (_p20._1.ctor === "[]") {
+            return A3(Selector,A2(appendRepeatable,repeatableSimpleSelector,_p20._0),_U.list([]),_p20._2);
+         } else {
+            return A3(Selector,_p20._0,A2(appendRepeatableWithCombinator,repeatableSimpleSelector,_p20._1),_p20._2);
+         }
+   });
+   var MediaQuery = function (a) {    return {ctor: "MediaQuery",_0: a};};
+   var StyleBlock = F3(function (a,b,c) {    return {ctor: "StyleBlock",_0: a,_1: b,_2: c};});
+   var withPropertyAppended = F2(function (property,_p21) {
+      var _p22 = _p21;
+      return A3(StyleBlock,_p22._0,_p22._1,A2($Basics._op["++"],_p22._2,_U.list([property])));
+   });
+   var appendToLastSelector = F2(function (selector,styleBlock) {
+      var _p23 = styleBlock;
+      if (_p23._1.ctor === "[]") {
+            var _p24 = _p23._0;
+            return _U.list([A3(StyleBlock,_p24,_U.list([]),_p23._2),A3(StyleBlock,A2(appendRepeatableSelector,selector,_p24),_U.list([]),_U.list([]))]);
+         } else {
+            var _p26 = _p23._1;
+            var _p25 = _p23._0;
+            var newRest = A2(mapLast,appendRepeatableSelector(selector),_p26);
+            return _U.list([A3(StyleBlock,_p25,_p26,_p23._2),A3(StyleBlock,_p25,newRest,_U.list([]))]);
+         }
+   });
+   var FontFeatureValues = function (a) {    return {ctor: "FontFeatureValues",_0: a};};
+   var CounterStyle = function (a) {    return {ctor: "CounterStyle",_0: a};};
+   var Viewport = function (a) {    return {ctor: "Viewport",_0: a};};
+   var Keyframes = F2(function (a,b) {    return {ctor: "Keyframes",_0: a,_1: b};});
+   var FontFace = function (a) {    return {ctor: "FontFace",_0: a};};
+   var PageRule = F2(function (a,b) {    return {ctor: "PageRule",_0: a,_1: b};});
+   var DocumentRule = F5(function (a,b,c,d,e) {    return {ctor: "DocumentRule",_0: a,_1: b,_2: c,_3: d,_4: e};});
+   var SupportsRule = F2(function (a,b) {    return {ctor: "SupportsRule",_0: a,_1: b};});
+   var MediaRule = F2(function (a,b) {    return {ctor: "MediaRule",_0: a,_1: b};});
+   var StyleBlockDeclaration = function (a) {    return {ctor: "StyleBlockDeclaration",_0: a};};
+   var appendProperty = F2(function (property,declarations) {
+      var _p27 = declarations;
+      if (_p27.ctor === "[]") {
+            return declarations;
+         } else {
+            if (_p27._1.ctor === "[]") {
+                  switch (_p27._0.ctor)
+                  {case "StyleBlockDeclaration": return _U.list([StyleBlockDeclaration(A2(withPropertyAppended,property,_p27._0._0))]);
+                     case "MediaRule": return _U.list([A2(MediaRule,_p27._0._0,A2(mapLast,withPropertyAppended(property),_p27._0._1))]);
+                     default: return declarations;}
+               } else {
+                  return A2($List._op["::"],_p27._0,A2(appendProperty,property,_p27._1));
+               }
+         }
+   });
+   var extendLastSelector = F2(function (selector,declarations) {
+      var _p28 = declarations;
+      _v21_15: do {
+         if (_p28.ctor === "[]") {
+               return declarations;
+            } else {
+               if (_p28._1.ctor === "[]") {
+                     switch (_p28._0.ctor)
+                     {case "StyleBlockDeclaration": if (_p28._0._0._1.ctor === "[]") {
+                                return _U.list([StyleBlockDeclaration(A3(StyleBlock,
+                                A2(appendRepeatableSelector,selector,_p28._0._0._0),
+                                _U.list([]),
+                                _p28._0._0._2))]);
+                             } else {
+                                var newRest = A2(mapLast,appendRepeatableSelector(selector),_p28._0._0._1);
+                                return _U.list([StyleBlockDeclaration(A3(StyleBlock,_p28._0._0._0,newRest,_p28._0._0._2))]);
+                             }
+                        case "MediaRule": if (_p28._0._1.ctor === "::") {
+                                if (_p28._0._1._1.ctor === "[]") {
+                                      if (_p28._0._1._0._1.ctor === "[]") {
+                                            var newStyleBlock = A3(StyleBlock,
+                                            A2(appendRepeatableSelector,selector,_p28._0._1._0._0),
+                                            _U.list([]),
+                                            _p28._0._1._0._2);
+                                            return _U.list([A2(MediaRule,_p28._0._0,_U.list([newStyleBlock]))]);
+                                         } else {
+                                            var newRest = A2(mapLast,appendRepeatableSelector(selector),_p28._0._1._0._1);
+                                            var newStyleBlock = A3(StyleBlock,_p28._0._1._0._0,newRest,_p28._0._1._0._2);
+                                            return _U.list([A2(MediaRule,_p28._0._0,_U.list([newStyleBlock]))]);
+                                         }
+                                   } else {
+                                      var _p29 = A2(extendLastSelector,selector,_U.list([A2(MediaRule,_p28._0._0,_p28._0._1._1)]));
+                                      if (_p29.ctor === "::" && _p29._0.ctor === "MediaRule" && _p29._1.ctor === "[]") {
+                                            return _U.list([A2(MediaRule,_p29._0._0,A2($List._op["::"],_p28._0._1._0,_p29._0._1))]);
+                                         } else {
+                                            return _p29;
+                                         }
+                                   }
+                             } else {
+                                break _v21_15;
+                             }
+                        case "SupportsRule": return _U.list([A2(SupportsRule,_p28._0._0,A2(extendLastSelector,selector,_p28._0._1))]);
+                        case "DocumentRule": if (_p28._0._4._1.ctor === "[]") {
+                                var newStyleBlock = A3(StyleBlock,A2(appendRepeatableSelector,selector,_p28._0._4._0),_U.list([]),_p28._0._4._2);
+                                return _U.list([A5(DocumentRule,_p28._0._0,_p28._0._1,_p28._0._2,_p28._0._3,newStyleBlock)]);
+                             } else {
+                                var newRest = A2(mapLast,appendRepeatableSelector(selector),_p28._0._4._1);
+                                var newStyleBlock = A3(StyleBlock,_p28._0._4._0,newRest,_p28._0._4._2);
+                                return _U.list([A5(DocumentRule,_p28._0._0,_p28._0._1,_p28._0._2,_p28._0._3,newStyleBlock)]);
+                             }
+                        case "PageRule": return declarations;
+                        case "FontFace": return declarations;
+                        case "Keyframes": return declarations;
+                        case "Viewport": return declarations;
+                        case "CounterStyle": return declarations;
+                        default: return declarations;}
+                  } else {
+                     break _v21_15;
+                  }
+            }
+      } while (false);
+      return A2($List._op["::"],_p28._0,A2(extendLastSelector,selector,_p28._1));
+   });
+   var concatMapLastStyleBlock = F2(function (update,declarations) {
+      var _p30 = declarations;
+      _v23_12: do {
+         if (_p30.ctor === "[]") {
+               return declarations;
+            } else {
+               if (_p30._1.ctor === "[]") {
+                     switch (_p30._0.ctor)
+                     {case "StyleBlockDeclaration": return A2($List.map,StyleBlockDeclaration,update(_p30._0._0));
+                        case "MediaRule": if (_p30._0._1.ctor === "::") {
+                                if (_p30._0._1._1.ctor === "[]") {
+                                      return _U.list([A2(MediaRule,_p30._0._0,update(_p30._0._1._0))]);
+                                   } else {
+                                      var _p31 = A2(concatMapLastStyleBlock,update,_U.list([A2(MediaRule,_p30._0._0,_p30._0._1._1)]));
+                                      if (_p31.ctor === "::" && _p31._0.ctor === "MediaRule" && _p31._1.ctor === "[]") {
+                                            return _U.list([A2(MediaRule,_p31._0._0,A2($List._op["::"],_p30._0._1._0,_p31._0._1))]);
+                                         } else {
+                                            return _p31;
+                                         }
+                                   }
+                             } else {
+                                break _v23_12;
+                             }
+                        case "SupportsRule": return _U.list([A2(SupportsRule,_p30._0._0,A2(concatMapLastStyleBlock,update,_p30._0._1))]);
+                        case "DocumentRule": return A2($List.map,A4(DocumentRule,_p30._0._0,_p30._0._1,_p30._0._2,_p30._0._3),update(_p30._0._4));
+                        case "PageRule": return declarations;
+                        case "FontFace": return declarations;
+                        case "Keyframes": return declarations;
+                        case "Viewport": return declarations;
+                        case "CounterStyle": return declarations;
+                        default: return declarations;}
+                  } else {
+                     break _v23_12;
+                  }
+            }
+      } while (false);
+      return A2($List._op["::"],_p30._0,A2(concatMapLastStyleBlock,update,_p30._1));
+   });
+   var Stylesheet = F4(function (a,b,c,d) {    return {charset: a,imports: b,namespaces: c,declarations: d};});
+   var Property = F3(function (a,b,c) {    return {important: a,key: b,value: c};});
+   return _elm.Css.Structure.values = {_op: _op
+                                      ,Property: Property
+                                      ,Stylesheet: Stylesheet
+                                      ,StyleBlockDeclaration: StyleBlockDeclaration
+                                      ,MediaRule: MediaRule
+                                      ,SupportsRule: SupportsRule
+                                      ,DocumentRule: DocumentRule
+                                      ,PageRule: PageRule
+                                      ,FontFace: FontFace
+                                      ,Keyframes: Keyframes
+                                      ,Viewport: Viewport
+                                      ,CounterStyle: CounterStyle
+                                      ,FontFeatureValues: FontFeatureValues
+                                      ,StyleBlock: StyleBlock
+                                      ,MediaQuery: MediaQuery
+                                      ,Selector: Selector
+                                      ,TypeSelectorSequence: TypeSelectorSequence
+                                      ,UniversalSelectorSequence: UniversalSelectorSequence
+                                      ,CustomSelector: CustomSelector
+                                      ,ClassSelector: ClassSelector
+                                      ,IdSelector: IdSelector
+                                      ,PseudoClassSelector: PseudoClassSelector
+                                      ,TypeSelector: TypeSelector
+                                      ,PseudoElement: PseudoElement
+                                      ,AdjacentSibling: AdjacentSibling
+                                      ,GeneralSibling: GeneralSibling
+                                      ,Child: Child
+                                      ,Descendant: Descendant
+                                      ,appendProperty: appendProperty
+                                      ,withPropertyAppended: withPropertyAppended
+                                      ,extendLastSelector: extendLastSelector
+                                      ,appendToLastSelector: appendToLastSelector
+                                      ,concatMapLastStyleBlock: concatMapLastStyleBlock
+                                      ,appendRepeatableSelector: appendRepeatableSelector
+                                      ,appendRepeatableWithCombinator: appendRepeatableWithCombinator
+                                      ,appendRepeatable: appendRepeatable
+                                      ,mapLast: mapLast
+                                      ,concatMapLast: concatMapLast
+                                      ,dropEmpty: dropEmpty
+                                      ,dropEmptyDeclarations: dropEmptyDeclarations};
+};Elm.Css = Elm.Css || {};
+Elm.Css.Preprocess = Elm.Css.Preprocess || {};
+Elm.Css.Preprocess.make = function (_elm) {
+   "use strict";
+   _elm.Css = _elm.Css || {};
+   _elm.Css.Preprocess = _elm.Css.Preprocess || {};
+   if (_elm.Css.Preprocess.values) return _elm.Css.Preprocess.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css$Structure = Elm.Css.Structure.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var propertyToPair = function (property) {
+      var value = property.important ? A2($Basics._op["++"],property.value," !important") : property.value;
+      return {ctor: "_Tuple2",_0: property.key,_1: value};
+   };
+   var toPropertyPairs = function (mixins) {
+      toPropertyPairs: while (true) {
+         var _p0 = mixins;
+         if (_p0.ctor === "[]") {
+               return _U.list([]);
+            } else {
+               switch (_p0._0.ctor)
+               {case "AppendProperty": return A2($List._op["::"],propertyToPair(_p0._0._0),toPropertyPairs(_p0._1));
+                  case "ApplyMixins": return A2($Basics._op["++"],toPropertyPairs(_p0._0._0),toPropertyPairs(_p0._1));
+                  default: var _v1 = _p0._1;
+                    mixins = _v1;
+                    continue toPropertyPairs;}
+            }
+      }
+   };
+   var unwrapSnippet = function (_p1) {    var _p2 = _p1;return _p2._0;};
+   var toMediaRule = F2(function (mediaQueries,declaration) {
+      var _p3 = declaration;
+      switch (_p3.ctor)
+      {case "StyleBlockDeclaration": return A2($Css$Structure.MediaRule,mediaQueries,_U.list([_p3._0]));
+         case "MediaRule": return A2($Css$Structure.MediaRule,A2($Basics._op["++"],mediaQueries,_p3._0),_p3._1);
+         case "SupportsRule": return A2($Css$Structure.SupportsRule,_p3._0,A2($List.map,toMediaRule(mediaQueries),_p3._1));
+         case "DocumentRule": return A5($Css$Structure.DocumentRule,_p3._0,_p3._1,_p3._2,_p3._3,_p3._4);
+         case "PageRule": return declaration;
+         case "FontFace": return declaration;
+         case "Keyframes": return declaration;
+         case "Viewport": return declaration;
+         case "CounterStyle": return declaration;
+         default: return declaration;}
+   });
+   var StyleBlock = F3(function (a,b,c) {    return {ctor: "StyleBlock",_0: a,_1: b,_2: c};});
+   var FontFeatureValues = function (a) {    return {ctor: "FontFeatureValues",_0: a};};
+   var CounterStyle = function (a) {    return {ctor: "CounterStyle",_0: a};};
+   var Viewport = function (a) {    return {ctor: "Viewport",_0: a};};
+   var Keyframes = F2(function (a,b) {    return {ctor: "Keyframes",_0: a,_1: b};});
+   var FontFace = function (a) {    return {ctor: "FontFace",_0: a};};
+   var PageRule = F2(function (a,b) {    return {ctor: "PageRule",_0: a,_1: b};});
+   var DocumentRule = F5(function (a,b,c,d,e) {    return {ctor: "DocumentRule",_0: a,_1: b,_2: c,_3: d,_4: e};});
+   var SupportsRule = F2(function (a,b) {    return {ctor: "SupportsRule",_0: a,_1: b};});
+   var MediaRule = F2(function (a,b) {    return {ctor: "MediaRule",_0: a,_1: b};});
+   var StyleBlockDeclaration = function (a) {    return {ctor: "StyleBlockDeclaration",_0: a};};
+   var Snippet = function (a) {    return {ctor: "Snippet",_0: a};};
+   var ApplyMixins = function (a) {    return {ctor: "ApplyMixins",_0: a};};
+   var WithMedia = F2(function (a,b) {    return {ctor: "WithMedia",_0: a,_1: b};});
+   var WithPseudoElement = F2(function (a,b) {    return {ctor: "WithPseudoElement",_0: a,_1: b};});
+   var NestSnippet = F2(function (a,b) {    return {ctor: "NestSnippet",_0: a,_1: b};});
+   var ExtendSelector = F2(function (a,b) {    return {ctor: "ExtendSelector",_0: a,_1: b};});
+   var AppendProperty = function (a) {    return {ctor: "AppendProperty",_0: a};};
+   var mapLastProperty = F2(function (update,mixin) {
+      var _p4 = mixin;
+      switch (_p4.ctor)
+      {case "AppendProperty": return AppendProperty(update(_p4._0));
+         case "ExtendSelector": return A2(ExtendSelector,_p4._0,A2(mapAllLastProperty,update,_p4._1));
+         case "NestSnippet": return mixin;
+         case "WithPseudoElement": return mixin;
+         case "WithMedia": return mixin;
+         default: return ApplyMixins(A2($Css$Structure.mapLast,mapLastProperty(update),_p4._0));}
+   });
+   var mapAllLastProperty = F2(function (update,mixins) {
+      var _p5 = mixins;
+      if (_p5.ctor === "[]") {
+            return mixins;
+         } else {
+            if (_p5._1.ctor === "[]") {
+                  return _U.list([A2(mapLastProperty,update,_p5._0)]);
+               } else {
+                  return A2($List._op["::"],_p5._0,A2(mapAllLastProperty,update,_p5._1));
+               }
+         }
+   });
+   var Stylesheet = F4(function (a,b,c,d) {    return {charset: a,imports: b,namespaces: c,snippets: d};});
+   var Property = F4(function (a,b,c,d) {    return {key: a,value: b,important: c,warnings: d};});
+   var stylesheet = function (snippets) {    return {charset: $Maybe.Nothing,imports: _U.list([]),namespaces: _U.list([]),snippets: snippets};};
+   return _elm.Css.Preprocess.values = {_op: _op
+                                       ,stylesheet: stylesheet
+                                       ,Property: Property
+                                       ,Stylesheet: Stylesheet
+                                       ,AppendProperty: AppendProperty
+                                       ,ExtendSelector: ExtendSelector
+                                       ,NestSnippet: NestSnippet
+                                       ,WithPseudoElement: WithPseudoElement
+                                       ,WithMedia: WithMedia
+                                       ,ApplyMixins: ApplyMixins
+                                       ,Snippet: Snippet
+                                       ,StyleBlockDeclaration: StyleBlockDeclaration
+                                       ,MediaRule: MediaRule
+                                       ,SupportsRule: SupportsRule
+                                       ,DocumentRule: DocumentRule
+                                       ,PageRule: PageRule
+                                       ,FontFace: FontFace
+                                       ,Keyframes: Keyframes
+                                       ,Viewport: Viewport
+                                       ,CounterStyle: CounterStyle
+                                       ,FontFeatureValues: FontFeatureValues
+                                       ,StyleBlock: StyleBlock
+                                       ,toMediaRule: toMediaRule
+                                       ,mapLastProperty: mapLastProperty
+                                       ,mapAllLastProperty: mapAllLastProperty
+                                       ,unwrapSnippet: unwrapSnippet
+                                       ,toPropertyPairs: toPropertyPairs
+                                       ,propertyToPair: propertyToPair};
+};Elm.Css = Elm.Css || {};
+Elm.Css.Structure = Elm.Css.Structure || {};
+Elm.Css.Structure.Output = Elm.Css.Structure.Output || {};
+Elm.Css.Structure.Output.make = function (_elm) {
+   "use strict";
+   _elm.Css = _elm.Css || {};
+   _elm.Css.Structure = _elm.Css.Structure || {};
+   _elm.Css.Structure.Output = _elm.Css.Structure.Output || {};
+   if (_elm.Css.Structure.Output.values) return _elm.Css.Structure.Output.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css$Structure = Elm.Css.Structure.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm);
+   var _op = {};
+   var indent = function (str) {    return A2($Basics._op["++"],"    ",str);};
+   var prettyPrintProperty = function (_p0) {
+      var _p1 = _p0;
+      var suffix = _p1.important ? " !important;" : ";";
+      return A2($Basics._op["++"],_p1.key,A2($Basics._op["++"],": ",A2($Basics._op["++"],_p1.value,suffix)));
+   };
+   var prettyPrintProperties = function (properties) {
+      return A2($String.join,"\n",A2($List.map,function (_p2) {    return indent(prettyPrintProperty(_p2));},properties));
+   };
+   var combinatorToString = function (combinator) {
+      var _p3 = combinator;
+      switch (_p3.ctor)
+      {case "AdjacentSibling": return "+";
+         case "GeneralSibling": return "~";
+         case "Child": return ">";
+         default: return "";}
+   };
+   var pseudoElementToString = function (_p4) {    var _p5 = _p4;return A2($Basics._op["++"],"::",_p5._0);};
+   var repeatableSimpleSelectorToString = function (repeatableSimpleSelector) {
+      var _p6 = repeatableSimpleSelector;
+      switch (_p6.ctor)
+      {case "ClassSelector": return A2($Basics._op["++"],".",_p6._0);
+         case "IdSelector": return A2($Basics._op["++"],"#",_p6._0);
+         default: return A2($Basics._op["++"],":",_p6._0);}
+   };
+   var simpleSelectorSequenceToString = function (simpleSelectorSequence) {
+      var _p7 = simpleSelectorSequence;
+      switch (_p7.ctor)
+      {case "TypeSelectorSequence": return A2($String.join,"",A2($List._op["::"],_p7._0._0,A2($List.map,repeatableSimpleSelectorToString,_p7._1)));
+         case "UniversalSelectorSequence": var _p8 = _p7._0;
+           return $List.isEmpty(_p8) ? "*" : A2($String.join,"",A2($List.map,repeatableSimpleSelectorToString,_p8));
+         default: return A2($String.join,"",A2($List._op["::"],_p7._0,A2($List.map,repeatableSimpleSelectorToString,_p7._1)));}
+   };
+   var selectorChainToString = function (_p9) {
+      var _p10 = _p9;
+      return A2($String.join," ",_U.list([combinatorToString(_p10._0),simpleSelectorSequenceToString(_p10._1)]));
+   };
+   var selectorToString = function (_p11) {
+      var _p12 = _p11;
+      var segments = A2($Basics._op["++"],
+      _U.list([simpleSelectorSequenceToString(_p12._0)]),
+      A2($Basics._op["++"],A2($List.map,selectorChainToString,_p12._1),_U.list([A2($Maybe.withDefault,"",A2($Maybe.map,pseudoElementToString,_p12._2))])));
+      return A2($String.join," ",A2($List.filter,function (_p13) {    return $Basics.not($String.isEmpty(_p13));},segments));
+   };
+   var prettyPrintStyleBlock = function (_p14) {
+      var _p15 = _p14;
+      var selectorStr = A2($String.join,", ",A2($List.map,selectorToString,A2($List._op["::"],_p15._0,_p15._1)));
+      return A2($Basics._op["++"],selectorStr,A2($Basics._op["++"]," {\n",A2($Basics._op["++"],prettyPrintProperties(_p15._2),"\n}")));
+   };
+   var prettyPrintDeclaration = function (declaration) {
+      var _p16 = declaration;
+      switch (_p16.ctor)
+      {case "StyleBlockDeclaration": return prettyPrintStyleBlock(_p16._0);
+         case "MediaRule": var query = A2($String.join," ",A2($List.map,function (_p17) {    var _p18 = _p17;return _p18._0;},_p16._0));
+           var blocks = A2($String.join,"\n\n",A2($List.map,function (_p19) {    return indent(prettyPrintStyleBlock(_p19));},_p16._1));
+           return A2($Basics._op["++"],"@media ",A2($Basics._op["++"],query,A2($Basics._op["++"]," {\n",A2($Basics._op["++"],indent(blocks),"\n}"))));
+         default: return _U.crashCase("Css.Structure.Output",{start: {line: 56,column: 3},end: {line: 73,column: 43}},_p16)("not yet implemented :x");}
+   };
+   var namespaceToString = function (_p21) {
+      var _p22 = _p21;
+      return A2($Basics._op["++"],"@namespace ",A2($Basics._op["++"],_p22._0,A2($Basics._op["++"],"\"",A2($Basics._op["++"],_p22._1,"\""))));
+   };
+   var importToString = function (_p23) {
+      var _p24 = _p23;
+      return A2($Basics._op["++"],"@import \"",A2($Basics._op["++"],_p24._0,A2($Basics._op["++"],$Basics.toString(_p24._1),"\"")));
+   };
+   var charsetToString = function (charset) {
+      return A2($Maybe.withDefault,"",A2($Maybe.map,function (str) {    return A2($Basics._op["++"],"@charset \"",A2($Basics._op["++"],str,"\""));},charset));
+   };
+   var prettyPrint = function (_p25) {
+      var _p26 = _p25;
+      return A2($String.join,
+      "\n\n",
+      A2($List.filter,
+      function (_p27) {
+         return $Basics.not($String.isEmpty(_p27));
+      },
+      _U.list([charsetToString(_p26.charset)
+              ,A2($String.join,"\n",A2($List.map,importToString,_p26.imports))
+              ,A2($String.join,"\n",A2($List.map,namespaceToString,_p26.namespaces))
+              ,A2($String.join,"\n\n",A2($List.map,prettyPrintDeclaration,_p26.declarations))])));
+   };
+   return _elm.Css.Structure.Output.values = {_op: _op,prettyPrint: prettyPrint};
+};Elm.Css = Elm.Css || {};
+Elm.Css.Preprocess = Elm.Css.Preprocess || {};
+Elm.Css.Preprocess.Resolve = Elm.Css.Preprocess.Resolve || {};
+Elm.Css.Preprocess.Resolve.make = function (_elm) {
+   "use strict";
+   _elm.Css = _elm.Css || {};
+   _elm.Css.Preprocess = _elm.Css.Preprocess || {};
+   _elm.Css.Preprocess.Resolve = _elm.Css.Preprocess.Resolve || {};
+   if (_elm.Css.Preprocess.Resolve.values) return _elm.Css.Preprocess.Resolve.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css$Preprocess = Elm.Css.Preprocess.make(_elm),
+   $Css$Structure = Elm.Css.Structure.make(_elm),
+   $Css$Structure$Output = Elm.Css.Structure.Output.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var collectSelectors = function (declarations) {
+      collectSelectors: while (true) {
+         var _p0 = declarations;
+         if (_p0.ctor === "[]") {
+               return _U.list([]);
+            } else {
+               if (_p0._0.ctor === "StyleBlockDeclaration") {
+                     return A2($Basics._op["++"],A2($List._op["::"],_p0._0._0._0,_p0._0._0._1),collectSelectors(_p0._1));
+                  } else {
+                     var _v1 = _p0._1;
+                     declarations = _v1;
+                     continue collectSelectors;
+                  }
+            }
+      }
+   };
+   var extractWarning = function (_p1) {
+      var _p2 = _p1;
+      return {ctor: "_Tuple2",_0: _p2.warnings,_1: {key: _p2.key,value: _p2.value,important: _p2.important}};
+   };
+   var extractWarnings = function (properties) {
+      return {ctor: "_Tuple2"
+             ,_0: A2($List.concatMap,function (_) {    return _.warnings;},properties)
+             ,_1: A2($List.map,function (prop) {    return $Basics.snd(extractWarning(prop));},properties)};
+   };
+   var toDocumentRule = F5(function (str1,str2,str3,str4,declaration) {
+      var _p3 = declaration;
+      if (_p3.ctor === "StyleBlockDeclaration") {
+            return A5($Css$Structure.DocumentRule,str1,str2,str3,str4,_p3._0);
+         } else {
+            return declaration;
+         }
+   });
+   var concatDeclarationsAndWarnings = function (declarationsAndWarnings) {
+      var _p4 = declarationsAndWarnings;
+      if (_p4.ctor === "[]") {
+            return {declarations: _U.list([]),warnings: _U.list([])};
+         } else {
+            var result = concatDeclarationsAndWarnings(_p4._1);
+            return {declarations: A2($Basics._op["++"],_p4._0.declarations,result.declarations)
+                   ,warnings: A2($Basics._op["++"],_p4._0.warnings,result.warnings)};
+         }
+   };
+   var resolveFontFeatureValues = function (tuples) {
+      var expandTuples = function (tuplesToExpand) {
+         var _p5 = tuplesToExpand;
+         if (_p5.ctor === "[]") {
+               return {ctor: "_Tuple2",_0: _U.list([]),_1: _U.list([])};
+            } else {
+               var _p6 = expandTuples(_p5._1);
+               var nextWarnings = _p6._0;
+               var nextTuples = _p6._1;
+               var _p7 = extractWarnings(_p5._0._1);
+               var warnings = _p7._0;
+               var properties = _p7._1;
+               return {ctor: "_Tuple2"
+                      ,_0: A2($Basics._op["++"],warnings,nextWarnings)
+                      ,_1: A2($List._op["::"],{ctor: "_Tuple2",_0: _p5._0._0,_1: properties},nextTuples)};
+            }
+      };
+      var _p8 = expandTuples(tuples);
+      var warnings = _p8._0;
+      var newTuples = _p8._1;
+      return {declarations: _U.list([$Css$Structure.FontFeatureValues(newTuples)]),warnings: warnings};
+   };
+   var resolveCounterStyle = function (counterStyleProperties) {
+      var _p9 = extractWarnings(counterStyleProperties);
+      var warnings = _p9._0;
+      var properties = _p9._1;
+      return {declarations: _U.list([$Css$Structure.Viewport(properties)]),warnings: warnings};
+   };
+   var resolveViewport = function (viewportProperties) {
+      var _p10 = extractWarnings(viewportProperties);
+      var warnings = _p10._0;
+      var properties = _p10._1;
+      return {declarations: _U.list([$Css$Structure.Viewport(properties)]),warnings: warnings};
+   };
+   var resolveKeyframes = F2(function (str,properties) {
+      return {declarations: _U.list([A2($Css$Structure.Keyframes,str,properties)]),warnings: _U.list([])};
+   });
+   var resolveFontFace = function (fontFaceProperties) {
+      var _p11 = extractWarnings(fontFaceProperties);
+      var warnings = _p11._0;
+      var properties = _p11._1;
+      return {declarations: _U.list([$Css$Structure.FontFace(properties)]),warnings: warnings};
+   };
+   var resolvePageRule = F2(function (str,pageRuleProperties) {
+      var _p12 = extractWarnings(pageRuleProperties);
+      var warnings = _p12._0;
+      var properties = _p12._1;
+      return {declarations: _U.list([A2($Css$Structure.PageRule,str,properties)]),warnings: warnings};
+   });
+   var toMediaRule = F2(function (mediaQueries,declaration) {
+      var _p13 = declaration;
+      switch (_p13.ctor)
+      {case "StyleBlockDeclaration": return A2($Css$Structure.MediaRule,mediaQueries,_U.list([_p13._0]));
+         case "MediaRule": return A2($Css$Structure.MediaRule,A2($Basics._op["++"],mediaQueries,_p13._0),_p13._1);
+         case "SupportsRule": return A2($Css$Structure.SupportsRule,_p13._0,A2($List.map,toMediaRule(mediaQueries),_p13._1));
+         case "DocumentRule": return A5($Css$Structure.DocumentRule,_p13._0,_p13._1,_p13._2,_p13._3,_p13._4);
+         case "PageRule": return declaration;
+         case "FontFace": return declaration;
+         case "Keyframes": return declaration;
+         case "Viewport": return declaration;
+         case "CounterStyle": return declaration;
+         default: return declaration;}
+   });
+   var resolveMediaRule = F2(function (mediaQueries,styleBlocks) {
+      var handleStyleBlock = function (styleBlock) {
+         var _p14 = expandStyleBlock(styleBlock);
+         var declarations = _p14.declarations;
+         var warnings = _p14.warnings;
+         return {declarations: A2($List.map,toMediaRule(mediaQueries),declarations),warnings: warnings};
+      };
+      var results = A2($List.map,handleStyleBlock,styleBlocks);
+      return {warnings: A2($List.concatMap,function (_) {    return _.warnings;},results)
+             ,declarations: A2($List.concatMap,function (_) {    return _.declarations;},results)};
+   });
+   var expandStyleBlock = function (_p15) {
+      var _p16 = _p15;
+      return A2(applyMixins,_p16._2,_U.list([$Css$Structure.StyleBlockDeclaration(A3($Css$Structure.StyleBlock,_p16._0,_p16._1,_U.list([])))]));
+   };
+   var applyMixins = F2(function (mixins,declarations) {
+      applyMixins: while (true) {
+         var _p17 = mixins;
+         if (_p17.ctor === "[]") {
+               return {declarations: declarations,warnings: _U.list([])};
+            } else {
+               switch (_p17._0.ctor)
+               {case "AppendProperty": var _p18 = extractWarning(_p17._0._0);
+                    var warnings = _p18._0;
+                    var property = _p18._1;
+                    var result = A2(applyMixins,_p17._1,A2($Css$Structure.appendProperty,property,declarations));
+                    return {declarations: result.declarations,warnings: A2($Basics._op["++"],warnings,result.warnings)};
+                  case "ExtendSelector": var handleInitial = function (declarationsAndWarnings) {
+                       var result = A2(applyMixins,_p17._0._1,declarationsAndWarnings.declarations);
+                       return {warnings: A2($Basics._op["++"],declarationsAndWarnings.warnings,result.warnings),declarations: result.declarations};
+                    };
+                    var initialResult = concatDeclarationsAndWarnings(A2($Css$Structure.mapLast,
+                    handleInitial,
+                    A2($List.map,
+                    function (declaration) {
+                       return {declarations: _U.list([declaration]),warnings: _U.list([])};
+                    },
+                    A2($Css$Structure.concatMapLastStyleBlock,$Css$Structure.appendToLastSelector(_p17._0._0),declarations))));
+                    var nextResult = A2(applyMixins,_p17._1,initialResult.declarations);
+                    return {warnings: A2($Basics._op["++"],initialResult.warnings,nextResult.warnings),declarations: nextResult.declarations};
+                  case "NestSnippet": var chain = F2(function (_p20,_p19) {
+                       var _p21 = _p20;
+                       var _p22 = _p19;
+                       return A3($Css$Structure.Selector,
+                       _p21._0,
+                       A2($Basics._op["++"],_p21._1,A2($List._op["::"],{ctor: "_Tuple2",_0: _p17._0._0,_1: _p22._0},_p22._1)),
+                       $Maybe.oneOf(_U.list([_p22._2,_p21._2])));
+                    });
+                    var expandDeclaration = function (declaration) {
+                       var _p23 = declaration;
+                       switch (_p23.ctor)
+                       {case "StyleBlockDeclaration": var newSelectors = A2($List.concatMap,
+                            function (originalSelector) {
+                               return A2($List.map,chain(originalSelector),A2($List._op["::"],_p23._0._0,_p23._0._1));
+                            },
+                            collectSelectors(declarations));
+                            var newDeclarations = function () {
+                               var _p24 = newSelectors;
+                               if (_p24.ctor === "[]") {
+                                     return _U.list([]);
+                                  } else {
+                                     return _U.list([$Css$Structure.StyleBlockDeclaration(A3($Css$Structure.StyleBlock,_p24._0,_p24._1,_U.list([])))]);
+                                  }
+                            }();
+                            return concatDeclarationsAndWarnings(_U.list([{declarations: declarations,warnings: _U.list([])}
+                                                                         ,A2(applyMixins,_p23._0._2,newDeclarations)]));
+                          case "MediaRule": return A2(resolveMediaRule,_p23._0,_p23._1);
+                          case "SupportsRule": return A2(resolveSupportsRule,_p23._0,_p23._1);
+                          case "DocumentRule": return A5(resolveDocumentRule,_p23._0,_p23._1,_p23._2,_p23._3,_p23._4);
+                          case "PageRule": return A2(resolvePageRule,_p23._0,_p23._1);
+                          case "FontFace": return resolveFontFace(_p23._0);
+                          case "Keyframes": return A2(resolveKeyframes,_p23._0,_p23._1);
+                          case "Viewport": return resolveViewport(_p23._0);
+                          case "CounterStyle": return resolveCounterStyle(_p23._0);
+                          default: return resolveFontFeatureValues(_p23._0);}
+                    };
+                    return concatDeclarationsAndWarnings(A2($List.map,expandDeclaration,A2($List.concatMap,$Css$Preprocess.unwrapSnippet,_p17._0._1)));
+                  case "WithPseudoElement": var _v13 = _p17._1,_v14 = declarations;
+                    mixins = _v13;
+                    declarations = _v14;
+                    continue applyMixins;
+                  case "WithMedia": var newDeclarations = function () {
+                       var _p25 = collectSelectors(declarations);
+                       if (_p25.ctor === "[]") {
+                             return _U.list([]);
+                          } else {
+                             return _U.list([A2($Css$Structure.MediaRule,_p17._0._0,_U.list([A3($Css$Structure.StyleBlock,_p25._0,_p25._1,_U.list([]))]))]);
+                          }
+                    }();
+                    return concatDeclarationsAndWarnings(_U.list([A2(applyMixins,_p17._1,declarations),A2(applyMixins,_p17._0._1,newDeclarations)]));
+                  default: var _v16 = A2($Basics._op["++"],_p17._0._0,_p17._1),_v17 = declarations;
+                    mixins = _v16;
+                    declarations = _v17;
+                    continue applyMixins;}
+            }
+      }
+   });
+   var resolveDocumentRule = F5(function (str1,str2,str3,str4,styleBlock) {
+      var _p26 = expandStyleBlock(styleBlock);
+      var declarations = _p26.declarations;
+      var warnings = _p26.warnings;
+      return {declarations: A2($List.map,A4(toDocumentRule,str1,str2,str3,str4),declarations),warnings: warnings};
+   });
+   var resolveSupportsRule = F2(function (str,snippets) {
+      var _p27 = extract(A2($List.concatMap,$Css$Preprocess.unwrapSnippet,snippets));
+      var declarations = _p27.declarations;
+      var warnings = _p27.warnings;
+      return {declarations: _U.list([A2($Css$Structure.SupportsRule,str,declarations)]),warnings: warnings};
+   });
+   var extract = function (snippetDeclarations) {
+      var _p28 = snippetDeclarations;
+      if (_p28.ctor === "[]") {
+            return {declarations: _U.list([]),warnings: _U.list([])};
+         } else {
+            var _p29 = toDeclarations(_p28._0);
+            var declarations = _p29.declarations;
+            var warnings = _p29.warnings;
+            var nextResult = extract(_p28._1);
+            return {declarations: A2($Basics._op["++"],declarations,nextResult.declarations),warnings: A2($Basics._op["++"],warnings,nextResult.warnings)};
+         }
+   };
+   var toDeclarations = function (snippetDeclaration) {
+      var _p30 = snippetDeclaration;
+      switch (_p30.ctor)
+      {case "StyleBlockDeclaration": return expandStyleBlock(_p30._0);
+         case "MediaRule": return A2(resolveMediaRule,_p30._0,_p30._1);
+         case "SupportsRule": return A2(resolveSupportsRule,_p30._0,_p30._1);
+         case "DocumentRule": return A5(resolveDocumentRule,_p30._0,_p30._1,_p30._2,_p30._3,_p30._4);
+         case "PageRule": return A2(resolvePageRule,_p30._0,_p30._1);
+         case "FontFace": return resolveFontFace(_p30._0);
+         case "Keyframes": return A2(resolveKeyframes,_p30._0,_p30._1);
+         case "Viewport": return resolveViewport(_p30._0);
+         case "CounterStyle": return resolveCounterStyle(_p30._0);
+         default: return resolveFontFeatureValues(_p30._0);}
+   };
+   var toStructure = function (_p31) {
+      var _p32 = _p31;
+      var _p33 = extract(A2($List.concatMap,$Css$Preprocess.unwrapSnippet,_p32.snippets));
+      var warnings = _p33.warnings;
+      var declarations = _p33.declarations;
+      return {ctor: "_Tuple2",_0: {charset: _p32.charset,imports: _p32.imports,namespaces: _p32.namespaces,declarations: declarations},_1: warnings};
+   };
+   var DeclarationsAndWarnings = F2(function (a,b) {    return {declarations: a,warnings: b};});
+   var compile = function (sheet) {
+      var _p34 = toStructure(sheet);
+      var structureStylesheet = _p34._0;
+      var warnings = _p34._1;
+      return {warnings: warnings,css: $Css$Structure$Output.prettyPrint($Css$Structure.dropEmpty(structureStylesheet))};
+   };
+   return _elm.Css.Preprocess.Resolve.values = {_op: _op,compile: compile};
+};Elm.Css = Elm.Css || {};
+Elm.Css.make = function (_elm) {
+   "use strict";
+   _elm.Css = _elm.Css || {};
+   if (_elm.Css.values) return _elm.Css.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css$Helpers = Elm.Css.Helpers.make(_elm),
+   $Css$Preprocess = Elm.Css.Preprocess.make(_elm),
+   $Css$Preprocess$Resolve = Elm.Css.Preprocess.Resolve.make(_elm),
+   $Css$Structure = Elm.Css.Structure.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Regex = Elm.Regex.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm);
+   var _op = {};
+   var asPairs = $Css$Preprocess.toPropertyPairs;
+   var collectSelectors = function (declarations) {
+      collectSelectors: while (true) {
+         var _p0 = declarations;
+         if (_p0.ctor === "[]") {
+               return _U.list([]);
+            } else {
+               if (_p0._0.ctor === "StyleBlockDeclaration") {
+                     return A2($Basics._op["++"],A2($List._op["::"],_p0._0._0._0,_p0._0._0._1),collectSelectors(_p0._1));
+                  } else {
+                     var _v1 = _p0._1;
+                     declarations = _v1;
+                     continue collectSelectors;
+                  }
+            }
+      }
+   };
+   var compile = $Css$Preprocess$Resolve.compile;
+   var stringsToValue = function (list) {
+      return $List.isEmpty(list) ? {value: "none"} : {value: A2($String.join,", ",A2($List.map,function (s) {    return s;},list))};
+   };
+   var valuesOrNone = function (list) {
+      return $List.isEmpty(list) ? {value: "none"} : {value: A2($String.join," ",A2($List.map,function (_) {    return _.value;},list))};
+   };
+   var stringToInt = function (str) {    return A2($Result.withDefault,0,$String.toInt(str));};
+   var numberToString = function (num) {    return $Basics.toString(num + 0);};
+   var numericalPercentageToString = function (value) {
+      return A3($Basics.flip,
+      F2(function (x,y) {    return A2($Basics._op["++"],x,y);}),
+      "%",
+      numberToString(A2(F2(function (x,y) {    return x * y;}),100,value)));
+   };
+   var each = F2(function (snippetCreators,mixins) {
+      var selectorsToSnippet = function (selectors) {
+         var _p1 = selectors;
+         if (_p1.ctor === "[]") {
+               return $Css$Preprocess.Snippet(_U.list([]));
+            } else {
+               return $Css$Preprocess.Snippet(_U.list([$Css$Preprocess.StyleBlockDeclaration(A3($Css$Preprocess.StyleBlock,_p1._0,_p1._1,mixins))]));
+            }
+      };
+      return selectorsToSnippet(collectSelectors(A2($List.concatMap,
+      $Css$Preprocess.unwrapSnippet,
+      A2($List.map,F2(function (x,y) {    return y(x);})(_U.list([])),snippetCreators))));
+   });
+   var generalSiblings = $Css$Preprocess.NestSnippet($Css$Structure.GeneralSibling);
+   var adjacentSiblings = $Css$Preprocess.NestSnippet($Css$Structure.AdjacentSibling);
+   var descendants = $Css$Preprocess.NestSnippet($Css$Structure.Descendant);
+   var withClass = function ($class) {    return $Css$Preprocess.ExtendSelector($Css$Structure.ClassSelector(A2($Css$Helpers.identifierToString,"",$class)));};
+   var children = $Css$Preprocess.NestSnippet($Css$Structure.Child);
+   var IntentionallyUnsupportedPleaseSeeDocs = {ctor: "IntentionallyUnsupportedPleaseSeeDocs"};
+   var thin = IntentionallyUnsupportedPleaseSeeDocs;
+   var thick = IntentionallyUnsupportedPleaseSeeDocs;
+   var blink = IntentionallyUnsupportedPleaseSeeDocs;
+   var selection = $Css$Preprocess.WithPseudoElement($Css$Structure.PseudoElement("selection"));
+   var firstLine = $Css$Preprocess.WithPseudoElement($Css$Structure.PseudoElement("first-line"));
+   var firstLetter = $Css$Preprocess.WithPseudoElement($Css$Structure.PseudoElement("first-letter"));
+   var before = $Css$Preprocess.WithPseudoElement($Css$Structure.PseudoElement("before"));
+   var after = $Css$Preprocess.WithPseudoElement($Css$Structure.PseudoElement("after"));
+   var valid = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("valid"));
+   var target = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("target"));
+   var scope = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("scope"));
+   var root = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("root"));
+   var required = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("required"));
+   var readWrite = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("read-write"));
+   var outOfRange = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("out-of-range"));
+   var optional = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("optional"));
+   var onlyOfType = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("only-of-type"));
+   var onlyChild = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("only-child"));
+   var nthOfType = function (str) {
+      return $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector(A2($Basics._op["++"],"nth-of-type(",A2($Basics._op["++"],str,")"))));
+   };
+   var nthLastOfType = function (str) {
+      return $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector(A2($Basics._op["++"],"nth-last-of-type(",A2($Basics._op["++"],str,")"))));
+   };
+   var nthLastChild = function (str) {
+      return $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector(A2($Basics._op["++"],"nth-last-child(",A2($Basics._op["++"],str,")"))));
+   };
+   var nthChild = function (str) {
+      return $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector(A2($Basics._op["++"],"nth-child(",A2($Basics._op["++"],str,")"))));
+   };
+   var link = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("link"));
+   var lastOfType = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("last-of-type"));
+   var lastChild = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("last-child"));
+   var lang = function (str) {
+      return $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector(A2($Basics._op["++"],"lang(",A2($Basics._op["++"],str,")"))));
+   };
+   var invalid = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("invalid"));
+   var indeterminate = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("indeterminate"));
+   var hover = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("hover"));
+   var focus = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("focus"));
+   var fullscreen = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("fullscreen"));
+   var firstOfType = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("first-of-type"));
+   var firstChild = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("first-child"));
+   var first = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("first"));
+   var enabled = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("enabled"));
+   var empty = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("empty"));
+   var disabled = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("disabled"));
+   var checked = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("checked"));
+   var any = function (str) {
+      return $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector(A2($Basics._op["++"],"any(",A2($Basics._op["++"],str,")"))));
+   };
+   var active = $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector("active"));
+   var directionalityToString = function (directionality) {    var _p2 = directionality;if (_p2.ctor === "Ltr") {    return "ltr";} else {    return "rtl";}};
+   var dir = function (directionality) {
+      return $Css$Preprocess.ExtendSelector($Css$Structure.PseudoClassSelector(A2($Basics._op["++"],
+      "dir(",
+      A2($Basics._op["++"],directionalityToString(directionality),")"))));
+   };
+   var Rtl = {ctor: "Rtl"};
+   var Ltr = {ctor: "Ltr"};
+   var propertyWithWarnings = F3(function (warnings,key,value) {
+      return $Css$Preprocess.AppendProperty({key: key,value: value,important: false,warnings: warnings});
+   });
+   var property = propertyWithWarnings(_U.list([]));
+   var makeSnippet = F2(function (mixins,sequence) {
+      var selector = A3($Css$Structure.Selector,sequence,_U.list([]),$Maybe.Nothing);
+      return $Css$Preprocess.Snippet(_U.list([$Css$Preprocess.StyleBlockDeclaration(A3($Css$Preprocess.StyleBlock,selector,_U.list([]),mixins))]));
+   });
+   _op["."] = F2(function ($class,mixins) {
+      return A2(makeSnippet,
+      mixins,
+      $Css$Structure.UniversalSelectorSequence(_U.list([$Css$Structure.ClassSelector(A2($Css$Helpers.identifierToString,"",$class))])));
+   });
+   var selector = F2(function (selectorStr,mixins) {    return A2(makeSnippet,mixins,A2($Css$Structure.CustomSelector,selectorStr,_U.list([])));});
+   var everything = function (mixins) {    return A2(makeSnippet,mixins,$Css$Structure.UniversalSelectorSequence(_U.list([])));};
+   _op["#"] = F2(function (id,mixins) {
+      return A2(makeSnippet,mixins,$Css$Structure.UniversalSelectorSequence(_U.list([$Css$Structure.IdSelector(A2($Css$Helpers.identifierToString,"",id))])));
+   });
+   var mixin = $Css$Preprocess.ApplyMixins;
+   var stylesheet = $Css$Preprocess.stylesheet;
+   var animationNames = function (identifiers) {
+      var value = A2($String.join,", ",A2($List.map,$Css$Helpers.identifierToString(""),identifiers));
+      return A2(property,"animation-name",value);
+   };
+   var animationName = function (identifier) {    return animationNames(_U.list([identifier]));};
+   var fontWeight = function (_p3) {
+      var _p4 = _p3;
+      var _p5 = _p4.value;
+      var validWeight = function (weight) {
+         return !_U.eq(_p5,$Basics.toString(weight)) ? true : A2($List.member,weight,A2($List.map,F2(function (x,y) {    return x * y;})(100),_U.range(1,9)));
+      };
+      var warnings = validWeight(stringToInt(_p5)) ? _U.list([]) : _U.list([A2($Basics._op["++"],
+      "fontWeight ",
+      A2($Basics._op["++"],
+      _p5,
+      " is invalid. Valid weights are: 100, 200, 300, 400, 500, 600, 700, 800, 900. Please see https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight#Values"))]);
+      return A3(propertyWithWarnings,warnings,"font-weight",_p5);
+   };
+   var fontFeatureSettingsList = function (featureTagValues) {
+      var warnings = $List.concat(A2($List.map,function (_) {    return _.warnings;},featureTagValues));
+      var value = A2($String.join,", ",A2($List.map,function (_) {    return _.value;},featureTagValues));
+      return A3(propertyWithWarnings,warnings,"font-feature-settings",value);
+   };
+   var fontFeatureSettings = function (_p6) {    var _p7 = _p6;return A3(propertyWithWarnings,_p7.warnings,"font-feature-settings",_p7.value);};
+   var qt = function (str) {    return $Basics.toString(str);};
+   var fontFace = function (value) {    return A2($Basics._op["++"],"font-face ",value);};
+   var src = function (value) {    return $Basics.toString(value.value);};
+   var withMedia = $Css$Preprocess.WithMedia;
+   var media = F2(function (mediaQueries,snippets) {
+      var nestedMediaRules = function (declarations) {
+         nestedMediaRules: while (true) {
+            var _p8 = declarations;
+            if (_p8.ctor === "[]") {
+                  return _U.list([]);
+               } else {
+                  switch (_p8._0.ctor)
+                  {case "StyleBlockDeclaration": var _v7 = _p8._1;
+                       declarations = _v7;
+                       continue nestedMediaRules;
+                     case "MediaRule": return A2($List._op["::"],
+                       A2($Css$Preprocess.MediaRule,A2($Basics._op["++"],mediaQueries,_p8._0._0),_p8._0._1),
+                       nestedMediaRules(_p8._1));
+                     default: return A2($List._op["::"],_p8._0,nestedMediaRules(_p8._1));}
+               }
+         }
+      };
+      var extractStyleBlocks = function (declarations) {
+         extractStyleBlocks: while (true) {
+            var _p9 = declarations;
+            if (_p9.ctor === "[]") {
+                  return _U.list([]);
+               } else {
+                  if (_p9._0.ctor === "StyleBlockDeclaration") {
+                        return A2($List._op["::"],_p9._0._0,extractStyleBlocks(_p9._1));
+                     } else {
+                        var _v9 = _p9._1;
+                        declarations = _v9;
+                        continue extractStyleBlocks;
+                     }
+               }
+         }
+      };
+      var snippetDeclarations = A2($List.concatMap,$Css$Preprocess.unwrapSnippet,snippets);
+      var mediaRuleFromStyleBlocks = A2($Css$Preprocess.MediaRule,mediaQueries,extractStyleBlocks(snippetDeclarations));
+      return $Css$Preprocess.Snippet(A2($List._op["::"],mediaRuleFromStyleBlocks,nestedMediaRules(snippetDeclarations)));
+   });
+   var mediaQuery = F2(function (queryString,snippets) {    return A2(media,_U.list([$Css$Structure.MediaQuery(queryString)]),snippets);});
+   var color = function (c) {    return A3(propertyWithWarnings,c.warnings,"color",c.value);};
+   var backgroundColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"background-color",c.value);};
+   var borderColor4 = F4(function (c1,c2,c3,c4) {
+      var value = A2($String.join," ",_U.list([c1.value,c2.value,c3.value,c4.value]));
+      var warnings = A2($Basics._op["++"],c1.warnings,A2($Basics._op["++"],c2.warnings,A2($Basics._op["++"],c3.warnings,c4.warnings)));
+      return A3(propertyWithWarnings,warnings,"border-color",value);
+   });
+   var borderColor3 = F3(function (c1,c2,c3) {
+      var value = A2($String.join," ",_U.list([c1.value,c2.value,c3.value]));
+      var warnings = A2($Basics._op["++"],c1.warnings,A2($Basics._op["++"],c2.warnings,c3.warnings));
+      return A3(propertyWithWarnings,warnings,"border-color",value);
+   });
+   var borderColor2 = F2(function (c1,c2) {
+      var value = A2($String.join," ",_U.list([c1.value,c2.value]));
+      var warnings = A2($Basics._op["++"],c1.warnings,c2.warnings);
+      return A3(propertyWithWarnings,warnings,"border-color",value);
+   });
+   var borderColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-color",c.value);};
+   var borderBlockEndColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-block-end-color",c.value);};
+   var borderTopColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-top-color",c.value);};
+   var borderRightColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-right-color",c.value);};
+   var borderLeftColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-left-color",c.value);};
+   var borderInlineEndColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-inline-end-color",c.value);};
+   var borderInlineStartColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-inline-start-color",c.value);};
+   var borderBottomColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-bottom-color",c.value);};
+   var borderBlockStartColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"border-block-start-color",c.value);};
+   var featureOff = 0;
+   var featureOn = 1;
+   var displayFlex = A2(property,"display","flex");
+   var textDecorationColor = function (c) {    return A3(propertyWithWarnings,c.warnings,"text-decoration-color",c.value);};
+   var prop4 = F5(function (key,argA,argB,argC,argD) {
+      return A2(property,key,A2($String.join," ",_U.list([argA.value,argB.value,argC.value,argD.value])));
+   });
+   var textShadow4 = prop4("text-shadow");
+   var padding4 = prop4("padding");
+   var margin4 = prop4("margin");
+   var borderImageOutset4 = prop4("border-image-outset");
+   var borderImageWidth4 = prop4("border-image-width");
+   var borderRadius4 = prop4("border-radius");
+   var prop3 = F4(function (key,argA,argB,argC) {    return A2(property,key,A2($String.join," ",_U.list([argA.value,argB.value,argC.value])));});
+   var textShadow3 = prop3("text-shadow");
+   var textIndent3 = prop3("text-indent");
+   var padding3 = prop3("padding");
+   var margin3 = prop3("margin");
+   var border3 = prop3("border");
+   var borderTop3 = prop3("border-top");
+   var borderBottom3 = prop3("border-bottom");
+   var borderLeft3 = prop3("border-left");
+   var borderRight3 = prop3("border-right");
+   var borderBlockStart3 = prop3("border-block-start");
+   var borderBlockEnd3 = prop3("border-block-end");
+   var borderInlineStart3 = prop3("border-block-start");
+   var borderInlineEnd3 = prop3("border-block-end");
+   var borderImageOutset3 = prop3("border-image-outset");
+   var borderImageWidth3 = prop3("border-image-width");
+   var borderRadius3 = prop3("border-radius");
+   var fontVariant3 = prop3("font-variant");
+   var fontVariantNumeric3 = prop3("font-variant-numeric");
+   var textDecoration3 = prop3("text-decoration");
+   var textDecorations3 = function (_p10) {    return A2(prop3,"text-decoration",valuesOrNone(_p10));};
+   var prop2 = F3(function (key,argA,argB) {    return A2(property,key,A2($String.join," ",_U.list([argA.value,argB.value])));});
+   var textShadow2 = prop2("text-shadow");
+   var textIndent2 = prop2("text-indent");
+   var padding2 = prop2("padding");
+   var margin2 = prop2("margin");
+   var border2 = prop2("border");
+   var borderTop2 = prop2("border-top");
+   var borderBottom2 = prop2("border-bottom");
+   var borderLeft2 = prop2("border-left");
+   var borderRight2 = prop2("border-right");
+   var borderBlockStart2 = prop2("border-block-start");
+   var borderBlockEnd2 = prop2("border-block-end");
+   var borderInlineStart2 = prop2("border-block-start");
+   var borderInlineEnd2 = prop2("border-block-end");
+   var borderImageOutset2 = prop2("border-image-outset");
+   var borderImageWidth2 = prop2("border-image-width");
+   var borderTopWidth2 = prop2("border-top-width");
+   var borderBottomLeftRadius2 = prop2("border-bottom-left-radius");
+   var borderBottomRightRadius2 = prop2("border-bottom-right-radius");
+   var borderTopLeftRadius2 = prop2("border-top-left-radius");
+   var borderTopRightRadius2 = prop2("border-top-right-radius");
+   var borderRadius2 = prop2("border-radius");
+   var borderSpacing2 = prop2("border-spacing");
+   var fontVariant2 = prop2("font-variant");
+   var fontVariantNumeric2 = prop2("font-variant-numeric");
+   var textDecoration2 = prop2("text-decoration");
+   var textDecorations2 = function (_p11) {    return A2(prop2,"text-decoration",valuesOrNone(_p11));};
+   var prop1 = F2(function (key,arg) {    return A2(property,key,arg.value);});
+   var textRendering = prop1("text-rendering");
+   var textOverflow = prop1("text-overflow");
+   var textShadow = prop1("text-shadow");
+   var textIndent = prop1("text-indent");
+   var textTransform = prop1("text-transform");
+   var display = prop1("display");
+   var opacity = prop1("opacity");
+   var width = prop1("width");
+   var maxWidth = prop1("max-width");
+   var minWidth = prop1("min-width");
+   var height = prop1("height");
+   var minHeight = prop1("min-height");
+   var maxHeight = prop1("max-height");
+   var padding = prop1("padding");
+   var paddingBlockStart = prop1("padding-block-start");
+   var paddingBlockEnd = prop1("padding-block-end");
+   var paddingInlineStart = prop1("padding-inline-start");
+   var paddingInlineEnd = prop1("padding-inline-end");
+   var paddingTop = prop1("padding-top");
+   var paddingBottom = prop1("padding-bottom");
+   var paddingRight = prop1("padding-right");
+   var paddingLeft = prop1("padding-left");
+   var margin = prop1("margin");
+   var marginTop = prop1("margin-top");
+   var marginBottom = prop1("margin-bottom");
+   var marginRight = prop1("margin-right");
+   var marginLeft = prop1("margin-left");
+   var marginBlockStart = prop1("margin-block-start");
+   var marginBlockEnd = prop1("margin-block-end");
+   var marginInlineStart = prop1("margin-inline-start");
+   var marginInlineEnd = prop1("margin-inline-end");
+   var top = prop1("top");
+   var bottom = prop1("bottom");
+   var left = prop1("left");
+   var right = prop1("right");
+   var border = prop1("border");
+   var borderTop = prop1("border-top");
+   var borderBottom = prop1("border-bottom");
+   var borderLeft = prop1("border-left");
+   var borderRight = prop1("border-right");
+   var borderBlockStart = prop1("border-block-start");
+   var borderBlockEnd = prop1("border-block-end");
+   var borderInlineStart = prop1("border-block-start");
+   var borderInlineEnd = prop1("border-block-end");
+   var borderImageOutset = prop1("border-image-outset");
+   var borderImageWidth = prop1("border-image-width");
+   var borderBlockEndStyle = prop1("border-block-end-style");
+   var borderBlockStartStyle = prop1("border-block-start-style");
+   var borderInlineEndStyle = prop1("border-inline-end-style");
+   var borderBottomStyle = prop1("border-bottom-style");
+   var borderInlineStartStyle = prop1("border-inline-start-style");
+   var borderLeftStyle = prop1("border-left-style");
+   var borderRightStyle = prop1("border-right-style");
+   var borderTopStyle = prop1("border-top-style");
+   var borderStyle = prop1("border-style");
+   var borderBottomWidth = prop1("border-bottom-width");
+   var borderInlineEndWidth = prop1("border-inline-end-width");
+   var borderLeftWidth = prop1("border-left-width");
+   var borderRightWidth = prop1("border-right-width");
+   var borderTopWidth = prop1("border-top-width");
+   var borderBottomLeftRadius = prop1("border-bottom-left-radius");
+   var borderBottomRightRadius = prop1("border-bottom-right-radius");
+   var borderTopLeftRadius = prop1("border-top-left-radius");
+   var borderTopRightRadius = prop1("border-top-right-radius");
+   var borderRadius = prop1("border-radius");
+   var borderSpacing = prop1("border-spacing");
+   var overflow = prop1("overflow");
+   var overflowX = prop1("overflow-x");
+   var overflowY = prop1("overflow-y");
+   var whiteSpace = prop1("white-space");
+   var lineHeight = prop1("line-height");
+   var fontFamily = prop1("font-family");
+   var fontFamilies = function (_p12) {    return A2(prop1,"font-family",stringsToValue(_p12));};
+   var fontSize = prop1("font-size");
+   var fontStyle = prop1("font-style");
+   var fontVariant = prop1("font-variant");
+   var fontVariantLigatures = prop1("font-variant-ligatures");
+   var fontVariantCaps = prop1("font-variant-caps");
+   var fontVariantNumeric = prop1("font-variant-numeric");
+   var fontVariantNumerics = function (_p13) {    return A2(prop1,"font-variant-numeric",valuesOrNone(_p13));};
+   var textDecoration = prop1("text-decoration");
+   var textDecorations = function (_p14) {    return A2(prop1,"text-decoration",valuesOrNone(_p14));};
+   var textDecorationLine = prop1("text-decoration-line");
+   var textDecorationLines = function (_p15) {    return A2(prop1,"text-decoration-line",valuesOrNone(_p15));};
+   var textDecorationStyle = prop1("text-decoration-style");
+   var position = prop1("position");
+   var textBottom = prop1("text-bottom");
+   var textTop = prop1("text-top");
+   var $super = prop1("super");
+   var sub = prop1("sub");
+   var baseline = prop1("baseline");
+   var middle = prop1("middle");
+   var stretch = prop1("stretch");
+   var flexEnd = prop1("flex-end");
+   var flexStart = prop1("flex-start");
+   var order = prop1("order");
+   var flexFlow2 = prop2("flex-flow");
+   var flexFlow1 = prop1("flex-flow");
+   var flexDirection = prop1("flex-direction");
+   var flexWrap = prop1("flex-wrap");
+   var flexShrink = prop1("flex-shrink");
+   var flexGrow = prop1("flex-grow");
+   var flexBasis = prop1("flex-basis");
+   var flex3 = prop3("flex");
+   var flex2 = prop2("flex");
+   var flex = prop1("flex");
+   var transformStyle = prop1("transform-style");
+   var boxSizing = prop1("box-sizing");
+   var transformBox = prop1("transform-box");
+   var transforms = function (_p16) {    return A2(prop1,"transform",valuesOrNone(_p16));};
+   var transform = function (only) {    return transforms(_U.list([only]));};
+   var IncompatibleUnits = {ctor: "IncompatibleUnits"};
+   var UnitlessFloat = {ctor: "UnitlessFloat"};
+   var UnitlessInteger = {ctor: "UnitlessInteger"};
+   var PcUnits = {ctor: "PcUnits"};
+   var PtUnits = {ctor: "PtUnits"};
+   var InchUnits = {ctor: "InchUnits"};
+   var CMUnits = {ctor: "CMUnits"};
+   var MMUnits = {ctor: "MMUnits"};
+   var PxUnits = {ctor: "PxUnits"};
+   var VMaxUnits = {ctor: "VMaxUnits"};
+   var VMinUnits = {ctor: "VMinUnits"};
+   var VwUnits = {ctor: "VwUnits"};
+   var VhUnits = {ctor: "VhUnits"};
+   var RemUnits = {ctor: "RemUnits"};
+   var ChUnits = {ctor: "ChUnits"};
+   var ExUnits = {ctor: "ExUnits"};
+   var EmUnits = {ctor: "EmUnits"};
+   var PercentageUnits = {ctor: "PercentageUnits"};
+   var $true = prop1("true");
+   var matchParent = prop1("match-parent");
+   var end = prop1("end");
+   var start = prop1("start");
+   var justifyAll = prop1("justify-all");
+   var textJustify = prop1("text-justify");
+   var center = prop1("center");
+   var BasicProperty = function (a) {
+      return function (b) {
+         return function (c) {
+            return function (d) {
+               return function (e) {
+                  return function (f) {
+                     return function (g) {
+                        return function (h) {
+                           return function (i) {
+                              return function (j) {
+                                 return function (k) {
+                                    return function (l) {
+                                       return function (m) {
+                                          return function (n) {
+                                             return function (o) {
+                                                return function (p) {
+                                                   return function (q) {
+                                                      return function (r) {
+                                                         return function (s) {
+                                                            return function (t) {
+                                                               return function (u) {
+                                                                  return function (v) {
+                                                                     return function (w) {
+                                                                        return function (x) {
+                                                                           return function (y) {
+                                                                              return function (z) {
+                                                                                 return function (_1) {
+                                                                                    return function (_2) {
+                                                                                       return function (_3) {
+                                                                                          return function (_4) {
+                                                                                             return function (_5) {
+                                                                                                return {value: a
+                                                                                                       ,all: b
+                                                                                                       ,alignItems: c
+                                                                                                       ,boxSizing: d
+                                                                                                       ,display: e
+                                                                                                       ,flexBasis: f
+                                                                                                       ,flexWrap: g
+                                                                                                       ,flexDirection: h
+                                                                                                       ,flexDirectionOrWrap: i
+                                                                                                       ,none: j
+                                                                                                       ,number: k
+                                                                                                       ,overflow: l
+                                                                                                       ,textDecorationLine: m
+                                                                                                       ,textRendering: n
+                                                                                                       ,textIndent: o
+                                                                                                       ,textDecorationStyle: p
+                                                                                                       ,length: q
+                                                                                                       ,lengthOrAuto: r
+                                                                                                       ,lengthOrNone: s
+                                                                                                       ,lengthOrNumber: t
+                                                                                                       ,lengthOrMinMaxDimension: u
+                                                                                                       ,lengthOrNoneOrMinMaxDimension: v
+                                                                                                       ,lengthOrNumberOrAutoOrNoneOrContent: w
+                                                                                                       ,fontFamily: x
+                                                                                                       ,fontSize: y
+                                                                                                       ,fontStyle: z
+                                                                                                       ,fontWeight: _1
+                                                                                                       ,fontVariant: _2
+                                                                                                       ,units: _3
+                                                                                                       ,numericValue: _4
+                                                                                                       ,unitLabel: _5};
+                                                                                             };
+                                                                                          };
+                                                                                       };
+                                                                                    };
+                                                                                 };
+                                                                              };
+                                                                           };
+                                                                        };
+                                                                     };
+                                                                  };
+                                                               };
+                                                            };
+                                                         };
+                                                      };
+                                                   };
+                                                };
+                                             };
+                                          };
+                                       };
+                                    };
+                                 };
+                              };
+                           };
+                        };
+                     };
+                  };
+               };
+            };
+         };
+      };
+   };
+   var NonMixable = {};
+   var important = $Css$Preprocess.mapLastProperty(function (property) {    return _U.update(property,{important: true});});
+   var all = prop1("all");
+   var ExplicitLength = function (a) {
+      return function (b) {
+         return function (c) {
+            return function (d) {
+               return function (e) {
+                  return function (f) {
+                     return function (g) {
+                        return function (h) {
+                           return function (i) {
+                              return function (j) {
+                                 return function (k) {
+                                    return function (l) {
+                                       return function (m) {
+                                          return function (n) {
+                                             return {value: a
+                                                    ,numericValue: b
+                                                    ,units: c
+                                                    ,unitLabel: d
+                                                    ,length: e
+                                                    ,lengthOrAuto: f
+                                                    ,lengthOrNumber: g
+                                                    ,lengthOrNone: h
+                                                    ,lengthOrMinMaxDimension: i
+                                                    ,lengthOrNoneOrMinMaxDimension: j
+                                                    ,textIndent: k
+                                                    ,flexBasis: l
+                                                    ,lengthOrNumberOrAutoOrNoneOrContent: m
+                                                    ,fontSize: n};
+                                          };
+                                       };
+                                    };
+                                 };
+                              };
+                           };
+                        };
+                     };
+                  };
+               };
+            };
+         };
+      };
+   };
+   var combineLengths = F3(function (operation,first,second) {
+      var value = A2($String.join,
+      " ",
+      A2($List.filter,
+      function (_p17) {
+         return $Basics.not($String.isEmpty(_p17));
+      },
+      _U.list([$Basics.toString(A2(operation,first.numericValue,second.numericValue)),first.unitLabel])));
+      return _U.update(first,{value: value});
+   });
+   _op["|*|"] = combineLengths(F2(function (x,y) {    return x * y;}));
+   _op["|/|"] = combineLengths(F2(function (x,y) {    return x / y;}));
+   _op["|-|"] = combineLengths(F2(function (x,y) {    return x - y;}));
+   _op["|+|"] = combineLengths(F2(function (x,y) {    return x + y;}));
+   var NumberedWeight = F2(function (a,b) {    return {value: a,fontWeight: b};});
+   var getOverloadedProperty = F3(function (functionName,desiredKey,mixin) {
+      getOverloadedProperty: while (true) {
+         var _p18 = mixin;
+         switch (_p18.ctor)
+         {case "AppendProperty": return A2(property,desiredKey,_p18._0.key);
+            case "ExtendSelector": return A3(propertyWithWarnings,
+              _U.list([A2($Basics._op["++"],
+              "Cannot apply ",
+              A2($Basics._op["++"],functionName,A2($Basics._op["++"]," with inapplicable mixin for selector ",$Basics.toString(_p18._0))))]),
+              desiredKey,
+              "");
+            case "NestSnippet": return A3(propertyWithWarnings,
+              _U.list([A2($Basics._op["++"],
+              "Cannot apply ",
+              A2($Basics._op["++"],functionName,A2($Basics._op["++"]," with inapplicable mixin for combinator ",$Basics.toString(_p18._0))))]),
+              desiredKey,
+              "");
+            case "WithPseudoElement": return A3(propertyWithWarnings,
+              _U.list([A2($Basics._op["++"],
+              "Cannot apply ",
+              A2($Basics._op["++"],functionName,A2($Basics._op["++"]," with inapplicable mixin for pseudo-element setter ",$Basics.toString(_p18._0))))]),
+              desiredKey,
+              "");
+            case "WithMedia": return A3(propertyWithWarnings,
+              _U.list([A2($Basics._op["++"],
+              "Cannot apply ",
+              A2($Basics._op["++"],functionName,A2($Basics._op["++"]," with inapplicable mixin for media query ",$Basics.toString(_p18._0))))]),
+              desiredKey,
+              "");
+            default: if (_p18._0.ctor === "[]") {
+                    return A3(propertyWithWarnings,
+                    _U.list([A2($Basics._op["++"],"Cannot apply ",A2($Basics._op["++"],functionName," with empty mixin. "))]),
+                    desiredKey,
+                    "");
+                 } else {
+                    if (_p18._0._1.ctor === "[]") {
+                          var _v11 = functionName,_v12 = desiredKey,_v13 = _p18._0._0;
+                          functionName = _v11;
+                          desiredKey = _v12;
+                          mixin = _v13;
+                          continue getOverloadedProperty;
+                       } else {
+                          var _v14 = functionName,_v15 = desiredKey,_v16 = $Css$Preprocess.ApplyMixins(_p18._0._1);
+                          functionName = _v14;
+                          desiredKey = _v15;
+                          mixin = _v16;
+                          continue getOverloadedProperty;
+                       }
+                 }}
+      }
+   });
+   var cssFunction = F2(function (funcName,args) {
+      return A2($Basics._op["++"],funcName,A2($Basics._op["++"],"(",A2($Basics._op["++"],A2($String.join,", ",args),")")));
+   });
+   var tv = $Css$Structure.MediaQuery("tv");
+   var projection = $Css$Structure.MediaQuery("projection");
+   var print = $Css$Structure.MediaQuery("print");
+   var screen = $Css$Structure.MediaQuery("screen");
+   var PseudoElement = F2(function (a,b) {    return {ctor: "PseudoElement",_0: a,_1: b};});
+   var PseudoClass = F2(function (a,b) {    return {ctor: "PseudoClass",_0: a,_1: b};});
+   var Compatible = {ctor: "Compatible"};
+   var transparent = {value: "transparent",color: Compatible,warnings: _U.list([])};
+   var currentColor = {value: "currentColor",color: Compatible,warnings: _U.list([])};
+   var visible = {value: "visible",overflow: Compatible};
+   var scroll = {value: "scroll",overflow: Compatible};
+   var hidden = {value: "hidden",overflow: Compatible,borderStyle: Compatible};
+   var initial = {value: "initial"
+                 ,overflow: Compatible
+                 ,none: Compatible
+                 ,number: Compatible
+                 ,textDecorationLine: Compatible
+                 ,textRendering: Compatible
+                 ,textIndent: Compatible
+                 ,textDecorationStyle: Compatible
+                 ,boxSizing: Compatible
+                 ,display: Compatible
+                 ,all: Compatible
+                 ,alignItems: Compatible
+                 ,length: Compatible
+                 ,lengthOrAuto: Compatible
+                 ,lengthOrNone: Compatible
+                 ,lengthOrNumber: Compatible
+                 ,lengthOrMinMaxDimension: Compatible
+                 ,lengthOrNoneOrMinMaxDimension: Compatible
+                 ,flexBasis: Compatible
+                 ,flexWrap: Compatible
+                 ,flexDirection: Compatible
+                 ,flexDirectionOrWrap: Compatible
+                 ,lengthOrNumberOrAutoOrNoneOrContent: Compatible
+                 ,fontFamily: Compatible
+                 ,fontSize: Compatible
+                 ,fontStyle: Compatible
+                 ,fontWeight: Compatible
+                 ,fontVariant: Compatible
+                 ,units: IncompatibleUnits
+                 ,numericValue: 0
+                 ,unitLabel: ""};
+   var unset = _U.update(initial,{value: "unset"});
+   var inherit = _U.update(initial,{value: "inherit"});
+   var rgb = F3(function (red,green,blue) {
+      var warnings = _U.cmp(red,0) < 0 || (_U.cmp(red,255) > 0 || (_U.cmp(green,0) < 0 || (_U.cmp(green,255) > 0 || (_U.cmp(blue,0) < 0 || _U.cmp(blue,
+      255) > 0)))) ? _U.list([A2($Basics._op["++"],
+      "RGB color values must be between 0 and 255. rgb(",
+      A2($Basics._op["++"],
+      $Basics.toString(red),
+      A2($Basics._op["++"],
+      ", ",
+      A2($Basics._op["++"],
+      $Basics.toString(green),
+      A2($Basics._op["++"],", ",A2($Basics._op["++"],$Basics.toString(blue),") is not valid."))))))]) : _U.list([]);
+      return {value: A2(cssFunction,"rgb",A2($List.map,numberToString,_U.list([red,green,blue])))
+             ,color: Compatible
+             ,warnings: warnings
+             ,red: red
+             ,green: green
+             ,blue: blue
+             ,alpha: 1};
+   });
+   var rgba = F4(function (red,green,blue,alpha) {
+      var warnings = _U.cmp(red,0) < 0 || (_U.cmp(red,255) > 0 || (_U.cmp(green,0) < 0 || (_U.cmp(green,255) > 0 || (_U.cmp(blue,0) < 0 || (_U.cmp(blue,
+      255) > 0 || (_U.cmp(alpha,0) < 0 || _U.cmp(alpha,1) > 0)))))) ? _U.list([A2($Basics._op["++"],
+      "RGB color values must be between 0 and 255, and the alpha in RGBA must be between 0 and 1. rgba(",
+      A2($Basics._op["++"],
+      $Basics.toString(red),
+      A2($Basics._op["++"],
+      ", ",
+      A2($Basics._op["++"],
+      $Basics.toString(green),
+      A2($Basics._op["++"],
+      ", ",
+      A2($Basics._op["++"],
+      $Basics.toString(blue),
+      A2($Basics._op["++"],", ",A2($Basics._op["++"],$Basics.toString(alpha),") is not valid."))))))))]) : _U.list([]);
+      return {value: A2(cssFunction,"rgba",A2($List.map,numberToString,_U.list([red,green,blue,alpha])))
+             ,color: Compatible
+             ,warnings: warnings
+             ,red: red
+             ,green: green
+             ,blue: blue
+             ,alpha: 1};
+   });
+   var hex = function (str) {
+      var value = _U.eq(A3($String.slice,0,1,str),"#") ? str : A2($Basics._op["++"],"#",str);
+      var warnings = A2($Regex.contains,
+      $Regex.regex("^#([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{4}|[a-fA-F0-9]{3})$"),
+      value) ? _U.list([]) : _U.list([A2($String.join,
+      " ",
+      _U.list(["The syntax of a hex-color is a token whose value consists of 3, 4, 6, or 8 hexadecimal digits."
+              ,value
+              ,"is not valid."
+              ,"Please see: https://drafts.csswg.org/css-color/#hex-notation"]))]);
+      return {value: value,color: Compatible,red: 0,green: 0,blue: 0,alpha: 1,warnings: warnings};
+   };
+   var hslaToRgba = F6(function (value,warnings,hue,saturation,lightness,alpha) {
+      var blue = 0;
+      var green = 0;
+      var red = 0;
+      return {value: value,color: Compatible,red: red,green: green,blue: blue,alpha: alpha,warnings: warnings};
+   });
+   var hsl = F3(function (hue,saturation,lightness) {
+      var valuesList = _U.list([numberToString(hue),numericalPercentageToString(saturation),numericalPercentageToString(lightness)]);
+      var value = A2(cssFunction,"hsl",valuesList);
+      var warnings = _U.cmp(hue,360) > 0 || (_U.cmp(hue,0) < 0 || (_U.cmp(saturation,1) > 0 || (_U.cmp(saturation,0) < 0 || (_U.cmp(lightness,
+      1) > 0 || _U.cmp(lightness,0) < 0)))) ? _U.list([A2($Basics._op["++"],
+      "HSL color values must have an H value between 0 and 360 (as in degrees) and S and L values between 0 and 1. ",
+      A2($Basics._op["++"],value," is not valid."))]) : _U.list([]);
+      return A6(hslaToRgba,value,warnings,hue,saturation,lightness,1);
+   });
+   var hsla = F4(function (hue,saturation,lightness,alpha) {
+      var valuesList = _U.list([numberToString(hue),numericalPercentageToString(saturation),numericalPercentageToString(lightness),numberToString(alpha)]);
+      var value = A2(cssFunction,"hsla",valuesList);
+      var warnings = _U.cmp(hue,360) > 0 || (_U.cmp(hue,0) < 0 || (_U.cmp(saturation,1) > 0 || (_U.cmp(saturation,0) < 0 || (_U.cmp(lightness,
+      1) > 0 || (_U.cmp(lightness,0) < 0 || (_U.cmp(alpha,1) > 0 || _U.cmp(alpha,0) < 0)))))) ? _U.list([A2($Basics._op["++"],
+      "HSLA color values must have an H value between 0 and 360 (as in degrees) and S, L, and A values between 0 and 1. ",
+      A2($Basics._op["++"],value," is not valid."))]) : _U.list([]);
+      return A6(hslaToRgba,value,warnings,hue,saturation,lightness,alpha);
+   });
+   var optimizeSpeed = {value: "optimizeSpeed",textRendering: Compatible};
+   var optimizeLegibility = {value: "optimizeLegibility",textRendering: Compatible};
+   var geometricPrecision = {value: "geometricPrecision",textRendering: Compatible};
+   var hanging = {value: "hanging",textIndent: Compatible};
+   var eachLine = {value: "each-line",textIndent: Compatible};
+   var capitalize = {value: "capitalize",textTransform: Compatible};
+   var uppercase = {value: "uppercase",textTransform: Compatible};
+   var lowercase = {value: "lowercase",textTransform: Compatible};
+   var fullWidth = {value: "full-width",textTransform: Compatible};
+   var ellipsis = {value: "ellipsis",textOverflow: Compatible};
+   var clip = {value: "clip",textOverflow: Compatible};
+   var wavy = {value: "wavy",textDecorationStyle: Compatible};
+   var dotted = {value: "dotted",borderStyle: Compatible,textDecorationStyle: Compatible};
+   var dashed = {value: "dashed",borderStyle: Compatible,textDecorationStyle: Compatible};
+   var solid = {value: "solid",borderStyle: Compatible,textDecorationStyle: Compatible};
+   var $double = {value: "double",borderStyle: Compatible,textDecorationStyle: Compatible};
+   var groove = {value: "groove",borderStyle: Compatible};
+   var ridge = {value: "ridge",borderStyle: Compatible};
+   var inset = {value: "inset",borderStyle: Compatible};
+   var outset = {value: "outset",borderStyle: Compatible};
+   var lengthConverter = F3(function (units,unitLabel,num) {
+      return {value: A2($Basics._op["++"],numberToString(num),unitLabel)
+             ,numericValue: num
+             ,units: units
+             ,unitLabel: unitLabel
+             ,length: Compatible
+             ,lengthOrAuto: Compatible
+             ,lengthOrNumber: Compatible
+             ,lengthOrNone: Compatible
+             ,lengthOrMinMaxDimension: Compatible
+             ,lengthOrNoneOrMinMaxDimension: Compatible
+             ,textIndent: Compatible
+             ,flexBasis: Compatible
+             ,lengthOrNumberOrAutoOrNoneOrContent: Compatible
+             ,fontSize: Compatible};
+   });
+   var pct = A2(lengthConverter,PercentageUnits,"%");
+   var em = A2(lengthConverter,EmUnits,"em");
+   var ex = A2(lengthConverter,ExUnits,"ex");
+   var ch = A2(lengthConverter,ChUnits,"ch");
+   var rem = A2(lengthConverter,RemUnits,"rem");
+   var vh = A2(lengthConverter,VhUnits,"vh");
+   var vw = A2(lengthConverter,VwUnits,"vw");
+   var vmin = A2(lengthConverter,VMinUnits,"vmin");
+   var vmax = A2(lengthConverter,VMaxUnits,"vmax");
+   var px = A2(lengthConverter,PxUnits,"px");
+   var mm = A2(lengthConverter,MMUnits,"mm");
+   var cm = A2(lengthConverter,CMUnits,"cm");
+   var inches = A2(lengthConverter,InchUnits,"in");
+   var pt = A2(lengthConverter,PtUnits,"pt");
+   var pc = A2(lengthConverter,PcUnits,"pc");
+   var lengthForOverloadedProperty = A3(lengthConverter,IncompatibleUnits,"",0);
+   var alignItems = function (fn) {    return A3(getOverloadedProperty,"alignItems","align-items",fn(lengthForOverloadedProperty));};
+   var alignSelf = function (fn) {    return A3(getOverloadedProperty,"alignSelf","align-self",fn(lengthForOverloadedProperty));};
+   var textAlignLast = function (fn) {    return A3(getOverloadedProperty,"textAlignLast","text-align-last",fn(lengthForOverloadedProperty));};
+   var textAlign = function (fn) {    return A3(getOverloadedProperty,"textAlign","text-align",fn(lengthForOverloadedProperty));};
+   var verticalAlign = function (fn) {    return A3(getOverloadedProperty,"verticalAlign","vertical-align",fn(lengthForOverloadedProperty));};
+   var zero = {value: "0"
+              ,length: Compatible
+              ,lengthOrNumber: Compatible
+              ,lengthOrNone: Compatible
+              ,lengthOrAuto: Compatible
+              ,lengthOrMinMaxDimension: Compatible
+              ,lengthOrNoneOrMinMaxDimension: Compatible
+              ,number: Compatible
+              ,units: UnitlessInteger
+              ,unitLabel: ""
+              ,numericValue: 0};
+   var $int = function (val) {
+      return {value: numberToString(val)
+             ,lengthOrNumber: Compatible
+             ,number: Compatible
+             ,lengthOrNumberOrAutoOrNoneOrContent: Compatible
+             ,numericValue: $Basics.toFloat(val)
+             ,unitLabel: ""
+             ,units: UnitlessInteger};
+   };
+   var $float = function (val) {
+      return {value: numberToString(val)
+             ,lengthOrNumber: Compatible
+             ,number: Compatible
+             ,lengthOrNumberOrAutoOrNoneOrContent: Compatible
+             ,numericValue: val
+             ,unitLabel: ""
+             ,units: UnitlessFloat};
+   };
+   var angleConverter = F2(function (suffix,num) {    return {value: A2($Basics._op["++"],numberToString(num),suffix),angle: Compatible};});
+   var deg = angleConverter("deg");
+   var grad = angleConverter("grad");
+   var rad = angleConverter("rad");
+   var turn = angleConverter("turn");
+   var matrix = F6(function (a,b,c,d,tx,ty) {
+      return {value: A2(cssFunction,"matrix",A2($List.map,numberToString,_U.list([a,b,c,d,tx,ty]))),transform: Compatible};
+   });
+   var matrix3d = function (a1) {
+      return function (a2) {
+         return function (a3) {
+            return function (a4) {
+               return function (b1) {
+                  return function (b2) {
+                     return function (b3) {
+                        return function (b4) {
+                           return function (c1) {
+                              return function (c2) {
+                                 return function (c3) {
+                                    return function (c4) {
+                                       return function (d1) {
+                                          return function (d2) {
+                                             return function (d3) {
+                                                return function (d4) {
+                                                   return {value: A2(cssFunction,
+                                                          "matrix3d",
+                                                          A2($List.map,numberToString,_U.list([a1,a2,a3,a4,b1,b2,b3,b4,c1,c2,c3,c4,d1,d2,d3,d4])))
+                                                          ,transform: Compatible};
+                                                };
+                                             };
+                                          };
+                                       };
+                                    };
+                                 };
+                              };
+                           };
+                        };
+                     };
+                  };
+               };
+            };
+         };
+      };
+   };
+   var perspective = function (l) {    return {value: A2(cssFunction,"perspective",_U.list([numberToString(l)])),transform: Compatible};};
+   var rotate = function (_p19) {    var _p20 = _p19;return {value: A2(cssFunction,"rotate",_U.list([_p20.value])),transform: Compatible};};
+   var rotateX = function (_p21) {    var _p22 = _p21;return {value: A2(cssFunction,"rotateX",_U.list([_p22.value])),transform: Compatible};};
+   var rotateY = function (_p23) {    var _p24 = _p23;return {value: A2(cssFunction,"rotateY",_U.list([_p24.value])),transform: Compatible};};
+   var rotateZ = function (_p25) {    var _p26 = _p25;return {value: A2(cssFunction,"rotateZ",_U.list([_p26.value])),transform: Compatible};};
+   var rotate3d = F4(function (x,y,z,_p27) {
+      var _p28 = _p27;
+      var coordsAsStrings = A2($List.map,numberToString,_U.list([x,y,z]));
+      return {value: A2(cssFunction,"rotate3d",A2($Basics._op["++"],coordsAsStrings,_U.list([_p28.value]))),transform: Compatible};
+   });
+   var scale = function (x) {    return {value: A2(cssFunction,"scale",_U.list([numberToString(x)])),transform: Compatible};};
+   var scale2 = F2(function (x,y) {    return {value: A2(cssFunction,"scale",A2($List.map,numberToString,_U.list([x,y]))),transform: Compatible};});
+   var scaleX = function (x) {    return {value: A2(cssFunction,"scaleX",_U.list([numberToString(x)])),transform: Compatible};};
+   var scaleY = function (y) {    return {value: A2(cssFunction,"scaleY",_U.list([numberToString(y)])),transform: Compatible};};
+   var scale3d = F3(function (x,y,z) {    return {value: A2(cssFunction,"scale3d",A2($List.map,numberToString,_U.list([x,y,z]))),transform: Compatible};});
+   var skew = function (_p29) {    var _p30 = _p29;return {value: A2(cssFunction,"skew",_U.list([_p30.value])),transform: Compatible};};
+   var skew2 = F2(function (ax,ay) {    return {value: A2(cssFunction,"skew",_U.list([ax.value,ay.value])),transform: Compatible};});
+   var skewX = function (_p31) {    var _p32 = _p31;return {value: A2(cssFunction,"skewX",_U.list([_p32.value])),transform: Compatible};};
+   var skewY = function (_p33) {    var _p34 = _p33;return {value: A2(cssFunction,"skewY",_U.list([_p34.value])),transform: Compatible};};
+   var translate = function (_p35) {    var _p36 = _p35;return {value: A2(cssFunction,"translate",_U.list([_p36.value])),transform: Compatible};};
+   var translate2 = F2(function (tx,ty) {    return {value: A2(cssFunction,"translate",_U.list([tx.value,ty.value])),transform: Compatible};});
+   var translateX = function (_p37) {    var _p38 = _p37;return {value: A2(cssFunction,"translateX",_U.list([_p38.value])),transform: Compatible};};
+   var translateY = function (_p39) {    var _p40 = _p39;return {value: A2(cssFunction,"translateY",_U.list([_p40.value])),transform: Compatible};};
+   var translateZ = function (_p41) {    var _p42 = _p41;return {value: A2(cssFunction,"translateZ",_U.list([_p42.value])),transform: Compatible};};
+   var translate3d = F3(function (tx,ty,tz) {    return {value: A2(cssFunction,"translate3d",_U.list([tx.value,ty.value,tz.value])),transform: Compatible};});
+   var fillBox = {value: "fill-box",transformBox: Compatible};
+   var contentBox = {value: "content-box",boxSizing: Compatible};
+   var borderBox = {value: "border-box",boxSizing: Compatible};
+   var viewBox = {value: "view-box",transformBox: Compatible};
+   var preserve3d = {value: "preserve-3d",transformStyle: Compatible};
+   var flat = {value: "flat",transformStyle: Compatible};
+   var content = {value: "content",flexBasis: Compatible,lengthOrNumberOrAutoOrNoneOrContent: Compatible};
+   var wrap = {value: "wrap",flexWrap: Compatible,flexDirectionOrWrap: Compatible};
+   var wrapReverse = _U.update(wrap,{value: "wrap-reverse"});
+   var row = {value: "row",flexDirection: Compatible,flexDirectionOrWrap: Compatible};
+   var rowReverse = _U.update(row,{value: "row-reverse"});
+   var column = _U.update(row,{value: "column"});
+   var columnReverse = _U.update(row,{value: "column-reverse"});
+   var underline = {value: "underline",textDecorationLine: Compatible};
+   var overline = {value: "overline",textDecorationLine: Compatible};
+   var lineThrough = {value: "line-through",textDecorationLine: Compatible};
+   var block = {value: "block",display: Compatible};
+   var inlineBlock = {value: "inline-block",display: Compatible};
+   var inline = {value: "inline",display: Compatible};
+   var none = {value: "none"
+              ,none: Compatible
+              ,lengthOrNone: Compatible
+              ,lengthOrNoneOrMinMaxDimension: Compatible
+              ,lengthOrNumberOrAutoOrNoneOrContent: Compatible
+              ,textDecorationLine: Compatible
+              ,display: Compatible
+              ,transform: Compatible
+              ,borderStyle: Compatible};
+   var auto = {value: "auto"
+              ,flexBasis: Compatible
+              ,overflow: Compatible
+              ,textRendering: Compatible
+              ,lengthOrAuto: Compatible
+              ,lengthOrNumberOrAutoOrNoneOrContent: Compatible
+              ,alignItemsOrAuto: Compatible};
+   var noWrap = {value: "nowrap",whiteSpace: Compatible,flexWrap: Compatible,flexDirectionOrWrap: Compatible};
+   var fillAvailable = {value: "fill-available",minMaxDimension: Compatible,lengthOrMinMaxDimension: Compatible,lengthOrNoneOrMinMaxDimension: Compatible};
+   var maxContent = _U.update(fillAvailable,{value: "max-content"});
+   var minContent = _U.update(fillAvailable,{value: "min-content"});
+   var fitContent = _U.update(fillAvailable,{value: "fit-content"});
+   var $static = {value: "static",position: Compatible};
+   var fixed = {value: "fixed",position: Compatible};
+   var sticky = {value: "sticky",position: Compatible};
+   var relative = {value: "relative",position: Compatible};
+   var absolute = {value: "absolute",position: Compatible};
+   var serif = {value: "serif",fontFamily: Compatible};
+   var sansSerif = {value: "sans-serif",fontFamily: Compatible};
+   var monospace = {value: "monospace",fontFamily: Compatible};
+   var cursive = {value: "cursive",fontFamily: Compatible};
+   var fantasy = {value: "fantasy",fontFamily: Compatible};
+   var xxSmall = {value: "xx-small",fontSize: Compatible};
+   var xSmall = {value: "x-small",fontSize: Compatible};
+   var small = {value: "small",fontSize: Compatible};
+   var medium = {value: "medium",fontSize: Compatible};
+   var large = {value: "large",fontSize: Compatible};
+   var xLarge = {value: "x-large",fontSize: Compatible};
+   var xxLarge = {value: "xx-large",fontSize: Compatible};
+   var smaller = {value: "smaller",fontSize: Compatible};
+   var larger = {value: "larger",fontSize: Compatible};
+   var normal = {value: "normal",warnings: _U.list([]),fontStyle: Compatible,featureTagValue: Compatible};
+   var italic = {value: "italic",fontStyle: Compatible};
+   var oblique = {value: "oblique",fontStyle: Compatible};
+   var bold = {value: "bold",lengthOrNumberOrAutoOrNoneOrContent: Compatible};
+   var lighter = {value: "lighter",lengthOrNumberOrAutoOrNoneOrContent: Compatible};
+   var bolder = {value: "bolder",lengthOrNumberOrAutoOrNoneOrContent: Compatible};
+   var smallCaps = {value: "small-caps",fontVariant: Compatible,fontVariantCaps: Compatible};
+   var allSmallCaps = {value: "all-small-caps",fontVariant: Compatible,fontVariantCaps: Compatible};
+   var petiteCaps = {value: "petite-caps",fontVariant: Compatible,fontVariantCaps: Compatible};
+   var allPetiteCaps = {value: "all-petite-caps",fontVariant: Compatible,fontVariantCaps: Compatible};
+   var unicase = {value: "unicase",fontVariant: Compatible,fontVariantCaps: Compatible};
+   var titlingCaps = {value: "titling-caps",fontVariant: Compatible,fontVariantCaps: Compatible};
+   var commonLigatures = {value: "common-ligatures",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var noCommonLigatures = {value: "no-common-ligatures",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var discretionaryLigatures = {value: "discretionary-ligatures",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var noDiscretionaryLigatures = {value: "no-discretionary-ligatures",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var historicalLigatures = {value: "historical-ligatures",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var noHistoricalLigatures = {value: "no-historical-ligatures",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var contextual = {value: "context",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var noContextual = {value: "no-contextual",fontVariant: Compatible,fontVariantLigatures: Compatible};
+   var liningNums = {value: "lining-nums",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var oldstyleNums = {value: "oldstyle-nums",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var proportionalNums = {value: "proportional-nums",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var tabularNums = {value: "tabular-nums",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var diagonalFractions = {value: "diagonal-fractions",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var stackedFractions = {value: "stacked-fractions",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var ordinal = {value: "ordinal",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var slashedZero = {value: "slashed-zero",fontVariant: Compatible,fontVariantNumeric: Compatible};
+   var featureTag2 = F2(function (tag,value) {
+      var potentialWarnings = _U.list([{ctor: "_Tuple2"
+                                       ,_0: !_U.eq($String.length(tag),4)
+                                       ,_1: A2($Basics._op["++"],"Feature tags must be exactly 4 characters long. ",A2($Basics._op["++"],tag," is invalid."))}
+                                      ,{ctor: "_Tuple2"
+                                       ,_0: _U.cmp(value,0) < 0
+                                       ,_1: A2($Basics._op["++"],
+                                       "Feature values cannot be negative. ",
+                                       A2($Basics._op["++"],$Basics.toString(value)," is invalid."))}]);
+      var warnings = A2($List.map,$Basics.snd,A2($List.filter,$Basics.fst,potentialWarnings));
+      return {value: A2($Basics._op["++"],$Basics.toString(tag),A2($Basics._op["++"]," ",$Basics.toString(value)))
+             ,featureTagValue: Compatible
+             ,warnings: warnings};
+   });
+   var featureTag = function (tag) {    return A2(featureTag2,tag,1);};
+   return _elm.Css.values = {_op: _op
+                            ,compile: compile
+                            ,asPairs: asPairs
+                            ,stylesheet: stylesheet
+                            ,each: each
+                            ,media: media
+                            ,withMedia: withMedia
+                            ,withClass: withClass
+                            ,everything: everything
+                            ,children: children
+                            ,descendants: descendants
+                            ,adjacentSiblings: adjacentSiblings
+                            ,generalSiblings: generalSiblings
+                            ,mixin: mixin
+                            ,all: all
+                            ,property: property
+                            ,selector: selector
+                            ,important: important
+                            ,transformStyle: transformStyle
+                            ,eachLine: eachLine
+                            ,transformBox: transformBox
+                            ,transform: transform
+                            ,transforms: transforms
+                            ,currentColor: currentColor
+                            ,underline: underline
+                            ,overline: overline
+                            ,lineThrough: lineThrough
+                            ,textDecoration: textDecoration
+                            ,textDecoration2: textDecoration2
+                            ,textDecoration3: textDecoration3
+                            ,textDecorations: textDecorations
+                            ,textDecorations2: textDecorations2
+                            ,textDecorations3: textDecorations3
+                            ,textDecorationLine: textDecorationLine
+                            ,textDecorationLines: textDecorationLines
+                            ,textDecorationStyle: textDecorationStyle
+                            ,capitalize: capitalize
+                            ,uppercase: uppercase
+                            ,lowercase: lowercase
+                            ,fullWidth: fullWidth
+                            ,hanging: hanging
+                            ,textIndent: textIndent
+                            ,textIndent2: textIndent2
+                            ,textIndent3: textIndent3
+                            ,ellipsis: ellipsis
+                            ,clip: clip
+                            ,textOverflow: textOverflow
+                            ,optimizeSpeed: optimizeSpeed
+                            ,optimizeLegibility: optimizeLegibility
+                            ,geometricPrecision: geometricPrecision
+                            ,textRendering: textRendering
+                            ,textTransform: textTransform
+                            ,textShadow: textShadow
+                            ,textShadow2: textShadow2
+                            ,textShadow3: textShadow3
+                            ,textShadow4: textShadow4
+                            ,textAlign: textAlign
+                            ,textAlignLast: textAlignLast
+                            ,left: left
+                            ,right: right
+                            ,center: center
+                            ,textJustify: textJustify
+                            ,justifyAll: justifyAll
+                            ,start: start
+                            ,end: end
+                            ,matchParent: matchParent
+                            ,$true: $true
+                            ,verticalAlign: verticalAlign
+                            ,display: display
+                            ,opacity: opacity
+                            ,minContent: minContent
+                            ,maxContent: maxContent
+                            ,fitContent: fitContent
+                            ,fillAvailable: fillAvailable
+                            ,width: width
+                            ,minWidth: minWidth
+                            ,maxWidth: maxWidth
+                            ,height: height
+                            ,minHeight: minHeight
+                            ,maxHeight: maxHeight
+                            ,padding: padding
+                            ,padding2: padding2
+                            ,padding3: padding3
+                            ,padding4: padding4
+                            ,paddingTop: paddingTop
+                            ,paddingBottom: paddingBottom
+                            ,paddingRight: paddingRight
+                            ,paddingLeft: paddingLeft
+                            ,paddingBlockStart: paddingBlockStart
+                            ,paddingBlockEnd: paddingBlockEnd
+                            ,paddingInlineStart: paddingInlineStart
+                            ,paddingInlineEnd: paddingInlineEnd
+                            ,margin: margin
+                            ,margin2: margin2
+                            ,margin3: margin3
+                            ,margin4: margin4
+                            ,marginTop: marginTop
+                            ,marginBottom: marginBottom
+                            ,marginRight: marginRight
+                            ,marginLeft: marginLeft
+                            ,marginBlockStart: marginBlockStart
+                            ,marginBlockEnd: marginBlockEnd
+                            ,marginInlineStart: marginInlineStart
+                            ,marginInlineEnd: marginInlineEnd
+                            ,boxSizing: boxSizing
+                            ,overflow: overflow
+                            ,overflowX: overflowX
+                            ,overflowY: overflowY
+                            ,whiteSpace: whiteSpace
+                            ,backgroundColor: backgroundColor
+                            ,color: color
+                            ,solid: solid
+                            ,transparent: transparent
+                            ,rgb: rgb
+                            ,rgba: rgba
+                            ,hsl: hsl
+                            ,hsla: hsla
+                            ,hex: hex
+                            ,zero: zero
+                            ,pct: pct
+                            ,px: px
+                            ,em: em
+                            ,pt: pt
+                            ,ex: ex
+                            ,ch: ch
+                            ,rem: rem
+                            ,vh: vh
+                            ,vw: vw
+                            ,vmin: vmin
+                            ,vmax: vmax
+                            ,mm: mm
+                            ,cm: cm
+                            ,inches: inches
+                            ,pc: pc
+                            ,$int: $int
+                            ,$float: $float
+                            ,borderColor: borderColor
+                            ,borderColor2: borderColor2
+                            ,borderColor3: borderColor3
+                            ,borderColor4: borderColor4
+                            ,borderBottomLeftRadius: borderBottomLeftRadius
+                            ,borderBottomLeftRadius2: borderBottomLeftRadius2
+                            ,borderBottomRightRadius: borderBottomRightRadius
+                            ,borderBottomRightRadius2: borderBottomRightRadius2
+                            ,borderTopLeftRadius: borderTopLeftRadius
+                            ,borderTopLeftRadius2: borderTopLeftRadius2
+                            ,borderTopRightRadius: borderTopRightRadius
+                            ,borderTopRightRadius2: borderTopRightRadius2
+                            ,borderRadius: borderRadius
+                            ,borderRadius2: borderRadius2
+                            ,borderRadius3: borderRadius3
+                            ,borderRadius4: borderRadius4
+                            ,borderBottomWidth: borderBottomWidth
+                            ,borderInlineEndWidth: borderInlineEndWidth
+                            ,borderLeftWidth: borderLeftWidth
+                            ,borderRightWidth: borderRightWidth
+                            ,borderTopWidth: borderTopWidth
+                            ,borderBlockEndStyle: borderBlockEndStyle
+                            ,borderBlockStartStyle: borderBlockStartStyle
+                            ,borderInlineEndStyle: borderInlineEndStyle
+                            ,borderBottomStyle: borderBottomStyle
+                            ,borderInlineStartStyle: borderInlineStartStyle
+                            ,borderLeftStyle: borderLeftStyle
+                            ,borderRightStyle: borderRightStyle
+                            ,borderTopStyle: borderTopStyle
+                            ,borderStyle: borderStyle
+                            ,borderBlockStartColor: borderBlockStartColor
+                            ,borderBlockEndColor: borderBlockEndColor
+                            ,borderBottomColor: borderBottomColor
+                            ,borderInlineStartColor: borderInlineStartColor
+                            ,borderInlineEndColor: borderInlineEndColor
+                            ,borderLeftColor: borderLeftColor
+                            ,borderRightColor: borderRightColor
+                            ,borderTopColor: borderTopColor
+                            ,borderBox: borderBox
+                            ,contentBox: contentBox
+                            ,border: border
+                            ,border2: border2
+                            ,border3: border3
+                            ,borderTop: borderTop
+                            ,borderTop2: borderTop2
+                            ,borderTop3: borderTop3
+                            ,borderBottom: borderBottom
+                            ,borderBottom2: borderBottom2
+                            ,borderBottom3: borderBottom3
+                            ,borderLeft: borderLeft
+                            ,borderLeft2: borderLeft2
+                            ,borderLeft3: borderLeft3
+                            ,borderRight: borderRight
+                            ,borderRight2: borderRight2
+                            ,borderRight3: borderRight3
+                            ,borderBlockEnd: borderBlockEnd
+                            ,borderBlockEnd2: borderBlockEnd2
+                            ,borderBlockEnd3: borderBlockEnd3
+                            ,borderBlockStart: borderBlockStart
+                            ,borderBlockStart2: borderBlockStart2
+                            ,borderBlockStart3: borderBlockStart3
+                            ,borderInlineEnd: borderInlineEnd
+                            ,borderInlineEnd2: borderInlineEnd2
+                            ,borderInlineEnd3: borderInlineEnd3
+                            ,borderInlineStart: borderInlineStart
+                            ,borderInlineStart2: borderInlineStart2
+                            ,borderInlineStart3: borderInlineStart3
+                            ,borderImageOutset: borderImageOutset
+                            ,borderImageOutset2: borderImageOutset2
+                            ,borderImageOutset3: borderImageOutset3
+                            ,borderImageOutset4: borderImageOutset4
+                            ,borderImageWidth: borderImageWidth
+                            ,borderImageWidth2: borderImageWidth2
+                            ,borderImageWidth3: borderImageWidth3
+                            ,borderImageWidth4: borderImageWidth4
+                            ,scroll: scroll
+                            ,visible: visible
+                            ,block: block
+                            ,inlineBlock: inlineBlock
+                            ,inline: inline
+                            ,none: none
+                            ,auto: auto
+                            ,inherit: inherit
+                            ,initial: initial
+                            ,unset: unset
+                            ,noWrap: noWrap
+                            ,$static: $static
+                            ,fixed: fixed
+                            ,sticky: sticky
+                            ,relative: relative
+                            ,absolute: absolute
+                            ,position: position
+                            ,top: top
+                            ,bottom: bottom
+                            ,middle: middle
+                            ,baseline: baseline
+                            ,sub: sub
+                            ,$super: $super
+                            ,textTop: textTop
+                            ,textBottom: textBottom
+                            ,after: after
+                            ,before: before
+                            ,firstLetter: firstLetter
+                            ,firstLine: firstLine
+                            ,selection: selection
+                            ,active: active
+                            ,any: any
+                            ,checked: checked
+                            ,dir: dir
+                            ,disabled: disabled
+                            ,empty: empty
+                            ,enabled: enabled
+                            ,first: first
+                            ,firstChild: firstChild
+                            ,firstOfType: firstOfType
+                            ,fullscreen: fullscreen
+                            ,focus: focus
+                            ,hover: hover
+                            ,indeterminate: indeterminate
+                            ,invalid: invalid
+                            ,lang: lang
+                            ,lastChild: lastChild
+                            ,lastOfType: lastOfType
+                            ,link: link
+                            ,nthChild: nthChild
+                            ,nthLastChild: nthLastChild
+                            ,nthLastOfType: nthLastOfType
+                            ,nthOfType: nthOfType
+                            ,onlyChild: onlyChild
+                            ,onlyOfType: onlyOfType
+                            ,optional: optional
+                            ,outOfRange: outOfRange
+                            ,readWrite: readWrite
+                            ,required: required
+                            ,root: root
+                            ,scope: scope
+                            ,target: target
+                            ,valid: valid
+                            ,hidden: hidden
+                            ,wavy: wavy
+                            ,dotted: dotted
+                            ,dashed: dashed
+                            ,$double: $double
+                            ,groove: groove
+                            ,ridge: ridge
+                            ,inset: inset
+                            ,outset: outset
+                            ,blink: blink
+                            ,thin: thin
+                            ,medium: medium
+                            ,thick: thick
+                            ,matrix: matrix
+                            ,matrix3d: matrix3d
+                            ,perspective: perspective
+                            ,rotate3d: rotate3d
+                            ,rotateX: rotateX
+                            ,rotateY: rotateY
+                            ,rotateZ: rotateZ
+                            ,scale: scale
+                            ,scale2: scale2
+                            ,scale3d: scale3d
+                            ,scaleX: scaleX
+                            ,scaleY: scaleY
+                            ,skew: skew
+                            ,skew2: skew2
+                            ,skewX: skewX
+                            ,skewY: skewY
+                            ,translate: translate
+                            ,translate2: translate2
+                            ,translate3d: translate3d
+                            ,translateX: translateX
+                            ,translateY: translateY
+                            ,translateZ: translateZ
+                            ,rotate: rotate
+                            ,fillBox: fillBox
+                            ,viewBox: viewBox
+                            ,flat: flat
+                            ,preserve3d: preserve3d
+                            ,deg: deg
+                            ,rad: rad
+                            ,grad: grad
+                            ,turn: turn
+                            ,displayFlex: displayFlex
+                            ,flex: flex
+                            ,flex2: flex2
+                            ,flex3: flex3
+                            ,flexBasis: flexBasis
+                            ,flexDirection: flexDirection
+                            ,flexFlow1: flexFlow1
+                            ,flexFlow2: flexFlow2
+                            ,flexGrow: flexGrow
+                            ,flexShrink: flexShrink
+                            ,flexWrap: flexWrap
+                            ,order: order
+                            ,alignItems: alignItems
+                            ,alignSelf: alignSelf
+                            ,content: content
+                            ,wrapReverse: wrapReverse
+                            ,wrap: wrap
+                            ,flexStart: flexStart
+                            ,flexEnd: flexEnd
+                            ,stretch: stretch
+                            ,row: row
+                            ,rowReverse: rowReverse
+                            ,column: column
+                            ,columnReverse: columnReverse
+                            ,lineHeight: lineHeight
+                            ,fontFace: fontFace
+                            ,fontFamily: fontFamily
+                            ,fontSize: fontSize
+                            ,fontStyle: fontStyle
+                            ,fontWeight: fontWeight
+                            ,fontVariant: fontVariant
+                            ,fontVariant2: fontVariant2
+                            ,fontVariant3: fontVariant3
+                            ,fontVariantLigatures: fontVariantLigatures
+                            ,fontVariantCaps: fontVariantCaps
+                            ,fontVariantNumeric: fontVariantNumeric
+                            ,fontVariantNumeric2: fontVariantNumeric2
+                            ,fontVariantNumeric3: fontVariantNumeric3
+                            ,serif: serif
+                            ,sansSerif: sansSerif
+                            ,monospace: monospace
+                            ,cursive: cursive
+                            ,fantasy: fantasy
+                            ,xxSmall: xxSmall
+                            ,xSmall: xSmall
+                            ,small: small
+                            ,large: large
+                            ,xLarge: xLarge
+                            ,xxLarge: xxLarge
+                            ,smaller: smaller
+                            ,larger: larger
+                            ,normal: normal
+                            ,italic: italic
+                            ,oblique: oblique
+                            ,bold: bold
+                            ,lighter: lighter
+                            ,bolder: bolder
+                            ,smallCaps: smallCaps
+                            ,allSmallCaps: allSmallCaps
+                            ,petiteCaps: petiteCaps
+                            ,allPetiteCaps: allPetiteCaps
+                            ,unicase: unicase
+                            ,titlingCaps: titlingCaps
+                            ,commonLigatures: commonLigatures
+                            ,noCommonLigatures: noCommonLigatures
+                            ,discretionaryLigatures: discretionaryLigatures
+                            ,noDiscretionaryLigatures: noDiscretionaryLigatures
+                            ,historicalLigatures: historicalLigatures
+                            ,noHistoricalLigatures: noHistoricalLigatures
+                            ,contextual: contextual
+                            ,noContextual: noContextual
+                            ,liningNums: liningNums
+                            ,oldstyleNums: oldstyleNums
+                            ,proportionalNums: proportionalNums
+                            ,tabularNums: tabularNums
+                            ,diagonalFractions: diagonalFractions
+                            ,stackedFractions: stackedFractions
+                            ,ordinal: ordinal
+                            ,slashedZero: slashedZero
+                            ,screen: screen
+                            ,print: print
+                            ,projection: projection
+                            ,tv: tv
+                            ,mediaQuery: mediaQuery
+                            ,src: src
+                            ,qt: qt
+                            ,fontFamilies: fontFamilies
+                            ,fontVariantNumerics: fontVariantNumerics
+                            ,fontFeatureSettings: fontFeatureSettings
+                            ,fontFeatureSettingsList: fontFeatureSettingsList
+                            ,featureTag: featureTag
+                            ,featureTag2: featureTag2
+                            ,featureOn: featureOn
+                            ,featureOff: featureOff};
+};Elm.Css = Elm.Css || {};
+Elm.Css.Elements = Elm.Css.Elements || {};
+Elm.Css.Elements.make = function (_elm) {
+   "use strict";
+   _elm.Css = _elm.Css || {};
+   _elm.Css.Elements = _elm.Css.Elements || {};
+   if (_elm.Css.Elements.values) return _elm.Css.Elements.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css$Preprocess = Elm.Css.Preprocess.make(_elm),
+   $Css$Structure = Elm.Css.Structure.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var typeSelector = F2(function (selectorStr,mixins) {
+      var sequence = A2($Css$Structure.TypeSelectorSequence,$Css$Structure.TypeSelector(selectorStr),_U.list([]));
+      var selector = A3($Css$Structure.Selector,sequence,_U.list([]),$Maybe.Nothing);
+      return $Css$Preprocess.Snippet(_U.list([$Css$Preprocess.StyleBlockDeclaration(A3($Css$Preprocess.StyleBlock,selector,_U.list([]),mixins))]));
+   });
+   var html = typeSelector("html");
+   var body = typeSelector("body");
+   var article = typeSelector("article");
+   var header = typeSelector("header");
+   var footer = typeSelector("footer");
+   var h1 = typeSelector("h1");
+   var h2 = typeSelector("h2");
+   var h3 = typeSelector("h3");
+   var h4 = typeSelector("h4");
+   var nav = typeSelector("nav");
+   var section = typeSelector("section");
+   var div = typeSelector("div");
+   var hr = typeSelector("hr");
+   var li = typeSelector("li");
+   var main$ = typeSelector("main");
+   var ol = typeSelector("ol");
+   var p = typeSelector("p");
+   var ul = typeSelector("ul");
+   var pre = typeSelector("pre");
+   var a = typeSelector("a");
+   var code = typeSelector("code");
+   var small = typeSelector("small");
+   var span = typeSelector("span");
+   var strong = typeSelector("strong");
+   var img = typeSelector("img");
+   var audio = typeSelector("audio");
+   var video = typeSelector("video");
+   var canvas = typeSelector("canvas");
+   var caption = typeSelector("caption");
+   var col = typeSelector("col");
+   var colgroup = typeSelector("colgroup");
+   var table = typeSelector("table");
+   var tbody = typeSelector("tbody");
+   var td = typeSelector("td");
+   var tfoot = typeSelector("tfoot");
+   var th = typeSelector("th");
+   var thead = typeSelector("thead");
+   var tr = typeSelector("tr");
+   var button = typeSelector("button");
+   var fieldset = typeSelector("fieldset");
+   var form = typeSelector("form");
+   var input = typeSelector("input");
+   var label = typeSelector("label");
+   var legend = typeSelector("legend");
+   var optgroup = typeSelector("optgroup");
+   var option = typeSelector("option");
+   var progress = typeSelector("progress");
+   var select = typeSelector("select");
+   return _elm.Css.Elements.values = {_op: _op
+                                     ,html: html
+                                     ,body: body
+                                     ,article: article
+                                     ,header: header
+                                     ,footer: footer
+                                     ,h1: h1
+                                     ,h2: h2
+                                     ,h3: h3
+                                     ,h4: h4
+                                     ,nav: nav
+                                     ,section: section
+                                     ,div: div
+                                     ,hr: hr
+                                     ,li: li
+                                     ,main$: main$
+                                     ,ol: ol
+                                     ,p: p
+                                     ,ul: ul
+                                     ,pre: pre
+                                     ,a: a
+                                     ,code: code
+                                     ,small: small
+                                     ,span: span
+                                     ,strong: strong
+                                     ,img: img
+                                     ,audio: audio
+                                     ,video: video
+                                     ,canvas: canvas
+                                     ,caption: caption
+                                     ,col: col
+                                     ,colgroup: colgroup
+                                     ,table: table
+                                     ,tbody: tbody
+                                     ,td: td
+                                     ,tfoot: tfoot
+                                     ,th: th
+                                     ,thead: thead
+                                     ,tr: tr
+                                     ,button: button
+                                     ,fieldset: fieldset
+                                     ,form: form
+                                     ,input: input
+                                     ,label: label
+                                     ,legend: legend
+                                     ,optgroup: optgroup
+                                     ,option: option
+                                     ,progress: progress
+                                     ,select: select};
+};Elm.Css = Elm.Css || {};
+Elm.Css.Namespace = Elm.Css.Namespace || {};
+Elm.Css.Namespace.make = function (_elm) {
+   "use strict";
+   _elm.Css = _elm.Css || {};
+   _elm.Css.Namespace = _elm.Css.Namespace || {};
+   if (_elm.Css.Namespace.values) return _elm.Css.Namespace.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css$Helpers = Elm.Css.Helpers.make(_elm),
+   $Css$Preprocess = Elm.Css.Preprocess.make(_elm),
+   $Css$Structure = Elm.Css.Structure.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var applyNamespaceToProperty = F2(function (name,property) {
+      var _p0 = property.key;
+      if (_p0 === "animation-name") {
+            return _U.update(property,{value: A2($Basics._op["++"],name,property.value)});
+         } else {
+            return property;
+         }
+   });
+   var applyNamespaceToRepeatable = F2(function (name,selector) {
+      var _p1 = selector;
+      switch (_p1.ctor)
+      {case "ClassSelector": return $Css$Structure.ClassSelector(A2($Basics._op["++"],name,_p1._0));
+         case "IdSelector": return $Css$Structure.IdSelector(A2($Basics._op["++"],name,_p1._0));
+         default: return $Css$Structure.PseudoClassSelector(_p1._0);}
+   });
+   var applyNamespaceToSequence = F2(function (name,sequence) {
+      var _p2 = sequence;
+      switch (_p2.ctor)
+      {case "TypeSelectorSequence": return A2($Css$Structure.TypeSelectorSequence,_p2._0,A2($List.map,applyNamespaceToRepeatable(name),_p2._1));
+         case "UniversalSelectorSequence": return $Css$Structure.UniversalSelectorSequence(A2($List.map,applyNamespaceToRepeatable(name),_p2._0));
+         default: return A2($Css$Structure.CustomSelector,_p2._0,A2($List.map,applyNamespaceToRepeatable(name),_p2._1));}
+   });
+   var applyNamespaceToSelector = F2(function (name,_p3) {
+      var _p4 = _p3;
+      var apply = applyNamespaceToSequence(name);
+      return A3($Css$Structure.Selector,
+      apply(_p4._0),
+      A2($List.map,function (_p5) {    var _p6 = _p5;return {ctor: "_Tuple2",_0: _p6._0,_1: apply(_p6._1)};},_p4._1),
+      _p4._2);
+   });
+   var applyNamespaceToMixin = F2(function (name,mixin) {
+      var _p7 = mixin;
+      switch (_p7.ctor)
+      {case "AppendProperty": return $Css$Preprocess.AppendProperty(A2(applyNamespaceToProperty,name,_p7._0));
+         case "ExtendSelector": return A2($Css$Preprocess.ExtendSelector,
+           A2(applyNamespaceToRepeatable,name,_p7._0),
+           A2($List.map,applyNamespaceToMixin(name),_p7._1));
+         case "NestSnippet": return A2($Css$Preprocess.NestSnippet,_p7._0,A2($List.map,applyNamespaceToSnippet(name),_p7._1));
+         case "WithPseudoElement": return A2($Css$Preprocess.WithPseudoElement,_p7._0,A2($List.map,applyNamespaceToMixin(name),_p7._1));
+         case "WithMedia": return A2($Css$Preprocess.WithMedia,_p7._0,A2($List.map,applyNamespaceToMixin(name),_p7._1));
+         default: return $Css$Preprocess.ApplyMixins(A2($List.map,applyNamespaceToMixin(name),_p7._0));}
+   });
+   var applyNamespaceToSnippet = F2(function (name,_p8) {
+      var _p9 = _p8;
+      return $Css$Preprocess.Snippet(A2($List.map,applyNamespaceToDeclaration(name),_p9._0));
+   });
+   var applyNamespaceToDeclaration = F2(function (name,declaration) {
+      var _p10 = declaration;
+      switch (_p10.ctor)
+      {case "StyleBlockDeclaration": return $Css$Preprocess.StyleBlockDeclaration(A2(applyNamespaceToStyleBlock,name,_p10._0));
+         case "MediaRule": return A2($Css$Preprocess.MediaRule,_p10._0,A2($List.map,applyNamespaceToStyleBlock(name),_p10._1));
+         case "SupportsRule": return A2($Css$Preprocess.SupportsRule,
+           _p10._0,
+           function (declarations) {
+              return _U.list([$Css$Preprocess.Snippet(declarations)]);
+           }(A2($List.map,applyNamespaceToDeclaration(name),A2($List.concatMap,$Css$Preprocess.unwrapSnippet,_p10._1))));
+         case "DocumentRule": return A5($Css$Preprocess.DocumentRule,_p10._0,_p10._1,_p10._2,_p10._3,A2(applyNamespaceToStyleBlock,name,_p10._4));
+         case "PageRule": return declaration;
+         case "FontFace": return declaration;
+         case "Keyframes": return A2($Css$Preprocess.Keyframes,A2($Basics._op["++"],name,_p10._0),_p10._1);
+         case "Viewport": return declaration;
+         case "CounterStyle": return declaration;
+         default: return declaration;}
+   });
+   var applyNamespaceToStyleBlock = F2(function (name,_p11) {
+      var _p12 = _p11;
+      return A3($Css$Preprocess.StyleBlock,
+      A2(applyNamespaceToSelector,name,_p12._0),
+      A2($List.map,applyNamespaceToSelector(name),_p12._1),
+      A2($List.map,applyNamespaceToMixin(name),_p12._2));
+   });
+   var namespace = F2(function (rawIdentifier,snippets) {
+      return A2($List.map,applyNamespaceToSnippet($Css$Helpers.toCssIdentifier(rawIdentifier)),snippets);
+   });
+   return _elm.Css.Namespace.values = {_op: _op,namespace: namespace};
+};Elm.Html = Elm.Html || {};
+Elm.Html.CssHelpers = Elm.Html.CssHelpers || {};
+Elm.Html.CssHelpers.make = function (_elm) {
+   "use strict";
+   _elm.Html = _elm.Html || {};
+   _elm.Html.CssHelpers = _elm.Html.CssHelpers || {};
+   if (_elm.Html.CssHelpers.values) return _elm.Html.CssHelpers.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css$Helpers = Elm.Css.Helpers.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Json$Encode = Elm.Json.Encode.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm);
+   var _op = {};
+   var stylesheetLink = function (url) {
+      return A3($Html.node,
+      "link",
+      _U.list([A2($Html$Attributes.property,"rel",$Json$Encode.string("stylesheet"))
+              ,A2($Html$Attributes.property,"type",$Json$Encode.string("text/css"))
+              ,A2($Html$Attributes.property,"href",$Json$Encode.string(url))]),
+      _U.list([]));
+   };
+   var style = function (text) {
+      return A3($Html.node,
+      "style",
+      _U.list([A2($Html$Attributes.property,"textContent",$Json$Encode.string(text)),A2($Html$Attributes.property,"type",$Json$Encode.string("text/css"))]),
+      _U.list([]));
+   };
+   var namespacedClass = F2(function (name,list) {
+      return $Html$Attributes.$class(A2($String.join," ",A2($List.map,$Css$Helpers.identifierToString(name),list)));
+   });
+   var $class = namespacedClass("");
+   var classList = function (list) {    return $class(A2($List.map,$Basics.fst,A2($List.filter,$Basics.snd,list)));};
+   var namespacedClassList = F2(function (name,list) {    return A2(namespacedClass,name,A2($List.map,$Basics.fst,A2($List.filter,$Basics.snd,list)));});
+   var helpers = {$class: $class,classList: classList,id: function (_p0) {    return $Html$Attributes.id($Css$Helpers.toCssIdentifier(_p0));}};
+   var withNamespace = function (name) {
+      return {$class: namespacedClass(name)
+             ,classList: namespacedClassList(name)
+             ,id: function (_p1) {
+                return $Html$Attributes.id($Css$Helpers.toCssIdentifier(_p1));
+             }
+             ,name: name};
+   };
+   var Namespace = F4(function (a,b,c,d) {    return {$class: a,classList: b,id: c,name: d};});
+   var Helpers = F3(function (a,b,c) {    return {$class: a,classList: b,id: c};});
+   return _elm.Html.CssHelpers.values = {_op: _op,withNamespace: withNamespace,style: style,stylesheetLink: stylesheetLink};
+};Elm.MyCss = Elm.MyCss || {};
+Elm.MyCss.make = function (_elm) {
+   "use strict";
+   _elm.MyCss = _elm.MyCss || {};
+   if (_elm.MyCss.values) return _elm.MyCss.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css = Elm.Css.make(_elm),
+   $Css$Namespace = Elm.Css.Namespace.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html$CssHelpers = Elm.Html.CssHelpers.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var css = function (_p0) {    return $Css.stylesheet(A2($Css$Namespace.namespace,"craft-conf",_p0));}(_U.list([]));
+   var _p1 = $Html$CssHelpers.withNamespace("craft-conf");
+   var $class = _p1.$class;
+   return _elm.MyCss.values = {_op: _op,$class: $class,css: css};
+};</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.MyCss)</script></body></html>

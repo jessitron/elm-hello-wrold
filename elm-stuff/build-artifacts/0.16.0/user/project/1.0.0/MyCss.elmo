@@ -1,0 +1,21 @@
+Elm.MyCss = Elm.MyCss || {};
+Elm.MyCss.make = function (_elm) {
+   "use strict";
+   _elm.MyCss = _elm.MyCss || {};
+   if (_elm.MyCss.values) return _elm.MyCss.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css = Elm.Css.make(_elm),
+   $Css$Namespace = Elm.Css.Namespace.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html$CssHelpers = Elm.Html.CssHelpers.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var css = function (_p0) {    return $Css.stylesheet(A2($Css$Namespace.namespace,"craft-conf",_p0));}(_U.list([]));
+   var _p1 = $Html$CssHelpers.withNamespace("craft-conf");
+   var $class = _p1.$class;
+   return _elm.MyCss.values = {_op: _op,$class: $class,css: css};
+};

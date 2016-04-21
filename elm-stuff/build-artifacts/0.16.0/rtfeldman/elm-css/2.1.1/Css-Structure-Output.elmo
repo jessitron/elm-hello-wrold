@@ -1,0 +1,103 @@
+Elm.Css = Elm.Css || {};
+Elm.Css.Structure = Elm.Css.Structure || {};
+Elm.Css.Structure.Output = Elm.Css.Structure.Output || {};
+Elm.Css.Structure.Output.make = function (_elm) {
+   "use strict";
+   _elm.Css = _elm.Css || {};
+   _elm.Css.Structure = _elm.Css.Structure || {};
+   _elm.Css.Structure.Output = _elm.Css.Structure.Output || {};
+   if (_elm.Css.Structure.Output.values) return _elm.Css.Structure.Output.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css$Structure = Elm.Css.Structure.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm);
+   var _op = {};
+   var indent = function (str) {    return A2($Basics._op["++"],"    ",str);};
+   var prettyPrintProperty = function (_p0) {
+      var _p1 = _p0;
+      var suffix = _p1.important ? " !important;" : ";";
+      return A2($Basics._op["++"],_p1.key,A2($Basics._op["++"],": ",A2($Basics._op["++"],_p1.value,suffix)));
+   };
+   var prettyPrintProperties = function (properties) {
+      return A2($String.join,"\n",A2($List.map,function (_p2) {    return indent(prettyPrintProperty(_p2));},properties));
+   };
+   var combinatorToString = function (combinator) {
+      var _p3 = combinator;
+      switch (_p3.ctor)
+      {case "AdjacentSibling": return "+";
+         case "GeneralSibling": return "~";
+         case "Child": return ">";
+         default: return "";}
+   };
+   var pseudoElementToString = function (_p4) {    var _p5 = _p4;return A2($Basics._op["++"],"::",_p5._0);};
+   var repeatableSimpleSelectorToString = function (repeatableSimpleSelector) {
+      var _p6 = repeatableSimpleSelector;
+      switch (_p6.ctor)
+      {case "ClassSelector": return A2($Basics._op["++"],".",_p6._0);
+         case "IdSelector": return A2($Basics._op["++"],"#",_p6._0);
+         default: return A2($Basics._op["++"],":",_p6._0);}
+   };
+   var simpleSelectorSequenceToString = function (simpleSelectorSequence) {
+      var _p7 = simpleSelectorSequence;
+      switch (_p7.ctor)
+      {case "TypeSelectorSequence": return A2($String.join,"",A2($List._op["::"],_p7._0._0,A2($List.map,repeatableSimpleSelectorToString,_p7._1)));
+         case "UniversalSelectorSequence": var _p8 = _p7._0;
+           return $List.isEmpty(_p8) ? "*" : A2($String.join,"",A2($List.map,repeatableSimpleSelectorToString,_p8));
+         default: return A2($String.join,"",A2($List._op["::"],_p7._0,A2($List.map,repeatableSimpleSelectorToString,_p7._1)));}
+   };
+   var selectorChainToString = function (_p9) {
+      var _p10 = _p9;
+      return A2($String.join," ",_U.list([combinatorToString(_p10._0),simpleSelectorSequenceToString(_p10._1)]));
+   };
+   var selectorToString = function (_p11) {
+      var _p12 = _p11;
+      var segments = A2($Basics._op["++"],
+      _U.list([simpleSelectorSequenceToString(_p12._0)]),
+      A2($Basics._op["++"],A2($List.map,selectorChainToString,_p12._1),_U.list([A2($Maybe.withDefault,"",A2($Maybe.map,pseudoElementToString,_p12._2))])));
+      return A2($String.join," ",A2($List.filter,function (_p13) {    return $Basics.not($String.isEmpty(_p13));},segments));
+   };
+   var prettyPrintStyleBlock = function (_p14) {
+      var _p15 = _p14;
+      var selectorStr = A2($String.join,", ",A2($List.map,selectorToString,A2($List._op["::"],_p15._0,_p15._1)));
+      return A2($Basics._op["++"],selectorStr,A2($Basics._op["++"]," {\n",A2($Basics._op["++"],prettyPrintProperties(_p15._2),"\n}")));
+   };
+   var prettyPrintDeclaration = function (declaration) {
+      var _p16 = declaration;
+      switch (_p16.ctor)
+      {case "StyleBlockDeclaration": return prettyPrintStyleBlock(_p16._0);
+         case "MediaRule": var query = A2($String.join," ",A2($List.map,function (_p17) {    var _p18 = _p17;return _p18._0;},_p16._0));
+           var blocks = A2($String.join,"\n\n",A2($List.map,function (_p19) {    return indent(prettyPrintStyleBlock(_p19));},_p16._1));
+           return A2($Basics._op["++"],"@media ",A2($Basics._op["++"],query,A2($Basics._op["++"]," {\n",A2($Basics._op["++"],indent(blocks),"\n}"))));
+         default: return _U.crashCase("Css.Structure.Output",{start: {line: 56,column: 3},end: {line: 73,column: 43}},_p16)("not yet implemented :x");}
+   };
+   var namespaceToString = function (_p21) {
+      var _p22 = _p21;
+      return A2($Basics._op["++"],"@namespace ",A2($Basics._op["++"],_p22._0,A2($Basics._op["++"],"\"",A2($Basics._op["++"],_p22._1,"\""))));
+   };
+   var importToString = function (_p23) {
+      var _p24 = _p23;
+      return A2($Basics._op["++"],"@import \"",A2($Basics._op["++"],_p24._0,A2($Basics._op["++"],$Basics.toString(_p24._1),"\"")));
+   };
+   var charsetToString = function (charset) {
+      return A2($Maybe.withDefault,"",A2($Maybe.map,function (str) {    return A2($Basics._op["++"],"@charset \"",A2($Basics._op["++"],str,"\""));},charset));
+   };
+   var prettyPrint = function (_p25) {
+      var _p26 = _p25;
+      return A2($String.join,
+      "\n\n",
+      A2($List.filter,
+      function (_p27) {
+         return $Basics.not($String.isEmpty(_p27));
+      },
+      _U.list([charsetToString(_p26.charset)
+              ,A2($String.join,"\n",A2($List.map,importToString,_p26.imports))
+              ,A2($String.join,"\n",A2($List.map,namespaceToString,_p26.namespaces))
+              ,A2($String.join,"\n\n",A2($List.map,prettyPrintDeclaration,_p26.declarations))])));
+   };
+   return _elm.Css.Structure.Output.values = {_op: _op,prettyPrint: prettyPrint};
+};

@@ -1,0 +1,277 @@
+Elm.Css = Elm.Css || {};
+Elm.Css.Preprocess = Elm.Css.Preprocess || {};
+Elm.Css.Preprocess.Resolve = Elm.Css.Preprocess.Resolve || {};
+Elm.Css.Preprocess.Resolve.make = function (_elm) {
+   "use strict";
+   _elm.Css = _elm.Css || {};
+   _elm.Css.Preprocess = _elm.Css.Preprocess || {};
+   _elm.Css.Preprocess.Resolve = _elm.Css.Preprocess.Resolve || {};
+   if (_elm.Css.Preprocess.Resolve.values) return _elm.Css.Preprocess.Resolve.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css$Preprocess = Elm.Css.Preprocess.make(_elm),
+   $Css$Structure = Elm.Css.Structure.make(_elm),
+   $Css$Structure$Output = Elm.Css.Structure.Output.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var collectSelectors = function (declarations) {
+      collectSelectors: while (true) {
+         var _p0 = declarations;
+         if (_p0.ctor === "[]") {
+               return _U.list([]);
+            } else {
+               if (_p0._0.ctor === "StyleBlockDeclaration") {
+                     return A2($Basics._op["++"],A2($List._op["::"],_p0._0._0._0,_p0._0._0._1),collectSelectors(_p0._1));
+                  } else {
+                     var _v1 = _p0._1;
+                     declarations = _v1;
+                     continue collectSelectors;
+                  }
+            }
+      }
+   };
+   var extractWarning = function (_p1) {
+      var _p2 = _p1;
+      return {ctor: "_Tuple2",_0: _p2.warnings,_1: {key: _p2.key,value: _p2.value,important: _p2.important}};
+   };
+   var extractWarnings = function (properties) {
+      return {ctor: "_Tuple2"
+             ,_0: A2($List.concatMap,function (_) {    return _.warnings;},properties)
+             ,_1: A2($List.map,function (prop) {    return $Basics.snd(extractWarning(prop));},properties)};
+   };
+   var toDocumentRule = F5(function (str1,str2,str3,str4,declaration) {
+      var _p3 = declaration;
+      if (_p3.ctor === "StyleBlockDeclaration") {
+            return A5($Css$Structure.DocumentRule,str1,str2,str3,str4,_p3._0);
+         } else {
+            return declaration;
+         }
+   });
+   var concatDeclarationsAndWarnings = function (declarationsAndWarnings) {
+      var _p4 = declarationsAndWarnings;
+      if (_p4.ctor === "[]") {
+            return {declarations: _U.list([]),warnings: _U.list([])};
+         } else {
+            var result = concatDeclarationsAndWarnings(_p4._1);
+            return {declarations: A2($Basics._op["++"],_p4._0.declarations,result.declarations)
+                   ,warnings: A2($Basics._op["++"],_p4._0.warnings,result.warnings)};
+         }
+   };
+   var resolveFontFeatureValues = function (tuples) {
+      var expandTuples = function (tuplesToExpand) {
+         var _p5 = tuplesToExpand;
+         if (_p5.ctor === "[]") {
+               return {ctor: "_Tuple2",_0: _U.list([]),_1: _U.list([])};
+            } else {
+               var _p6 = expandTuples(_p5._1);
+               var nextWarnings = _p6._0;
+               var nextTuples = _p6._1;
+               var _p7 = extractWarnings(_p5._0._1);
+               var warnings = _p7._0;
+               var properties = _p7._1;
+               return {ctor: "_Tuple2"
+                      ,_0: A2($Basics._op["++"],warnings,nextWarnings)
+                      ,_1: A2($List._op["::"],{ctor: "_Tuple2",_0: _p5._0._0,_1: properties},nextTuples)};
+            }
+      };
+      var _p8 = expandTuples(tuples);
+      var warnings = _p8._0;
+      var newTuples = _p8._1;
+      return {declarations: _U.list([$Css$Structure.FontFeatureValues(newTuples)]),warnings: warnings};
+   };
+   var resolveCounterStyle = function (counterStyleProperties) {
+      var _p9 = extractWarnings(counterStyleProperties);
+      var warnings = _p9._0;
+      var properties = _p9._1;
+      return {declarations: _U.list([$Css$Structure.Viewport(properties)]),warnings: warnings};
+   };
+   var resolveViewport = function (viewportProperties) {
+      var _p10 = extractWarnings(viewportProperties);
+      var warnings = _p10._0;
+      var properties = _p10._1;
+      return {declarations: _U.list([$Css$Structure.Viewport(properties)]),warnings: warnings};
+   };
+   var resolveKeyframes = F2(function (str,properties) {
+      return {declarations: _U.list([A2($Css$Structure.Keyframes,str,properties)]),warnings: _U.list([])};
+   });
+   var resolveFontFace = function (fontFaceProperties) {
+      var _p11 = extractWarnings(fontFaceProperties);
+      var warnings = _p11._0;
+      var properties = _p11._1;
+      return {declarations: _U.list([$Css$Structure.FontFace(properties)]),warnings: warnings};
+   };
+   var resolvePageRule = F2(function (str,pageRuleProperties) {
+      var _p12 = extractWarnings(pageRuleProperties);
+      var warnings = _p12._0;
+      var properties = _p12._1;
+      return {declarations: _U.list([A2($Css$Structure.PageRule,str,properties)]),warnings: warnings};
+   });
+   var toMediaRule = F2(function (mediaQueries,declaration) {
+      var _p13 = declaration;
+      switch (_p13.ctor)
+      {case "StyleBlockDeclaration": return A2($Css$Structure.MediaRule,mediaQueries,_U.list([_p13._0]));
+         case "MediaRule": return A2($Css$Structure.MediaRule,A2($Basics._op["++"],mediaQueries,_p13._0),_p13._1);
+         case "SupportsRule": return A2($Css$Structure.SupportsRule,_p13._0,A2($List.map,toMediaRule(mediaQueries),_p13._1));
+         case "DocumentRule": return A5($Css$Structure.DocumentRule,_p13._0,_p13._1,_p13._2,_p13._3,_p13._4);
+         case "PageRule": return declaration;
+         case "FontFace": return declaration;
+         case "Keyframes": return declaration;
+         case "Viewport": return declaration;
+         case "CounterStyle": return declaration;
+         default: return declaration;}
+   });
+   var resolveMediaRule = F2(function (mediaQueries,styleBlocks) {
+      var handleStyleBlock = function (styleBlock) {
+         var _p14 = expandStyleBlock(styleBlock);
+         var declarations = _p14.declarations;
+         var warnings = _p14.warnings;
+         return {declarations: A2($List.map,toMediaRule(mediaQueries),declarations),warnings: warnings};
+      };
+      var results = A2($List.map,handleStyleBlock,styleBlocks);
+      return {warnings: A2($List.concatMap,function (_) {    return _.warnings;},results)
+             ,declarations: A2($List.concatMap,function (_) {    return _.declarations;},results)};
+   });
+   var expandStyleBlock = function (_p15) {
+      var _p16 = _p15;
+      return A2(applyMixins,_p16._2,_U.list([$Css$Structure.StyleBlockDeclaration(A3($Css$Structure.StyleBlock,_p16._0,_p16._1,_U.list([])))]));
+   };
+   var applyMixins = F2(function (mixins,declarations) {
+      applyMixins: while (true) {
+         var _p17 = mixins;
+         if (_p17.ctor === "[]") {
+               return {declarations: declarations,warnings: _U.list([])};
+            } else {
+               switch (_p17._0.ctor)
+               {case "AppendProperty": var _p18 = extractWarning(_p17._0._0);
+                    var warnings = _p18._0;
+                    var property = _p18._1;
+                    var result = A2(applyMixins,_p17._1,A2($Css$Structure.appendProperty,property,declarations));
+                    return {declarations: result.declarations,warnings: A2($Basics._op["++"],warnings,result.warnings)};
+                  case "ExtendSelector": var handleInitial = function (declarationsAndWarnings) {
+                       var result = A2(applyMixins,_p17._0._1,declarationsAndWarnings.declarations);
+                       return {warnings: A2($Basics._op["++"],declarationsAndWarnings.warnings,result.warnings),declarations: result.declarations};
+                    };
+                    var initialResult = concatDeclarationsAndWarnings(A2($Css$Structure.mapLast,
+                    handleInitial,
+                    A2($List.map,
+                    function (declaration) {
+                       return {declarations: _U.list([declaration]),warnings: _U.list([])};
+                    },
+                    A2($Css$Structure.concatMapLastStyleBlock,$Css$Structure.appendToLastSelector(_p17._0._0),declarations))));
+                    var nextResult = A2(applyMixins,_p17._1,initialResult.declarations);
+                    return {warnings: A2($Basics._op["++"],initialResult.warnings,nextResult.warnings),declarations: nextResult.declarations};
+                  case "NestSnippet": var chain = F2(function (_p20,_p19) {
+                       var _p21 = _p20;
+                       var _p22 = _p19;
+                       return A3($Css$Structure.Selector,
+                       _p21._0,
+                       A2($Basics._op["++"],_p21._1,A2($List._op["::"],{ctor: "_Tuple2",_0: _p17._0._0,_1: _p22._0},_p22._1)),
+                       $Maybe.oneOf(_U.list([_p22._2,_p21._2])));
+                    });
+                    var expandDeclaration = function (declaration) {
+                       var _p23 = declaration;
+                       switch (_p23.ctor)
+                       {case "StyleBlockDeclaration": var newSelectors = A2($List.concatMap,
+                            function (originalSelector) {
+                               return A2($List.map,chain(originalSelector),A2($List._op["::"],_p23._0._0,_p23._0._1));
+                            },
+                            collectSelectors(declarations));
+                            var newDeclarations = function () {
+                               var _p24 = newSelectors;
+                               if (_p24.ctor === "[]") {
+                                     return _U.list([]);
+                                  } else {
+                                     return _U.list([$Css$Structure.StyleBlockDeclaration(A3($Css$Structure.StyleBlock,_p24._0,_p24._1,_U.list([])))]);
+                                  }
+                            }();
+                            return concatDeclarationsAndWarnings(_U.list([{declarations: declarations,warnings: _U.list([])}
+                                                                         ,A2(applyMixins,_p23._0._2,newDeclarations)]));
+                          case "MediaRule": return A2(resolveMediaRule,_p23._0,_p23._1);
+                          case "SupportsRule": return A2(resolveSupportsRule,_p23._0,_p23._1);
+                          case "DocumentRule": return A5(resolveDocumentRule,_p23._0,_p23._1,_p23._2,_p23._3,_p23._4);
+                          case "PageRule": return A2(resolvePageRule,_p23._0,_p23._1);
+                          case "FontFace": return resolveFontFace(_p23._0);
+                          case "Keyframes": return A2(resolveKeyframes,_p23._0,_p23._1);
+                          case "Viewport": return resolveViewport(_p23._0);
+                          case "CounterStyle": return resolveCounterStyle(_p23._0);
+                          default: return resolveFontFeatureValues(_p23._0);}
+                    };
+                    return concatDeclarationsAndWarnings(A2($List.map,expandDeclaration,A2($List.concatMap,$Css$Preprocess.unwrapSnippet,_p17._0._1)));
+                  case "WithPseudoElement": var _v13 = _p17._1,_v14 = declarations;
+                    mixins = _v13;
+                    declarations = _v14;
+                    continue applyMixins;
+                  case "WithMedia": var newDeclarations = function () {
+                       var _p25 = collectSelectors(declarations);
+                       if (_p25.ctor === "[]") {
+                             return _U.list([]);
+                          } else {
+                             return _U.list([A2($Css$Structure.MediaRule,_p17._0._0,_U.list([A3($Css$Structure.StyleBlock,_p25._0,_p25._1,_U.list([]))]))]);
+                          }
+                    }();
+                    return concatDeclarationsAndWarnings(_U.list([A2(applyMixins,_p17._1,declarations),A2(applyMixins,_p17._0._1,newDeclarations)]));
+                  default: var _v16 = A2($Basics._op["++"],_p17._0._0,_p17._1),_v17 = declarations;
+                    mixins = _v16;
+                    declarations = _v17;
+                    continue applyMixins;}
+            }
+      }
+   });
+   var resolveDocumentRule = F5(function (str1,str2,str3,str4,styleBlock) {
+      var _p26 = expandStyleBlock(styleBlock);
+      var declarations = _p26.declarations;
+      var warnings = _p26.warnings;
+      return {declarations: A2($List.map,A4(toDocumentRule,str1,str2,str3,str4),declarations),warnings: warnings};
+   });
+   var resolveSupportsRule = F2(function (str,snippets) {
+      var _p27 = extract(A2($List.concatMap,$Css$Preprocess.unwrapSnippet,snippets));
+      var declarations = _p27.declarations;
+      var warnings = _p27.warnings;
+      return {declarations: _U.list([A2($Css$Structure.SupportsRule,str,declarations)]),warnings: warnings};
+   });
+   var extract = function (snippetDeclarations) {
+      var _p28 = snippetDeclarations;
+      if (_p28.ctor === "[]") {
+            return {declarations: _U.list([]),warnings: _U.list([])};
+         } else {
+            var _p29 = toDeclarations(_p28._0);
+            var declarations = _p29.declarations;
+            var warnings = _p29.warnings;
+            var nextResult = extract(_p28._1);
+            return {declarations: A2($Basics._op["++"],declarations,nextResult.declarations),warnings: A2($Basics._op["++"],warnings,nextResult.warnings)};
+         }
+   };
+   var toDeclarations = function (snippetDeclaration) {
+      var _p30 = snippetDeclaration;
+      switch (_p30.ctor)
+      {case "StyleBlockDeclaration": return expandStyleBlock(_p30._0);
+         case "MediaRule": return A2(resolveMediaRule,_p30._0,_p30._1);
+         case "SupportsRule": return A2(resolveSupportsRule,_p30._0,_p30._1);
+         case "DocumentRule": return A5(resolveDocumentRule,_p30._0,_p30._1,_p30._2,_p30._3,_p30._4);
+         case "PageRule": return A2(resolvePageRule,_p30._0,_p30._1);
+         case "FontFace": return resolveFontFace(_p30._0);
+         case "Keyframes": return A2(resolveKeyframes,_p30._0,_p30._1);
+         case "Viewport": return resolveViewport(_p30._0);
+         case "CounterStyle": return resolveCounterStyle(_p30._0);
+         default: return resolveFontFeatureValues(_p30._0);}
+   };
+   var toStructure = function (_p31) {
+      var _p32 = _p31;
+      var _p33 = extract(A2($List.concatMap,$Css$Preprocess.unwrapSnippet,_p32.snippets));
+      var warnings = _p33.warnings;
+      var declarations = _p33.declarations;
+      return {ctor: "_Tuple2",_0: {charset: _p32.charset,imports: _p32.imports,namespaces: _p32.namespaces,declarations: declarations},_1: warnings};
+   };
+   var DeclarationsAndWarnings = F2(function (a,b) {    return {declarations: a,warnings: b};});
+   var compile = function (sheet) {
+      var _p34 = toStructure(sheet);
+      var structureStylesheet = _p34._0;
+      var warnings = _p34._1;
+      return {warnings: warnings,css: $Css$Structure$Output.prettyPrint($Css$Structure.dropEmpty(structureStylesheet))};
+   };
+   return _elm.Css.Preprocess.Resolve.values = {_op: _op,compile: compile};
+};

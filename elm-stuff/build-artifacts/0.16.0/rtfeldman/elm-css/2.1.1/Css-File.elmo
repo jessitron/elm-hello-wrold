@@ -1,0 +1,23 @@
+Elm.Css = Elm.Css || {};
+Elm.Css.File = Elm.Css.File || {};
+Elm.Css.File.make = function (_elm) {
+   "use strict";
+   _elm.Css = _elm.Css || {};
+   _elm.Css.File = _elm.Css.File || {};
+   if (_elm.Css.File.values) return _elm.Css.File.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Css = Elm.Css.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var compile = $Css.compile;
+   var toFileStructure = function (stylesheets) {
+      var asTuple = function (_p0) {    var _p1 = _p0;return {success: $List.isEmpty(_p1._1.warnings),filename: _p1._0,content: _p1._1.css};};
+      return A2($List.map,asTuple,stylesheets);
+   };
+   return _elm.Css.File.values = {_op: _op,compile: compile,toFileStructure: toFileStructure};
+};
