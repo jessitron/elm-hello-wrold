@@ -12,4 +12,4 @@ import Html.CssHelpers
 
 css =
   (stylesheet << namespace "craft-conf")
-    []
+    [ img [ width (pct 100) ] ]
