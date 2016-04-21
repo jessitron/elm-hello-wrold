@@ -15,10 +15,13 @@ Elm.MyCss.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
+   var Pointer = {ctor: "Pointer"};
    var css = function (_p0) {
       return $Css.stylesheet(A2($Css$Namespace.namespace,"craft-conf",_p0));
-   }(_U.list([$Css$Elements.img(_U.list([$Css.width($Css.pct(100))]))]));
+   }(_U.list([$Css$Elements.img(_U.list([$Css.width($Css.pct(100))]))
+             ,A2(F2(function (x,y) {    return A2($Css._op["."],x,y);}),Pointer,_U.list([$Css.textAlign($Css.center)]))]));
+   var MyImage = {ctor: "MyImage"};
    var _p1 = $Html$CssHelpers.withNamespace("craft-conf");
    var $class = _p1.$class;
-   return _elm.MyCss.values = {_op: _op,$class: $class,css: css};
+   return _elm.MyCss.values = {_op: _op,$class: $class,MyImage: MyImage,Pointer: Pointer,css: css};
 };

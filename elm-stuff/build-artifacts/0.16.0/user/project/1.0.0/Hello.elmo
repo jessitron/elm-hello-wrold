@@ -11,12 +11,17 @@ Elm.Hello.make = function (_elm) {
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Mouse = Elm.Mouse.make(_elm),
+   $MyCss = Elm.MyCss.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
    var pointerView = function (_p0) {
       var _p1 = _p0;
-      return $Html.text(A2($Basics._op["++"],"x = ",A2($Basics._op["++"],$Basics.toString(_p1._0),A2($Basics._op["++"],", y = ",$Basics.toString(_p1._1)))));
+      return A2($Html.div,
+      _U.list([$MyCss.$class(_U.list([$MyCss.Pointer]))]),
+      _U.list([$Html.text(A2($Basics._op["++"],
+      "x = ",
+      A2($Basics._op["++"],$Basics.toString(_p1._0),A2($Basics._op["++"],", y = ",$Basics.toString(_p1._1)))))]));
    };
    var imageView = function (model) {    return A2($Html.img,_U.list([$Html$Attributes.src("images/left.png")]),_U.list([]));};
    var view = function (model) {    return A2($Html.div,_U.list([]),_U.list([pointerView(model),imageView(model)]));};
