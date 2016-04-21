@@ -4,6 +4,7 @@ import Html exposing (Html)
 import Html.Attributes
 import Signal exposing (Signal)
 import Mouse
+import MyCss exposing (CssClasses(..))
 
 
 main : Signal Html
@@ -30,4 +31,7 @@ imageView model =
 
 pointerView : Model -> Html
 pointerView ( x, y ) =
-  Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))
+  Html.div
+    [ MyCss.class [ Pointer ] ]
+    [ Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))
+    ]

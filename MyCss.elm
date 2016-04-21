@@ -10,6 +10,15 @@ import Html.CssHelpers
   Html.CssHelpers.withNamespace "craft-conf"
 
 
+type CssClasses
+  = MyImage
+  | Pointer
+
+
 css =
   (stylesheet << namespace "craft-conf")
-    [ img [ width (pct 100) ] ]
+    [ img [ width (pct 100) ]
+    , (.)
+        Pointer
+        [ textAlign center ]
+    ]
