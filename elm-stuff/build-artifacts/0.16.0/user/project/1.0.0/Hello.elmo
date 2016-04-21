@@ -7,16 +7,19 @@ Elm.Hello.make = function (_elm) {
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Mouse = Elm.Mouse.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var textOfMousePosition = function (_p0) {
+   var pointerView = function (_p0) {
       var _p1 = _p0;
       return $Html.text(A2($Basics._op["++"],"x = ",A2($Basics._op["++"],$Basics.toString(_p1._0),A2($Basics._op["++"],", y = ",$Basics.toString(_p1._1)))));
    };
-   var main = A2($Signal.map,textOfMousePosition,$Mouse.position);
+   var imageView = function (model) {    return A2($Html.img,_U.list([$Html$Attributes.src("images/left.png")]),_U.list([]));};
+   var view = function (model) {    return A2($Html.div,_U.list([]),_U.list([pointerView(model),imageView(model)]));};
+   var main = A2($Signal.map,view,$Mouse.position);
    return _elm.Hello.values = {_op: _op,main: main};
 };

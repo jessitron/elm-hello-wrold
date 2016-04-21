@@ -1,6 +1,7 @@
 module Hello (main) where
 
 import Html exposing (Html)
+import Html.Attributes
 import Signal exposing (Signal)
 import Mouse
 
@@ -10,6 +11,23 @@ main =
   Mouse.position |> Signal.map view
 
 
-view : ( Int, Int ) -> Html
-view ( x, y ) =
+type alias Model =
+  ( Int, Int )
+
+
+view : Model -> Html
+view model =
+  Html.div
+    []
+    [ pointerView model
+    , imageView model
+    ]
+
+
+imageView model =
+  Html.img [ Html.Attributes.src "images/left.png" ] []
+
+
+pointerView : Model -> Html
+pointerView ( x, y ) =
   Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))
