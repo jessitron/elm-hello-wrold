@@ -7,13 +7,14 @@ Elm.Hello.make = function (_elm) {
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Mouse = Elm.Mouse.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var view = function (_p0) {
+   var positionView = function (_p0) {
       var _p1 = _p0;
       return A2($Html.div,
       _U.list([]),
@@ -21,6 +22,12 @@ Elm.Hello.make = function (_elm) {
       "x = ",
       A2($Basics._op["++"],$Basics.toString(_p1._0),A2($Basics._op["++"],", y = ",$Basics.toString(_p1._1)))))]));
    };
+   var pictureView = function (_p2) {
+      var _p3 = _p2;
+      var picture = _U.cmp(_p3._0,150) < 0 ? "images/deeter-left.png" : "images/deeter-right.png";
+      return A2($Html.img,_U.list([$Html$Attributes.src(picture)]),_U.list([]));
+   };
+   var view = function (m) {    return A2($Html.div,_U.list([]),_U.list([positionView(m),pictureView(m)]));};
    var main = A2($Signal.map,view,$Mouse.position);
    return _elm.Hello.values = {_op: _op,main: main};
 };
