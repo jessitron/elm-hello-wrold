@@ -8,9 +8,21 @@ import Mouse
 
 main : Signal Html
 main =
-  Mouse.position
-    |> Signal.map makeDecisions
+  incomingMessages
+    |> Signal.foldp makeDecisions initialState
     |> Signal.map view
+
+
+type Message
+  = MouseMove ( Int, Int )
+  | Click
+
+
+incomingMessages : Signal Message
+incomingMessages =
+  Signal.merge
+    (Signal.map MouseMove Mouse.position)
+    (Signal.map (always Click) Mouse.clicks)
 
 
 type alias ApplicationState =
@@ -20,16 +32,25 @@ type alias ApplicationState =
   }
 
 
-makeDecisions : ( Int, Int ) -> ApplicationState
-makeDecisions ( x, y ) =
-  let
-    picture =
-      if x < 150 then
-        "images/deeter-left.png"
-      else
-        "images/deeter-right.png"
-  in
-    { x = x, y = y, picture = picture }
+initialState =
+  { x = 0, y = 0, picture = "images/deeter-up.png" }
+
+
+makeDecisions : Message -> ApplicationState -> ApplicationState
+makeDecisions msg state =
+  case msg of
+    MouseMove ( x, y ) ->
+      { state | x = x, y = y }
+
+    Click ->
+      let
+        picture =
+          if state.x < 150 then
+            "images/deeter-left.png"
+          else
+            "images/deeter-right.png"
+      in
+        { state | picture = picture }
 
 
 view : ApplicationState -> Html
