@@ -9,7 +9,7 @@ import Mouse
 main : Signal Html
 main =
   incomingMessages
-    |> Signal.foldp makeDecisions initialState
+    |> Signal.foldp update initialState
     |> Signal.map view
 
 
@@ -36,11 +36,24 @@ initialState =
   { x = 0, y = 0, picture = "images/deeter-up.png" }
 
 
-makeDecisions : Message -> ApplicationState -> ApplicationState
-makeDecisions msg state =
+update : Message -> ApplicationState -> ApplicationState
+update msg state =
   state
     |> updatePosition msg
     |> updatePicture msg
+
+
+view : ApplicationState -> Html
+view m =
+  Html.div
+    []
+    [ positionView m
+    , pictureView m
+    ]
+
+
+
+-- POSITION
 
 
 updatePosition msg state =
@@ -50,6 +63,18 @@ updatePosition msg state =
 
     _ ->
       state
+
+
+positionView : ApplicationState -> Html
+positionView { x, y } =
+  Html.div
+    []
+    [ Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))
+    ]
+
+
+
+-- PICTURE
 
 
 updatePicture msg state =
@@ -68,23 +93,6 @@ updatePicture msg state =
       state
 
 
-view : ApplicationState -> Html
-view m =
-  Html.div
-    []
-    [ positionView m
-    , pictureView m
-    ]
-
-
 pictureView : ApplicationState -> Html
 pictureView { picture } =
   Html.img [ Html.Attributes.src picture ] []
-
-
-positionView : ApplicationState -> Html
-positionView { x, y } =
-  Html.div
-    []
-    [ Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))
-    ]
