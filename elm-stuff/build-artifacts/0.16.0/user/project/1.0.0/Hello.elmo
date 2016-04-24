@@ -14,23 +14,22 @@ Elm.Hello.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var positionView = function (_p0) {
-      var _p1 = _p0;
-      return A2($Html.div,
-      _U.list([]),
-      _U.list([$Html.text(A2($Basics._op["++"],"x = ",A2($Basics._op["++"],$Basics.toString(_p1.x),A2($Basics._op["++"],", y = ",$Basics.toString(_p1.y)))))]));
-   };
-   var pictureView = function (_p2) {    var _p3 = _p2;return A2($Html.img,_U.list([$Html$Attributes.src(_p3.picture)]),_U.list([]));};
-   var view = function (m) {    return A2($Html.div,_U.list([]),_U.list([positionView(m),pictureView(m)]));};
+   var pictureView = function (_p0) {    var _p1 = _p0;return A2($Html.img,_U.list([$Html$Attributes.src(_p1.picture)]),_U.list([]));};
    var updatePicture = F2(function (msg,state) {
-      var _p4 = msg;
-      if (_p4.ctor === "Click") {
+      var _p2 = msg;
+      if (_p2.ctor === "Click") {
             var picture = _U.cmp(state.x,150) < 0 ? "images/deeter-left.png" : "images/deeter-right.png";
             return _U.update(state,{picture: picture});
          } else {
             return state;
          }
    });
+   var positionView = function (_p3) {
+      var _p4 = _p3;
+      return A2($Html.div,
+      _U.list([]),
+      _U.list([$Html.text(A2($Basics._op["++"],"x = ",A2($Basics._op["++"],$Basics.toString(_p4.x),A2($Basics._op["++"],", y = ",$Basics.toString(_p4.y)))))]));
+   };
    var updatePosition = F2(function (msg,state) {
       var _p5 = msg;
       if (_p5.ctor === "MouseMove" && _p5._0.ctor === "_Tuple2") {
@@ -39,12 +38,13 @@ Elm.Hello.make = function (_elm) {
             return state;
          }
    });
-   var makeDecisions = F2(function (msg,state) {    return A2(updatePicture,msg,A2(updatePosition,msg,state));});
+   var view = function (m) {    return A2($Html.div,_U.list([]),_U.list([positionView(m),pictureView(m)]));};
+   var update = F2(function (msg,state) {    return A2(updatePicture,msg,A2(updatePosition,msg,state));});
    var initialState = {x: 0,y: 0,picture: "images/deeter-up.png"};
    var ApplicationState = F3(function (a,b,c) {    return {x: a,y: b,picture: c};});
    var Click = {ctor: "Click"};
    var MouseMove = function (a) {    return {ctor: "MouseMove",_0: a};};
    var incomingMessages = A2($Signal.merge,A2($Signal.map,MouseMove,$Mouse.position),A2($Signal.map,$Basics.always(Click),$Mouse.clicks));
-   var main = A2($Signal.map,view,A3($Signal.foldp,makeDecisions,initialState,incomingMessages));
+   var main = A2($Signal.map,view,A3($Signal.foldp,update,initialState,incomingMessages));
    return _elm.Hello.values = {_op: _op,main: main};
 };
