@@ -38,10 +38,22 @@ initialState =
 
 makeDecisions : Message -> ApplicationState -> ApplicationState
 makeDecisions msg state =
+  state
+    |> updatePosition msg
+    |> updatePicture msg
+
+
+updatePosition msg state =
   case msg of
     MouseMove ( x, y ) ->
       { state | x = x, y = y }
 
+    _ ->
+      state
+
+
+updatePicture msg state =
+  case msg of
     Click ->
       let
         picture =
@@ -51,6 +63,9 @@ makeDecisions msg state =
             "images/deeter-right.png"
       in
         { state | picture = picture }
+
+    _ ->
+      state
 
 
 view : ApplicationState -> Html
