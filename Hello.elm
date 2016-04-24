@@ -15,5 +15,5 @@ view : ( Int, Int ) -> Html
 view ( x, y ) =
   Html.div
     []
-    [ Html.text "Hello world!"
+    [ Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))
     ]
