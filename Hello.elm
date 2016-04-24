@@ -5,4 +5,7 @@ import Html exposing (Html)
 
 main : Html
 main =
-  Html.text "Hello world!"
+  Html.div
+    []
+    [ Html.text "Hello world!"
+    ]
