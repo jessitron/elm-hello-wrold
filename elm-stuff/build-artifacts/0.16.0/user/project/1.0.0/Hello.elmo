@@ -13,7 +13,14 @@ Elm.Hello.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var view = function (_p0) {    var _p1 = _p0;return A2($Html.div,_U.list([]),_U.list([$Html.text("Hello world!")]));};
+   var view = function (_p0) {
+      var _p1 = _p0;
+      return A2($Html.div,
+      _U.list([]),
+      _U.list([$Html.text(A2($Basics._op["++"],
+      "x = ",
+      A2($Basics._op["++"],$Basics.toString(_p1._0),A2($Basics._op["++"],", y = ",$Basics.toString(_p1._1)))))]));
+   };
    var main = A2($Signal.map,view,$Mouse.position);
    return _elm.Hello.values = {_op: _op,main: main};
 };
