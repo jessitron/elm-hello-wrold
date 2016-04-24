@@ -22,15 +22,24 @@ Elm.Hello.make = function (_elm) {
    };
    var pictureView = function (_p2) {    var _p3 = _p2;return A2($Html.img,_U.list([$Html$Attributes.src(_p3.picture)]),_U.list([]));};
    var view = function (m) {    return A2($Html.div,_U.list([]),_U.list([positionView(m),pictureView(m)]));};
-   var makeDecisions = F2(function (msg,state) {
+   var updatePicture = F2(function (msg,state) {
       var _p4 = msg;
-      if (_p4.ctor === "MouseMove") {
-            return _U.update(state,{x: _p4._0._0,y: _p4._0._1});
-         } else {
+      if (_p4.ctor === "Click") {
             var picture = _U.cmp(state.x,150) < 0 ? "images/deeter-left.png" : "images/deeter-right.png";
             return _U.update(state,{picture: picture});
+         } else {
+            return state;
          }
    });
+   var updatePosition = F2(function (msg,state) {
+      var _p5 = msg;
+      if (_p5.ctor === "MouseMove" && _p5._0.ctor === "_Tuple2") {
+            return _U.update(state,{x: _p5._0._0,y: _p5._0._1});
+         } else {
+            return state;
+         }
+   });
+   var makeDecisions = F2(function (msg,state) {    return A2(updatePicture,msg,A2(updatePosition,msg,state));});
    var initialState = {x: 0,y: 0,picture: "images/deeter-up.png"};
    var ApplicationState = F3(function (a,b,c) {    return {x: a,y: b,picture: c};});
    var Click = {ctor: "Click"};
