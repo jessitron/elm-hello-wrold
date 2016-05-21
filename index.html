@@ -6675,16 +6675,15 @@ var _elm_lang$html$Html$details = _elm_lang$html$Html$node('details');
 var _elm_lang$html$Html$summary = _elm_lang$html$Html$node('summary');
 var _elm_lang$html$Html$menuitem = _elm_lang$html$Html$node('menuitem');
 var _elm_lang$html$Html$menu = _elm_lang$html$Html$node('menu');
-var _user$project$Hello$main = {
-	main: A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html$text('Hello World')
-			]))
-};
+var _user$project$Hello$view = A2(
+	_elm_lang$html$Html$div,
+	_elm_lang$core$Native_List.fromArray(
+		[]),
+	_elm_lang$core$Native_List.fromArray(
+		[
+			_elm_lang$html$Html$text('Hello World')
+		]));
+var _user$project$Hello$main = {main: _user$project$Hello$view};
 var Elm = {};
 Elm['Hello'] = Elm['Hello'] || {};
 _elm_lang$core$Native_Platform.addPublicModule(Elm['Hello'], 'Hello', typeof _user$project$Hello$main === 'undefined' ? null : _user$project$Hello$main);

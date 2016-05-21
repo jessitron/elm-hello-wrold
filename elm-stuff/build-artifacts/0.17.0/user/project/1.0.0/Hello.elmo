@@ -1,10 +1,9 @@
-var _user$project$Hello$main = {
-	main: A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html$text('Hello World')
-			]))
-};
+var _user$project$Hello$view = A2(
+	_elm_lang$html$Html$div,
+	_elm_lang$core$Native_List.fromArray(
+		[]),
+	_elm_lang$core$Native_List.fromArray(
+		[
+			_elm_lang$html$Html$text('Hello World')
+		]));
+var _user$project$Hello$main = {main: _user$project$Hello$view};
