@@ -4,4 +4,6 @@ import Html
 
 
 main =
-    Html.text "Hello World"
+    Html.div []
+        [ Html.text "Hello World"
+        ]
