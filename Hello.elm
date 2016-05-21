@@ -2,14 +2,19 @@ module Hello exposing (main)
 
 import Html exposing (Html)
 import Mouse
+import Programmator
 
 
-main : Html ()
+main : Program Never
 main =
-    view { x = 0, y = 0 }
+    { view = view
+    , input = Mouse.moves
+    , init = { x = 0, y = 0 }
+    }
+        |> Programmator.viewFromOneInput
 
 
-view : Mouse.Position -> Html ()
+view : Mouse.Position -> Html Mouse.Position
 view { x, y } =
     Html.div []
         [ Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))

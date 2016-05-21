@@ -20,6 +20,10 @@ var _user$project$Hello$view = function (_p0) {
 			]));
 };
 var _user$project$Hello$main = {
-	main: _user$project$Hello$view(
-		{x: 0, y: 0})
+	main: _user$project$Programmator$viewFromOneInput(
+		{
+			view: _user$project$Hello$view,
+			input: _elm_lang$mouse$Mouse$moves,
+			init: {x: 0, y: 0}
+		})
 };
