@@ -1,5 +1,7 @@
 module Hello exposing (main)
 
+import Html
+
 
 main =
-    "Hello World"
+    Html.text "Hello World"
