@@ -1,15 +1,16 @@
 module Hello exposing (main)
 
 import Html exposing (Html)
+import Mouse
 
 
 main : Html ()
 main =
-    view
+    view { x = 0, y = 0 }
 
 
-view : Html ()
-view =
+view : Mouse.Position -> Html ()
+view { x, y } =
     Html.div []
-        [ Html.text "Hello World"
+        [ Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))
         ]

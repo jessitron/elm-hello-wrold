@@ -1,9 +1,25 @@
-var _user$project$Hello$view = A2(
-	_elm_lang$html$Html$div,
-	_elm_lang$core$Native_List.fromArray(
-		[]),
-	_elm_lang$core$Native_List.fromArray(
-		[
-			_elm_lang$html$Html$text('Hello World')
-		]));
-var _user$project$Hello$main = {main: _user$project$Hello$view};
+var _user$project$Hello$view = function (_p0) {
+	var _p1 = _p0;
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html$text(
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'x = ',
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						_elm_lang$core$Basics$toString(_p1.x),
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							', y = ',
+							_elm_lang$core$Basics$toString(_p1.y)))))
+			]));
+};
+var _user$project$Hello$main = {
+	main: _user$project$Hello$view(
+		{x: 0, y: 0})
+};
