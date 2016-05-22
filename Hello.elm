@@ -11,10 +11,10 @@ main : Program {}
 main =
     { init = { x = 0, y = 0, direction = Up }
     , input = Mouse.moves MouseMove
-    , decide = decide
+    , update = update
     , view = view
     }
-        |> Programmator.viewFromSpecificInputAndDecide
+        |> Programmator.specificInputAndDoNothing
 
 
 view m =
@@ -39,14 +39,14 @@ type Msg
     | MouseMove Mouse.Position
 
 
-decide : Msg -> Model
-decide msg =
+update : Msg -> Model -> Model
+update msg previous =
     case msg of
         Point dir ->
-            { x = 0, y = 0, direction = dir }
+            { previous | direction = dir }
 
         MouseMove pos ->
-            { x = pos.x, y = pos.y, direction = Up }
+            { x = pos.x, y = pos.y, direction = previous.direction }
 
 
 positionView : Model -> Html Msg

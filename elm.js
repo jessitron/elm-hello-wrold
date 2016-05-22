@@ -7966,20 +7966,23 @@ var _user$project$Hello$positionView = function (_p0) {
 							_elm_lang$core$Basics$toString(_p1.y)))))
 			]));
 };
+var _user$project$Hello$update = F2(
+	function (msg, previous) {
+		var _p2 = msg;
+		if (_p2.ctor === 'Point') {
+			return _elm_lang$core$Native_Utils.update(
+				previous,
+				{direction: _p2._0});
+		} else {
+			var _p3 = _p2._0;
+			return {x: _p3.x, y: _p3.y, direction: previous.direction};
+		}
+	});
 var _user$project$Hello$Model = F3(
 	function (a, b, c) {
 		return {x: a, y: b, direction: c};
 	});
 var _user$project$Hello$Up = {ctor: 'Up'};
-var _user$project$Hello$decide = function (msg) {
-	var _p2 = msg;
-	if (_p2.ctor === 'Point') {
-		return {x: 0, y: 0, direction: _p2._0};
-	} else {
-		var _p3 = _p2._0;
-		return {x: _p3.x, y: _p3.y, direction: _user$project$Hello$Up};
-	}
-};
 var _user$project$Hello$Right = {ctor: 'Right'};
 var _user$project$Hello$Left = {ctor: 'Left'};
 var _user$project$Hello$MouseMove = function (a) {
@@ -8051,11 +8054,11 @@ var _user$project$Hello$view = function (m) {
 			]));
 };
 var _user$project$Hello$main = {
-	main: _user$project$Programmator$viewFromSpecificInputAndDecide(
+	main: _user$project$Programmator$specificInputAndDoNothing(
 		{
 			init: {x: 0, y: 0, direction: _user$project$Hello$Up},
 			input: _elm_lang$mouse$Mouse$moves(_user$project$Hello$MouseMove),
-			decide: _user$project$Hello$decide,
+			update: _user$project$Hello$update,
 			view: _user$project$Hello$view
 		}),
 	flags: _elm_lang$core$Json_Decode$succeed(
