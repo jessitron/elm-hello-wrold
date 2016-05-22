@@ -1,4 +1,10 @@
-module Programmator exposing (viewFromOneInput, viewFromOneInputAndDecide, viewFromSpecificInputAndDecide)
+module Programmator
+    exposing
+        ( viewFromOneInput
+        , viewFromOneInputAndDecide
+        , viewFromSpecificInputAndDecide
+        , specificInputAndDoNothing
+        )
 
 import Html exposing (Html)
 import Html.App
@@ -46,6 +52,22 @@ viewFromSpecificInputAndDecide { init, input, decide, view } =
     Html.App.programWithFlags
         { init = \_ -> ( init, Cmd.none )
         , update = (\a -> \_ -> ( decide a, Cmd.none ))
+        , subscriptions = (\_ -> input)
+        , view = view
+        }
+
+
+specificInputAndDoNothing :
+    { init : model
+    , input : Sub msg
+    , view : model -> Html msg
+    , update : msg -> model -> model
+    }
+    -> Program {}
+specificInputAndDoNothing { init, input, update, view } =
+    Html.App.programWithFlags
+        { init = \_ -> ( init, Cmd.none )
+        , update = (\a -> \b -> ( update a b, Cmd.none ))
         , subscriptions = (\_ -> input)
         , view = view
         }
