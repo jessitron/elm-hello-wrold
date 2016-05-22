@@ -22,14 +22,18 @@ view m =
         ]
 
 
-positionView : Mouse.Position -> Html Mouse.Position
+type alias Model =
+    Mouse.Position
+
+
+positionView : Model -> Html Model
 positionView { x, y } =
     Html.div []
         [ Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))
         ]
 
 
-imageView : Mouse.Position -> Html Mouse.Position
+imageView : Model -> Html Model
 imageView { x } =
     let
         imagefile =
