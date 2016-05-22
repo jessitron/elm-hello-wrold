@@ -7581,6 +7581,107 @@ var _elm_lang$html$Html_Attributes$classList = function (list) {
 };
 var _elm_lang$html$Html_Attributes$style = _elm_lang$virtual_dom$VirtualDom$style;
 
+var _elm_lang$html$Html_Events$keyCode = A2(_elm_lang$core$Json_Decode_ops[':='], 'keyCode', _elm_lang$core$Json_Decode$int);
+var _elm_lang$html$Html_Events$targetChecked = A2(
+	_elm_lang$core$Json_Decode$at,
+	_elm_lang$core$Native_List.fromArray(
+		['target', 'checked']),
+	_elm_lang$core$Json_Decode$bool);
+var _elm_lang$html$Html_Events$targetValue = A2(
+	_elm_lang$core$Json_Decode$at,
+	_elm_lang$core$Native_List.fromArray(
+		['target', 'value']),
+	_elm_lang$core$Json_Decode$string);
+var _elm_lang$html$Html_Events$defaultOptions = _elm_lang$virtual_dom$VirtualDom$defaultOptions;
+var _elm_lang$html$Html_Events$onWithOptions = _elm_lang$virtual_dom$VirtualDom$onWithOptions;
+var _elm_lang$html$Html_Events$on = _elm_lang$virtual_dom$VirtualDom$on;
+var _elm_lang$html$Html_Events$onFocus = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'focus',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onBlur = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'blur',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onSubmitOptions = _elm_lang$core$Native_Utils.update(
+	_elm_lang$html$Html_Events$defaultOptions,
+	{preventDefault: true});
+var _elm_lang$html$Html_Events$onSubmit = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'submit',
+		_elm_lang$html$Html_Events$onSubmitOptions,
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onCheck = function (tagger) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetChecked));
+};
+var _elm_lang$html$Html_Events$onInput = function (tagger) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'input',
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetValue));
+};
+var _elm_lang$html$Html_Events$onMouseOut = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseout',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseOver = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseover',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseLeave = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseleave',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseEnter = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseenter',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseUp = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseup',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseDown = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mousedown',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onDoubleClick = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'dblclick',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onClick = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'click',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$Options = F2(
+	function (a, b) {
+		return {stopPropagation: a, preventDefault: b};
+	});
+
 var _elm_lang$mouse$Mouse$onSelfMsg = F3(
 	function (router, _p0, state) {
 		var _p1 = _p0;
@@ -7844,11 +7945,54 @@ var _user$project$Programmator$viewFromOneInput = function (_p14) {
 		});
 };
 
-var _user$project$Hello$imageView = function (_p0) {
+var _user$project$Hello$positionView = function (_p0) {
 	var _p1 = _p0;
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html$text(
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'x = ',
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						_elm_lang$core$Basics$toString(_p1.x),
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							', y = ',
+							_elm_lang$core$Basics$toString(_p1.y)))))
+			]));
+};
+var _user$project$Hello$Model = F3(
+	function (a, b, c) {
+		return {x: a, y: b, direction: c};
+	});
+var _user$project$Hello$Up = {ctor: 'Up'};
+var _user$project$Hello$decide = function (msg) {
+	var _p2 = msg;
+	if (_p2.ctor === 'Point') {
+		return {x: 0, y: 0, direction: _p2._0};
+	} else {
+		var _p3 = _p2._0;
+		return {x: _p3.x, y: _p3.y, direction: _user$project$Hello$Up};
+	}
+};
+var _user$project$Hello$Right = {ctor: 'Right'};
+var _user$project$Hello$Left = {ctor: 'Left'};
+var _user$project$Hello$MouseMove = function (a) {
+	return {ctor: 'MouseMove', _0: a};
+};
+var _user$project$Hello$Point = function (a) {
+	return {ctor: 'Point', _0: a};
+};
+var _user$project$Hello$imageView = function (_p4) {
+	var _p5 = _p4;
 	var imagefile = function () {
-		var _p2 = _p1.direction;
-		switch (_p2.ctor) {
+		var _p6 = _p5.direction;
+		switch (_p6.ctor) {
 			case 'Left':
 				return 'images/deeter-left.png';
 			case 'Right':
@@ -7864,34 +8008,35 @@ var _user$project$Hello$imageView = function (_p0) {
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Events$onClick(
+						_user$project$Hello$Point(_user$project$Hello$Left))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('Left')
+					])),
+				A2(
 				_elm_lang$html$Html$img,
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html_Attributes$src(imagefile)
 					]),
 				_elm_lang$core$Native_List.fromArray(
-					[]))
-			]));
-};
-var _user$project$Hello$positionView = function (_p3) {
-	var _p4 = _p3;
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html$text(
+					[])),
 				A2(
-					_elm_lang$core$Basics_ops['++'],
-					'x = ',
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						_elm_lang$core$Basics$toString(_p4.x),
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							', y = ',
-							_elm_lang$core$Basics$toString(_p4.y)))))
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Events$onClick(
+						_user$project$Hello$Point(_user$project$Hello$Right))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('Right')
+					]))
 			]));
 };
 var _user$project$Hello$view = function (m) {
@@ -7905,22 +8050,11 @@ var _user$project$Hello$view = function (m) {
 				_user$project$Hello$imageView(m)
 			]));
 };
-var _user$project$Hello$Model = F3(
-	function (a, b, c) {
-		return {x: a, y: b, direction: c};
-	});
-var _user$project$Hello$Up = {ctor: 'Up'};
-var _user$project$Hello$Right = {ctor: 'Right'};
-var _user$project$Hello$Left = {ctor: 'Left'};
-var _user$project$Hello$decide = function (msg) {
-	var d = (_elm_lang$core$Native_Utils.cmp(msg.x, 200) < 0) ? _user$project$Hello$Left : _user$project$Hello$Right;
-	return {x: msg.x, y: msg.y, direction: d};
-};
 var _user$project$Hello$main = {
-	main: _user$project$Programmator$viewFromOneInputAndDecide(
+	main: _user$project$Programmator$viewFromSpecificInputAndDecide(
 		{
 			init: {x: 0, y: 0, direction: _user$project$Hello$Up},
-			input: _elm_lang$mouse$Mouse$moves,
+			input: _elm_lang$mouse$Mouse$moves(_user$project$Hello$MouseMove),
 			decide: _user$project$Hello$decide,
 			view: _user$project$Hello$view
 		}),

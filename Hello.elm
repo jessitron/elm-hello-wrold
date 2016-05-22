@@ -2,6 +2,7 @@ module Hello exposing (main)
 
 import Html exposing (Html)
 import Html.Attributes as Attr
+import Html.Events
 import Mouse
 import Programmator
 
@@ -9,11 +10,11 @@ import Programmator
 main : Program {}
 main =
     { init = { x = 0, y = 0, direction = Up }
-    , input = Mouse.moves
+    , input = Mouse.moves MouseMove
     , decide = decide
     , view = view
     }
-        |> Programmator.viewFromOneInputAndDecide
+        |> Programmator.viewFromSpecificInputAndDecide
 
 
 view m =
@@ -33,26 +34,29 @@ type alias Model =
     { x : Int, y : Int, direction : Direction }
 
 
-decide : Mouse.Position -> Model
+type Msg
+    = Point Direction
+    | MouseMove Mouse.Position
+
+
+decide : Msg -> Model
 decide msg =
-    let
-        d =
-            if msg.x < 200 then
-                Left
-            else
-                Right
-    in
-        { x = msg.x, y = msg.y, direction = d }
+    case msg of
+        Point dir ->
+            { x = 0, y = 0, direction = dir }
+
+        MouseMove pos ->
+            { x = pos.x, y = pos.y, direction = Up }
 
 
-positionView : Model -> Html Mouse.Position
+positionView : Model -> Html Msg
 positionView { x, y } =
     Html.div []
         [ Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))
         ]
 
 
-imageView : Model -> Html Mouse.Position
+imageView : Model -> Html Msg
 imageView { x, direction } =
     let
         imagefile =
@@ -67,5 +71,10 @@ imageView { x, direction } =
                     "images/deeter-up.png"
     in
         Html.div []
-            [ Html.img [ Attr.src imagefile ] []
+            [ Html.button [ Html.Events.onClick (Point Left) ]
+                [ Html.text "Left" ]
+            , Html.img [ Attr.src imagefile ]
+                []
+            , Html.button [ Html.Events.onClick (Point Right) ]
+                [ Html.text "Right" ]
             ]

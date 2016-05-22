@@ -1,9 +1,15 @@
 img {
     height: 70%;
+    margin: 10px;
 }
 
 div {
     text-align: center;
+}
+
+button {
+  padding: 10px;
+  vertical-align: top
 }
 
 .Centered {
