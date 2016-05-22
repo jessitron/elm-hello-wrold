@@ -1,6 +1,7 @@
 module Hello exposing (main)
 
 import Html exposing (Html)
+import Html.Attributes as Attr
 import Mouse
 import Programmator
 
@@ -14,8 +15,22 @@ main =
         |> Programmator.viewFromOneInput
 
 
-view : Mouse.Position -> Html Mouse.Position
-view { x, y } =
+view m =
+    Html.div []
+        [ positionView m
+        , imageView m
+        ]
+
+
+positionView : Mouse.Position -> Html Mouse.Position
+positionView { x, y } =
     Html.div []
         [ Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))
+        ]
+
+
+imageView : Mouse.Position -> Html Mouse.Position
+imageView _ =
+    Html.div []
+        [ Html.img [ Attr.src "images/deeter-up.png" ] []
         ]
