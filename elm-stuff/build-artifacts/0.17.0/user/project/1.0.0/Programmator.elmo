@@ -1,4 +1,4 @@
-var _user$project$Programmator$viewFromOneInput = function (_p0) {
+var _user$project$Programmator$viewFromSpecificInputAndDecide = function (_p0) {
 	var _p1 = _p0;
 	return _elm_lang$html$Html_App$programWithFlags(
 		{
@@ -7,11 +7,53 @@ var _user$project$Programmator$viewFromOneInput = function (_p0) {
 			},
 			update: F2(
 				function (a, _p3) {
-					return {ctor: '_Tuple2', _0: a, _1: _elm_lang$core$Platform_Cmd$none};
+					return {
+						ctor: '_Tuple2',
+						_0: _p1.decide(a),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
 				}),
 			subscriptions: function (_p4) {
-				return _p1.input(_elm_lang$core$Basics$identity);
+				return _p1.input;
 			},
 			view: _p1.view
+		});
+};
+var _user$project$Programmator$viewFromOneInputAndDecide = function (_p5) {
+	var _p6 = _p5;
+	return _elm_lang$html$Html_App$programWithFlags(
+		{
+			init: function (_p7) {
+				return {ctor: '_Tuple2', _0: _p6.init, _1: _elm_lang$core$Platform_Cmd$none};
+			},
+			update: F2(
+				function (a, _p8) {
+					return {
+						ctor: '_Tuple2',
+						_0: _p6.decide(a),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}),
+			subscriptions: function (_p9) {
+				return _p6.input(_elm_lang$core$Basics$identity);
+			},
+			view: _p6.view
+		});
+};
+var _user$project$Programmator$viewFromOneInput = function (_p10) {
+	var _p11 = _p10;
+	return _elm_lang$html$Html_App$programWithFlags(
+		{
+			init: function (_p12) {
+				return {ctor: '_Tuple2', _0: _p11.init, _1: _elm_lang$core$Platform_Cmd$none};
+			},
+			update: F2(
+				function (a, _p13) {
+					return {ctor: '_Tuple2', _0: a, _1: _elm_lang$core$Platform_Cmd$none};
+				}),
+			subscriptions: function (_p14) {
+				return _p11.input(_elm_lang$core$Basics$identity);
+			},
+			view: _p11.view
 		});
 };

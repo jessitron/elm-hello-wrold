@@ -7864,7 +7864,7 @@ var _elm_lang$mouse$Mouse$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Mouse'] = {pkg: 'elm-lang/mouse', init: _elm_lang$mouse$Mouse$init, onEffects: _elm_lang$mouse$Mouse$onEffects, onSelfMsg: _elm_lang$mouse$Mouse$onSelfMsg, tag: 'sub', subMap: _elm_lang$mouse$Mouse$subMap};
 
-var _user$project$Programmator$viewFromOneInput = function (_p0) {
+var _user$project$Programmator$viewFromSpecificInputAndDecide = function (_p0) {
 	var _p1 = _p0;
 	return _elm_lang$html$Html_App$programWithFlags(
 		{
@@ -7873,12 +7873,54 @@ var _user$project$Programmator$viewFromOneInput = function (_p0) {
 			},
 			update: F2(
 				function (a, _p3) {
-					return {ctor: '_Tuple2', _0: a, _1: _elm_lang$core$Platform_Cmd$none};
+					return {
+						ctor: '_Tuple2',
+						_0: _p1.decide(a),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
 				}),
 			subscriptions: function (_p4) {
-				return _p1.input(_elm_lang$core$Basics$identity);
+				return _p1.input;
 			},
 			view: _p1.view
+		});
+};
+var _user$project$Programmator$viewFromOneInputAndDecide = function (_p5) {
+	var _p6 = _p5;
+	return _elm_lang$html$Html_App$programWithFlags(
+		{
+			init: function (_p7) {
+				return {ctor: '_Tuple2', _0: _p6.init, _1: _elm_lang$core$Platform_Cmd$none};
+			},
+			update: F2(
+				function (a, _p8) {
+					return {
+						ctor: '_Tuple2',
+						_0: _p6.decide(a),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}),
+			subscriptions: function (_p9) {
+				return _p6.input(_elm_lang$core$Basics$identity);
+			},
+			view: _p6.view
+		});
+};
+var _user$project$Programmator$viewFromOneInput = function (_p10) {
+	var _p11 = _p10;
+	return _elm_lang$html$Html_App$programWithFlags(
+		{
+			init: function (_p12) {
+				return {ctor: '_Tuple2', _0: _p11.init, _1: _elm_lang$core$Platform_Cmd$none};
+			},
+			update: F2(
+				function (a, _p13) {
+					return {ctor: '_Tuple2', _0: a, _1: _elm_lang$core$Platform_Cmd$none};
+				}),
+			subscriptions: function (_p14) {
+				return _p11.input(_elm_lang$core$Basics$identity);
+			},
+			view: _p11.view
 		});
 };
 
@@ -7903,19 +7945,39 @@ var _user$project$Hello$positionView = function (_p0) {
 							_elm_lang$core$Basics$toString(_p1.y)))))
 			]));
 };
+var _user$project$Hello$Model = F3(
+	function (a, b, c) {
+		return {x: a, y: b, direction: c};
+	});
+var _user$project$Hello$Point = function (a) {
+	return {ctor: 'Point', _0: a};
+};
+var _user$project$Hello$MouseMove = function (a) {
+	return {ctor: 'MouseMove', _0: a};
+};
+var _user$project$Hello$Up = {ctor: 'Up'};
+var _user$project$Hello$decide = function (msg) {
+	var _p2 = msg;
+	if (_p2.ctor === 'MouseMove') {
+		var _p3 = _p2._0;
+		return {x: _p3.x, y: _p3.y, direction: _user$project$Hello$Up};
+	} else {
+		return {x: 0, y: 0, direction: _p2._0};
+	}
+};
 var _user$project$Hello$Right = {ctor: 'Right'};
 var _user$project$Hello$Left = {ctor: 'Left'};
-var _user$project$Hello$whichWay = function (_p2) {
-	var _p3 = _p2;
-	return (_elm_lang$core$Native_Utils.cmp(_p3.x, 200) < 0) ? _user$project$Hello$Left : _user$project$Hello$Right;
-};
-var _user$project$Hello$imageView = function (m) {
+var _user$project$Hello$imageView = function (_p4) {
+	var _p5 = _p4;
 	var imagefile = function () {
-		var _p4 = _user$project$Hello$whichWay(m);
-		if (_p4.ctor === 'Left') {
-			return 'images/deeter-left.png';
-		} else {
-			return 'images/deeter-right.png';
+		var _p6 = _p5.direction;
+		switch (_p6.ctor) {
+			case 'Left':
+				return 'images/deeter-left.png';
+			case 'Right':
+				return 'images/deeter-right.png';
+			default:
+				return 'images/deeter-up.png';
 		}
 	}();
 	return A2(
@@ -7929,7 +7991,7 @@ var _user$project$Hello$imageView = function (m) {
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html_Events$onClick(
-						{x: 0, y: 0})
+						_user$project$Hello$Point(_user$project$Hello$Left))
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -7948,7 +8010,7 @@ var _user$project$Hello$imageView = function (m) {
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html_Events$onClick(
-						{x: 300, y: 0})
+						_user$project$Hello$Point(_user$project$Hello$Right))
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -7968,10 +8030,11 @@ var _user$project$Hello$view = function (m) {
 			]));
 };
 var _user$project$Hello$main = {
-	main: _user$project$Programmator$viewFromOneInput(
+	main: _user$project$Programmator$viewFromSpecificInputAndDecide(
 		{
-			init: {x: 0, y: 0},
-			input: _elm_lang$mouse$Mouse$moves,
+			init: {x: 0, y: 0, direction: _user$project$Hello$Up},
+			input: _elm_lang$mouse$Mouse$moves(_user$project$Hello$MouseMove),
+			decide: _user$project$Hello$decide,
 			view: _user$project$Hello$view
 		}),
 	flags: _elm_lang$core$Json_Decode$succeed(

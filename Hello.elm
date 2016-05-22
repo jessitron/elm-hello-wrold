@@ -9,11 +9,12 @@ import Programmator
 
 main : Program {}
 main =
-    { init = { x = 0, y = 0 }
-    , input = Mouse.moves
+    { init = { x = 0, y = 0, direction = Up }
+    , input = Mouse.moves MouseMove
+    , decide = decide
     , view = view
     }
-        |> Programmator.viewFromOneInput
+        |> Programmator.viewFromSpecificInputAndDecide
 
 
 view m =
@@ -24,10 +25,25 @@ view m =
 
 
 type alias Model =
-    Mouse.Position
+    { x : Int, y : Int, direction : Direction }
 
 
-positionView : Model -> Html Model
+type Msg
+    = MouseMove Mouse.Position
+    | Point Direction
+
+
+decide : Msg -> Model
+decide msg =
+    case msg of
+        MouseMove m ->
+            { x = m.x, y = m.y, direction = Up }
+
+        Point dir ->
+            { x = 0, y = 0, direction = dir }
+
+
+positionView : Model -> Html Msg
 positionView { x, y } =
     Html.div []
         [ Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))
@@ -37,31 +53,27 @@ positionView { x, y } =
 type Direction
     = Left
     | Right
+    | Up
 
 
-whichWay : Model -> Direction
-whichWay { x } =
-    if x < 200 then
-        Left
-    else
-        Right
-
-
-imageView : Model -> Html Model
-imageView m =
+imageView : Model -> Html Msg
+imageView { direction } =
     let
         imagefile =
-            case whichWay m of
+            case direction of
                 Left ->
                     "images/deeter-left.png"
 
                 Right ->
                     "images/deeter-right.png"
+
+                Up ->
+                    "images/deeter-up.png"
     in
         Html.div []
-            [ Html.button [ Events.onClick { x = 0, y = 0 } ]
+            [ Html.button [ Events.onClick (Point Left) ]
                 [ Html.text "Left" ]
             , Html.img [ Attr.src imagefile ] []
-            , Html.button [ Events.onClick { x = 300, y = 0 } ]
+            , Html.button [ Events.onClick (Point Right) ]
                 [ Html.text "Right" ]
             ]
