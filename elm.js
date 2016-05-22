@@ -7882,9 +7882,42 @@ var _user$project$Programmator$viewFromOneInput = function (_p0) {
 		});
 };
 
-var _user$project$Hello$imageView = function (_p0) {
+var _user$project$Hello$positionView = function (_p0) {
 	var _p1 = _p0;
-	var imagefile = (_elm_lang$core$Native_Utils.cmp(_p1.x, 200) < 0) ? 'images/deeter-left.png' : 'images/deeter-right.png';
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html$text(
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'x = ',
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						_elm_lang$core$Basics$toString(_p1.x),
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							', y = ',
+							_elm_lang$core$Basics$toString(_p1.y)))))
+			]));
+};
+var _user$project$Hello$Right = {ctor: 'Right'};
+var _user$project$Hello$Left = {ctor: 'Left'};
+var _user$project$Hello$whichWay = function (_p2) {
+	var _p3 = _p2;
+	return (_elm_lang$core$Native_Utils.cmp(_p3.x, 200) < 0) ? _user$project$Hello$Left : _user$project$Hello$Right;
+};
+var _user$project$Hello$imageView = function (m) {
+	var imagefile = function () {
+		var _p4 = _user$project$Hello$whichWay(m);
+		if (_p4.ctor === 'Left') {
+			return 'images/deeter-left.png';
+		} else {
+			return 'images/deeter-right.png';
+		}
+	}();
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -7921,27 +7954,6 @@ var _user$project$Hello$imageView = function (_p0) {
 					[
 						_elm_lang$html$Html$text('Right')
 					]))
-			]));
-};
-var _user$project$Hello$positionView = function (_p2) {
-	var _p3 = _p2;
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html$text(
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					'x = ',
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						_elm_lang$core$Basics$toString(_p3.x),
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							', y = ',
-							_elm_lang$core$Basics$toString(_p3.y)))))
 			]));
 };
 var _user$project$Hello$view = function (m) {

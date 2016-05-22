@@ -30,14 +30,29 @@ positionView { x, y } =
         ]
 
 
+type Direction
+    = Left
+    | Right
+
+
+whichWay : Mouse.Position -> Direction
+whichWay { x } =
+    if x < 200 then
+        Left
+    else
+        Right
+
+
 imageView : Mouse.Position -> Html Mouse.Position
-imageView { x } =
+imageView m =
     let
         imagefile =
-            if x < 200 then
-                "images/deeter-left.png"
-            else
-                "images/deeter-right.png"
+            case whichWay m of
+                Left ->
+                    "images/deeter-left.png"
+
+                Right ->
+                    "images/deeter-right.png"
     in
         Html.div []
             [ Html.button [ Events.onClick { x = 0, y = 0 } ]
