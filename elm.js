@@ -7864,87 +7864,6 @@ var _elm_lang$mouse$Mouse$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Mouse'] = {pkg: 'elm-lang/mouse', init: _elm_lang$mouse$Mouse$init, onEffects: _elm_lang$mouse$Mouse$onEffects, onSelfMsg: _elm_lang$mouse$Mouse$onSelfMsg, tag: 'sub', subMap: _elm_lang$mouse$Mouse$subMap};
 
-var _user$project$Programmator$specificInputAndDoNothing = function (_p0) {
-	var _p1 = _p0;
-	return _elm_lang$html$Html_App$programWithFlags(
-		{
-			init: function (_p2) {
-				return {ctor: '_Tuple2', _0: _p1.init, _1: _elm_lang$core$Platform_Cmd$none};
-			},
-			update: F2(
-				function (a, b) {
-					return {
-						ctor: '_Tuple2',
-						_0: A2(_p1.update, a, b),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				}),
-			subscriptions: function (_p3) {
-				return _p1.input;
-			},
-			view: _p1.view
-		});
-};
-var _user$project$Programmator$viewFromSpecificInputAndDecide = function (_p4) {
-	var _p5 = _p4;
-	return _elm_lang$html$Html_App$programWithFlags(
-		{
-			init: function (_p6) {
-				return {ctor: '_Tuple2', _0: _p5.init, _1: _elm_lang$core$Platform_Cmd$none};
-			},
-			update: F2(
-				function (a, _p7) {
-					return {
-						ctor: '_Tuple2',
-						_0: _p5.decide(a),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				}),
-			subscriptions: function (_p8) {
-				return _p5.input;
-			},
-			view: _p5.view
-		});
-};
-var _user$project$Programmator$viewFromOneInputAndDecide = function (_p9) {
-	var _p10 = _p9;
-	return _elm_lang$html$Html_App$programWithFlags(
-		{
-			init: function (_p11) {
-				return {ctor: '_Tuple2', _0: _p10.init, _1: _elm_lang$core$Platform_Cmd$none};
-			},
-			update: F2(
-				function (a, _p12) {
-					return {
-						ctor: '_Tuple2',
-						_0: _p10.decide(a),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				}),
-			subscriptions: function (_p13) {
-				return _p10.input(_elm_lang$core$Basics$identity);
-			},
-			view: _p10.view
-		});
-};
-var _user$project$Programmator$viewFromOneInput = function (_p14) {
-	var _p15 = _p14;
-	return _elm_lang$html$Html_App$programWithFlags(
-		{
-			init: function (_p16) {
-				return {ctor: '_Tuple2', _0: _p15.init, _1: _elm_lang$core$Platform_Cmd$none};
-			},
-			update: F2(
-				function (a, _p17) {
-					return {ctor: '_Tuple2', _0: a, _1: _elm_lang$core$Platform_Cmd$none};
-				}),
-			subscriptions: function (_p18) {
-				return _p15.input(_elm_lang$core$Basics$identity);
-			},
-			view: _p15.view
-		});
-};
-
 var _user$project$Hello$positionView = function (_p0) {
 	var _p1 = _p0;
 	return A2(
@@ -7977,6 +7896,14 @@ var _user$project$Hello$update = F2(
 			var _p3 = _p2._0;
 			return {x: _p3.x, y: _p3.y, direction: previous.direction};
 		}
+	});
+var _user$project$Hello$doNothing = F3(
+	function (f, a, b) {
+		return {
+			ctor: '_Tuple2',
+			_0: A2(f, a, b),
+			_1: _elm_lang$core$Platform_Cmd$none
+		};
 	});
 var _user$project$Hello$Model = F3(
 	function (a, b, c) {
@@ -8054,11 +7981,19 @@ var _user$project$Hello$view = function (m) {
 			]));
 };
 var _user$project$Hello$main = {
-	main: _user$project$Programmator$specificInputAndDoNothing(
+	main: _elm_lang$html$Html_App$programWithFlags(
 		{
-			init: {x: 0, y: 0, direction: _user$project$Hello$Up},
-			input: _elm_lang$mouse$Mouse$moves(_user$project$Hello$MouseMove),
-			update: _user$project$Hello$update,
+			init: function (flags) {
+				return {
+					ctor: '_Tuple2',
+					_0: {x: 0, y: 0, direction: _user$project$Hello$Up},
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			},
+			subscriptions: function (model) {
+				return _elm_lang$mouse$Mouse$moves(_user$project$Hello$MouseMove);
+			},
+			update: _user$project$Hello$doNothing(_user$project$Hello$update),
 			view: _user$project$Hello$view
 		}),
 	flags: _elm_lang$core$Json_Decode$succeed(

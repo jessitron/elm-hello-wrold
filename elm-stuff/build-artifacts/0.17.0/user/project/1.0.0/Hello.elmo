@@ -31,6 +31,14 @@ var _user$project$Hello$update = F2(
 			return {x: _p3.x, y: _p3.y, direction: previous.direction};
 		}
 	});
+var _user$project$Hello$doNothing = F3(
+	function (f, a, b) {
+		return {
+			ctor: '_Tuple2',
+			_0: A2(f, a, b),
+			_1: _elm_lang$core$Platform_Cmd$none
+		};
+	});
 var _user$project$Hello$Model = F3(
 	function (a, b, c) {
 		return {x: a, y: b, direction: c};
@@ -107,11 +115,19 @@ var _user$project$Hello$view = function (m) {
 			]));
 };
 var _user$project$Hello$main = {
-	main: _user$project$Programmator$specificInputAndDoNothing(
+	main: _elm_lang$html$Html_App$programWithFlags(
 		{
-			init: {x: 0, y: 0, direction: _user$project$Hello$Up},
-			input: _elm_lang$mouse$Mouse$moves(_user$project$Hello$MouseMove),
-			update: _user$project$Hello$update,
+			init: function (flags) {
+				return {
+					ctor: '_Tuple2',
+					_0: {x: 0, y: 0, direction: _user$project$Hello$Up},
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			},
+			subscriptions: function (model) {
+				return _elm_lang$mouse$Mouse$moves(_user$project$Hello$MouseMove);
+			},
+			update: _user$project$Hello$doNothing(_user$project$Hello$update),
 			view: _user$project$Hello$view
 		}),
 	flags: _elm_lang$core$Json_Decode$succeed(

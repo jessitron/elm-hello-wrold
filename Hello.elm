@@ -4,17 +4,21 @@ import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Events
 import Mouse
-import Programmator
+import Html.App
 
 
 main : Program {}
 main =
-    { init = { x = 0, y = 0, direction = Up }
-    , input = Mouse.moves MouseMove
-    , update = update
+    { init = (\flags -> ( { x = 0, y = 0, direction = Up }, Cmd.none ))
+    , subscriptions = \model -> Mouse.moves MouseMove
+    , update = doNothing update
     , view = view
     }
-        |> Programmator.specificInputAndDoNothing
+        |> Html.App.programWithFlags
+
+
+doNothing f a b =
+    ( f a b, Cmd.none )
 
 
 view m =
