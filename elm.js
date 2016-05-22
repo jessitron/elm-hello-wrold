@@ -7763,7 +7763,7 @@ var _elm_lang$mouse$Mouse$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Mouse'] = {pkg: 'elm-lang/mouse', init: _elm_lang$mouse$Mouse$init, onEffects: _elm_lang$mouse$Mouse$onEffects, onSelfMsg: _elm_lang$mouse$Mouse$onSelfMsg, tag: 'sub', subMap: _elm_lang$mouse$Mouse$subMap};
 
-var _user$project$Programmator$viewFromOneInput = function (_p0) {
+var _user$project$Programmator$specificInputAndDoNothing = function (_p0) {
 	var _p1 = _p0;
 	return _elm_lang$html$Html_App$programWithFlags(
 		{
@@ -7771,19 +7771,92 @@ var _user$project$Programmator$viewFromOneInput = function (_p0) {
 				return {ctor: '_Tuple2', _0: _p1.init, _1: _elm_lang$core$Platform_Cmd$none};
 			},
 			update: F2(
-				function (a, _p3) {
-					return {ctor: '_Tuple2', _0: a, _1: _elm_lang$core$Platform_Cmd$none};
+				function (a, b) {
+					return {
+						ctor: '_Tuple2',
+						_0: A2(_p1.update, a, b),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
 				}),
-			subscriptions: function (_p4) {
-				return _p1.input(_elm_lang$core$Basics$identity);
+			subscriptions: function (_p3) {
+				return _p1.input;
 			},
 			view: _p1.view
+		});
+};
+var _user$project$Programmator$viewFromSpecificInputAndDecide = function (_p4) {
+	var _p5 = _p4;
+	return _elm_lang$html$Html_App$programWithFlags(
+		{
+			init: function (_p6) {
+				return {ctor: '_Tuple2', _0: _p5.init, _1: _elm_lang$core$Platform_Cmd$none};
+			},
+			update: F2(
+				function (a, _p7) {
+					return {
+						ctor: '_Tuple2',
+						_0: _p5.decide(a),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}),
+			subscriptions: function (_p8) {
+				return _p5.input;
+			},
+			view: _p5.view
+		});
+};
+var _user$project$Programmator$viewFromOneInputAndDecide = function (_p9) {
+	var _p10 = _p9;
+	return _elm_lang$html$Html_App$programWithFlags(
+		{
+			init: function (_p11) {
+				return {ctor: '_Tuple2', _0: _p10.init, _1: _elm_lang$core$Platform_Cmd$none};
+			},
+			update: F2(
+				function (a, _p12) {
+					return {
+						ctor: '_Tuple2',
+						_0: _p10.decide(a),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}),
+			subscriptions: function (_p13) {
+				return _p10.input(_elm_lang$core$Basics$identity);
+			},
+			view: _p10.view
+		});
+};
+var _user$project$Programmator$viewFromOneInput = function (_p14) {
+	var _p15 = _p14;
+	return _elm_lang$html$Html_App$programWithFlags(
+		{
+			init: function (_p16) {
+				return {ctor: '_Tuple2', _0: _p15.init, _1: _elm_lang$core$Platform_Cmd$none};
+			},
+			update: F2(
+				function (a, _p17) {
+					return {ctor: '_Tuple2', _0: a, _1: _elm_lang$core$Platform_Cmd$none};
+				}),
+			subscriptions: function (_p18) {
+				return _p15.input(_elm_lang$core$Basics$identity);
+			},
+			view: _p15.view
 		});
 };
 
 var _user$project$Hello$imageView = function (_p0) {
 	var _p1 = _p0;
-	var imagefile = (_elm_lang$core$Native_Utils.cmp(_p1.x, 200) < 0) ? 'images/deeter-left.png' : 'images/deeter-right.png';
+	var imagefile = function () {
+		var _p2 = _p1.direction;
+		switch (_p2.ctor) {
+			case 'Left':
+				return 'images/deeter-left.png';
+			case 'Right':
+				return 'images/deeter-right.png';
+			default:
+				return 'images/deeter-up.png';
+		}
+	}();
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -7800,8 +7873,8 @@ var _user$project$Hello$imageView = function (_p0) {
 					[]))
 			]));
 };
-var _user$project$Hello$positionView = function (_p2) {
-	var _p3 = _p2;
+var _user$project$Hello$positionView = function (_p3) {
+	var _p4 = _p3;
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -7814,11 +7887,11 @@ var _user$project$Hello$positionView = function (_p2) {
 					'x = ',
 					A2(
 						_elm_lang$core$Basics_ops['++'],
-						_elm_lang$core$Basics$toString(_p3.x),
+						_elm_lang$core$Basics$toString(_p4.x),
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							', y = ',
-							_elm_lang$core$Basics$toString(_p3.y)))))
+							_elm_lang$core$Basics$toString(_p4.y)))))
 			]));
 };
 var _user$project$Hello$view = function (m) {
@@ -7832,11 +7905,23 @@ var _user$project$Hello$view = function (m) {
 				_user$project$Hello$imageView(m)
 			]));
 };
+var _user$project$Hello$Model = F3(
+	function (a, b, c) {
+		return {x: a, y: b, direction: c};
+	});
+var _user$project$Hello$Up = {ctor: 'Up'};
+var _user$project$Hello$Right = {ctor: 'Right'};
+var _user$project$Hello$Left = {ctor: 'Left'};
+var _user$project$Hello$decide = function (msg) {
+	var d = (_elm_lang$core$Native_Utils.cmp(msg.x, 200) < 0) ? _user$project$Hello$Left : _user$project$Hello$Right;
+	return {x: msg.x, y: msg.y, direction: d};
+};
 var _user$project$Hello$main = {
-	main: _user$project$Programmator$viewFromOneInput(
+	main: _user$project$Programmator$viewFromOneInputAndDecide(
 		{
-			init: {x: 0, y: 0},
+			init: {x: 0, y: 0, direction: _user$project$Hello$Up},
 			input: _elm_lang$mouse$Mouse$moves,
+			decide: _user$project$Hello$decide,
 			view: _user$project$Hello$view
 		}),
 	flags: _elm_lang$core$Json_Decode$succeed(

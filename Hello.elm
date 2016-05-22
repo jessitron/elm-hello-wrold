@@ -8,11 +8,12 @@ import Programmator
 
 main : Program {}
 main =
-    { init = { x = 0, y = 0 }
+    { init = { x = 0, y = 0, direction = Up }
     , input = Mouse.moves
+    , decide = decide
     , view = view
     }
-        |> Programmator.viewFromOneInput
+        |> Programmator.viewFromOneInputAndDecide
 
 
 view m =
@@ -22,25 +23,48 @@ view m =
         ]
 
 
+type Direction
+    = Left
+    | Right
+    | Up
+
+
 type alias Model =
-    Mouse.Position
+    { x : Int, y : Int, direction : Direction }
 
 
-positionView : Model -> Html Model
+decide : Mouse.Position -> Model
+decide msg =
+    let
+        d =
+            if msg.x < 200 then
+                Left
+            else
+                Right
+    in
+        { x = msg.x, y = msg.y, direction = d }
+
+
+positionView : Model -> Html Mouse.Position
 positionView { x, y } =
     Html.div []
         [ Html.text ("x = " ++ (toString x) ++ ", y = " ++ (toString y))
         ]
 
 
-imageView : Model -> Html Model
-imageView { x } =
+imageView : Model -> Html Mouse.Position
+imageView { x, direction } =
     let
         imagefile =
-            if x < 200 then
-                "images/deeter-left.png"
-            else
-                "images/deeter-right.png"
+            case direction of
+                Left ->
+                    "images/deeter-left.png"
+
+                Right ->
+                    "images/deeter-right.png"
+
+                Up ->
+                    "images/deeter-up.png"
     in
         Html.div []
             [ Html.img [ Attr.src imagefile ] []
