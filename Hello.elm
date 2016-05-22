@@ -30,7 +30,14 @@ positionView { x, y } =
 
 
 imageView : Mouse.Position -> Html Mouse.Position
-imageView _ =
-    Html.div []
-        [ Html.img [ Attr.src "images/deeter-up.png" ] []
-        ]
+imageView { x } =
+    let
+        imagefile =
+            if x < 200 then
+                "images/deeter-left.png"
+            else
+                "images/deeter-right.png"
+    in
+        Html.div []
+            [ Html.img [ Attr.src imagefile ] []
+            ]

@@ -1,4 +1,6 @@
 var _user$project$Hello$imageView = function (_p0) {
+	var _p1 = _p0;
+	var imagefile = (_elm_lang$core$Native_Utils.cmp(_p1.x, 200) < 0) ? 'images/deeter-left.png' : 'images/deeter-right.png';
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -9,14 +11,14 @@ var _user$project$Hello$imageView = function (_p0) {
 				_elm_lang$html$Html$img,
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html_Attributes$src('images/deeter-up.png')
+						_elm_lang$html$Html_Attributes$src(imagefile)
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[]))
 			]));
 };
-var _user$project$Hello$positionView = function (_p1) {
-	var _p2 = _p1;
+var _user$project$Hello$positionView = function (_p2) {
+	var _p3 = _p2;
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -29,11 +31,11 @@ var _user$project$Hello$positionView = function (_p1) {
 					'x = ',
 					A2(
 						_elm_lang$core$Basics_ops['++'],
-						_elm_lang$core$Basics$toString(_p2.x),
+						_elm_lang$core$Basics$toString(_p3.x),
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							', y = ',
-							_elm_lang$core$Basics$toString(_p2.y)))))
+							_elm_lang$core$Basics$toString(_p3.y)))))
 			]));
 };
 var _user$project$Hello$view = function (m) {
