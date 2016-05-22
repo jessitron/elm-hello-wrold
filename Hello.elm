@@ -5,11 +5,11 @@ import Mouse
 import Programmator
 
 
-main : Program Never
+main : Program {}
 main =
-    { view = view
+    { init = { x = 0, y = 0 }
     , input = Mouse.moves
-    , init = { x = 0, y = 0 }
+    , view = view
     }
         |> Programmator.viewFromOneInput
 

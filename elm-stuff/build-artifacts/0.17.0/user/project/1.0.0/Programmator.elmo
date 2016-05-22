@@ -1,13 +1,15 @@
 var _user$project$Programmator$viewFromOneInput = function (_p0) {
 	var _p1 = _p0;
-	return _elm_lang$html$Html_App$program(
+	return _elm_lang$html$Html_App$programWithFlags(
 		{
-			init: {ctor: '_Tuple2', _0: _p1.init, _1: _elm_lang$core$Platform_Cmd$none},
+			init: function (_p2) {
+				return {ctor: '_Tuple2', _0: _p1.init, _1: _elm_lang$core$Platform_Cmd$none};
+			},
 			update: F2(
-				function (a, _p2) {
+				function (a, _p3) {
 					return {ctor: '_Tuple2', _0: a, _1: _elm_lang$core$Platform_Cmd$none};
 				}),
-			subscriptions: function (_p3) {
+			subscriptions: function (_p4) {
 				return _p1.input(_elm_lang$core$Basics$identity);
 			},
 			view: _p1.view

@@ -25,5 +25,7 @@ var _user$project$Hello$main = {
 			view: _user$project$Hello$view,
 			input: _elm_lang$mouse$Mouse$moves,
 			init: {x: 0, y: 0}
-		})
+		}),
+	flags: _elm_lang$core$Json_Decode$succeed(
+		{})
 };
