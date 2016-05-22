@@ -8,13 +8,35 @@ var _user$project$Hello$imageView = function (_p0) {
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Events$onClick(
+						{x: 0, y: 0})
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('Left')
+					])),
+				A2(
 				_elm_lang$html$Html$img,
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html_Attributes$src(imagefile)
 					]),
 				_elm_lang$core$Native_List.fromArray(
-					[]))
+					[])),
+				A2(
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Events$onClick(
+						{x: 300, y: 0})
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('Right')
+					]))
 			]));
 };
 var _user$project$Hello$positionView = function (_p2) {
