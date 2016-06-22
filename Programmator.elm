@@ -15,7 +15,7 @@ viewFromOneInput :
     , input : (a -> a) -> Sub a
     , init : a
     }
-    -> Program {}
+    -> Program Never
 viewFromOneInput { view, input, init } =
     Html.App.programWithFlags
         { init = \_ -> ( init, Cmd.none )
@@ -31,7 +31,7 @@ viewFromOneInputAndDecide :
     , view : model -> Html msg
     , decide : msg -> model
     }
-    -> Program {}
+    -> Program Never
 viewFromOneInputAndDecide { init, input, decide, view } =
     Html.App.programWithFlags
         { init = \_ -> ( init, Cmd.none )
@@ -47,7 +47,7 @@ viewFromSpecificInputAndDecide :
     , view : model -> Html msg
     , decide : msg -> model
     }
-    -> Program {}
+    -> Program Never
 viewFromSpecificInputAndDecide { init, input, decide, view } =
     Html.App.programWithFlags
         { init = \_ -> ( init, Cmd.none )
@@ -63,7 +63,7 @@ specificInputAndDoNothing :
     , view : model -> Html msg
     , update : msg -> model -> model
     }
-    -> Program {}
+    -> Program Never
 specificInputAndDoNothing { init, input, update, view } =
     Html.App.programWithFlags
         { init = \_ -> ( init, Cmd.none )
